@@ -10,7 +10,7 @@ import firebase from "../firebase";
  */
 export const createComment = async (message, postId, authToken) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.post(
       `/api/comment/${postId}`,
       { message },
@@ -34,7 +34,7 @@ export const createComment = async (message, postId, authToken) => {
  */
 export const deleteComment = async (commentId, authToken) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     await axios.delete(`/api/comment/${commentId}`, {
       headers: {
         authorization: token,
@@ -53,7 +53,7 @@ export const deleteComment = async (commentId, authToken) => {
  */
 export const voteComment = async (commentId, authToken) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     await axios.post(`/api/comment/${commentId}/vote`, null, {
       headers: { authorization: token },
     });
@@ -76,7 +76,7 @@ export const createCommentReply = async (
   authToken
 ) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.post(
       `/api/comment/${parentCommentId}/reply`,
       { message },
@@ -100,7 +100,7 @@ export const createCommentReply = async (
  */
 export const deleteCommentReply = async (commentReplyId, authToken) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     await axios.delete(`/api/comment/${commentReplyId}/reply`, {
       headers: {
         authorization: token,
@@ -119,7 +119,7 @@ export const deleteCommentReply = async (commentReplyId, authToken) => {
  */
 export const voteCommentReply = async (commentReplyId, authToken) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     await axios.post(`/api/comment/${commentReplyId}/replyVote`, null, {
       headers: { authorization: token },
     });
@@ -137,7 +137,7 @@ export const voteCommentReply = async (commentReplyId, authToken) => {
  */
 export const getCommentReplies = async (parentCommentId, offset = 0) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.get(
       `/api/comment/${parentCommentId}/${offset}/replies`
     );
@@ -157,7 +157,7 @@ export const getCommentReplies = async (parentCommentId, offset = 0) => {
  */
 export const getComments = async (postId, offset, exclude = 0) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.get(
       `/api/comment/${postId}/${offset}/${exclude}`
     );

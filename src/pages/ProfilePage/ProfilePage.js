@@ -81,7 +81,7 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
     (async function () {
       try {
         dispatch({ type: "FETCH_PROFILE_START" });
-        const profile = await getUserProfile(username, token);
+        const profile = await getUserProfile(username);
         dispatch({ type: "FETCH_PROFILE_SUCCESS", payload: profile });
       } catch (err) {
         dispatch({ type: "FETCH_PROFILE_FAILURE", payload: err });

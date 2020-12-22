@@ -24,7 +24,7 @@ export const searchUsers = async (username, offset = 0) => {
  */
 export const confirmUser = async (authToken, confirmationToken) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     await axios.put(
       "/api/user/confirm",
       {
@@ -48,12 +48,16 @@ export const confirmUser = async (authToken, confirmationToken) => {
  * @param {string} authToken A user's auth token
  * @returns {string} The new avatar url
  */
-export const changeAvatar = async (image, authToken) => {
+export const changeAvatar = async (image, pictureType) => {
   const formData = new FormData();
   formData.append("image", image);
-  const token = firebase.auth().currentUser.getIdToken();
+  const token = await firebase.auth().currentUser.getIdToken();
+  let url = "/api/user/avatar";
+  if (pictureType === "cover") {
+    url = "/api/user/coverPicture";
+  }
   try {
-    const response = await axios.put("/api/user/avatar", formData, {
+    const response = await axios.put(url, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
         authorization: token,
@@ -72,7 +76,7 @@ export const changeAvatar = async (image, authToken) => {
  */
 export const removeAvatar = async (authToken) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     axios.delete("/api/user/avatar", {
       headers: {
         authorization: token,
@@ -92,7 +96,9 @@ export const removeAvatar = async (authToken) => {
  */
 export const updateProfile = async (authToken, updates) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    console.log("update profile get token ");
+    const token = await firebase.auth().currentUser.getIdToken();
+    console.log("token is " + token);
     const response = await axios.put(
       "/api/user",
       {
@@ -106,6 +112,7 @@ export const updateProfile = async (authToken, updates) => {
     );
     return response.data;
   } catch (err) {
+    console.error(err);
     throw new Error(err.response.data.error);
   }
 };
@@ -118,7 +125,7 @@ export const updateProfile = async (authToken, updates) => {
  */
 export const getSuggestedUsers = async (authToken, max) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.get(`/api/user/suggested/${max || ""}`, {
       headers: {
         authorization: token,

@@ -27,7 +27,7 @@ export const retrieveNotifications = async (authToken) => {
  */
 export const readNotifications = async (authToken) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     await axios.put("/api/notification", null, {
       headers: {
         authorization: token,

@@ -39,7 +39,7 @@ export const getPosts = async (username, offset = 0) => {
  */
 export const votePost = async (postId, authToken) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     await axios.post(`/api/post/${postId}/vote`, null, {
       headers: { authorization: token },
     });
@@ -57,7 +57,7 @@ export const votePost = async (postId, authToken) => {
  */
 export const createPost = async (formData, authToken) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     const post = await axios.post("/api/post", formData, {
       headers: {
         authorization: token,
@@ -78,7 +78,7 @@ export const createPost = async (formData, authToken) => {
  */
 export const deletePost = async (postId, authToken) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     await axios.delete(`/api/post/${postId}`, {
       headers: {
         authorization: token,
@@ -97,7 +97,7 @@ export const deletePost = async (postId, authToken) => {
  */
 export const bookmarkPost = async (postId, authToken) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.post(`/api/user/${postId}/bookmark`, null, {
       headers: { authorization: token },
     });
@@ -130,7 +130,7 @@ export const getPostFilters = async () => {
  */
 export const getSuggestedPosts = async (authToken, offset = 0) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.get("/api/post/suggested/" + offset, {
       headers: {
         authorization: token,
@@ -152,7 +152,7 @@ export const getSuggestedPosts = async (authToken, offset = 0) => {
  */
 export const getHashtagPosts = async (authToken, hashtag, offset = 0) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.get(`/api/post/hashtag/${hashtag}/${offset}`, {
       headers: {
         authorization: token,

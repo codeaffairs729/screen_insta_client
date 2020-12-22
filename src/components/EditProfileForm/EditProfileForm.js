@@ -51,6 +51,13 @@ const EditProfileForm = ({
     const websiteError = validateWebsite(values.website);
     if (websiteError) errors.website = websiteError;
 
+    console.log("validating ");
+    console.log(values);
+    if (values.acceptedTerms === false) {
+      errors.acceptedTerms = "Please accept the terms and conditions";
+    }
+
+    console.log(errors);
     return errors;
   };
 
@@ -61,6 +68,7 @@ const EditProfileForm = ({
       username: currentUser.username,
       bio: currentUser.bio || "",
       website: currentUser.website || "",
+      acceptedTerms: currentUser.acceptedTerms || false,
     },
     validate,
     onSubmit: async (values) => {
@@ -89,14 +97,14 @@ const EditProfileForm = ({
         </div>
       </SettingsFormGroup>
       <SettingsFormGroup>
-        <label className="heading-3 font-bold">Name</label>
+        <label className="heading-3 font-bold">Full name</label>
         <FormInput
           name="fullName"
           fieldProps={formik.getFieldProps("fullName")}
         />
       </SettingsFormGroup>
       <SettingsFormGroup>
-        <label className="heading-3 font-bold">Username</label>
+        <label className="heading-3 font-bold">Username (handle)</label>
         <FormInput
           name="username"
           fieldProps={formik.getFieldProps("username")}
@@ -133,6 +141,25 @@ const EditProfileForm = ({
         <label className="heading-3 font-bold">Email</label>
         <FormInput name="email" fieldProps={formik.getFieldProps("email")} />
       </SettingsFormGroup>
+      {!currentUser.acceptedTerms ? (
+        <SettingsFormGroup>
+          <label className="heading-3 font-bold"></label>
+          <div style={{ display: "flex" }}>
+            <FormInput
+              name="acceptedTerms"
+              type={"checkbox"}
+              fieldProps={formik.getFieldProps("acceptedTerms")}
+            />
+            <p style={{ marginLeft: 10 }}>
+              By checking this box I accept the{" "}
+              <a href="/terms" target="blank">
+                terms and conditions
+              </a>
+            </p>
+          </div>
+        </SettingsFormGroup>
+      ) : null}
+
       <SettingsFormGroup>
         <label></label>
         <Button

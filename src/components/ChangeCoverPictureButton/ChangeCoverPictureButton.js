@@ -15,11 +15,11 @@ import {
 import { showModal } from "../../redux/modal/modalActions";
 import { showAlert } from "../../redux/alert/alertActions";
 
-const ChangeAvatarButton = ({
+const ChangeCoverPictureButton = ({
   children,
   changeAvatarStart,
   removeAvatarStart,
-  currentUser: { avatar },
+  currentUser: { coverPicture },
   showModal,
   showAlert,
   token,
@@ -34,7 +34,7 @@ const ChangeAvatarButton = ({
   }, [error, showAlert]);
 
   const handleClick = (event) => {
-    if (avatar) {
+    if (coverPicture) {
       event.preventDefault();
       return showModal(
         {
@@ -50,7 +50,7 @@ const ChangeAvatarButton = ({
               warning: true,
               text: "Remove Current Photo",
               onClick: () => {
-                changeAvatar(null, true, "profile");
+                changeAvatar(null, true, "cover");
               },
             },
           ],
@@ -83,16 +83,16 @@ const ChangeAvatarButton = ({
         accept="image/*"
         style={{ display: "none" }}
         ref={inputRef}
-        onChange={(event) => changeAvatar(event, false, "profile")}
+        onChange={(event) => changeAvatar(event, false, "cover")}
       />
     </Fragment>
   );
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  changeAvatarStart: (image, pictureType) =>
-    dispatch(changeAvatarStart(image, pictureType)),
-  removeAvatarStart: (pictureType) => dispatch(removeAvatarStart(pictureType)),
+  changeAvatarStart: (image, authToken) =>
+    dispatch(changeAvatarStart(image, authToken)),
+  removeAvatarStart: (authToken) => dispatch(removeAvatarStart(authToken)),
   showModal: (props, component) => dispatch(showModal(props, component)),
   showAlert: (text, onClick) => dispatch(showAlert(text, onClick)),
 });
@@ -104,4 +104,7 @@ const mapStateToProps = createStructuredSelector({
   error: selectError,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ChangeAvatarButton);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ChangeCoverPictureButton);

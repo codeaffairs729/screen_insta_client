@@ -5,13 +5,12 @@ import firebase from "../firebase";
  * @function getUserProfile
  * @param {string} username Username of profile to fetch
  */
-export const getUserProfile = async (username, authToken) => {
+export const getUserProfile = async (username) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
-    const response = await axios.get(
-      `/api/user/${username}`,
-      authToken && { headers: { authorization: token } }
-    );
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.get(`/api/user/${username}`, {
+      headers: { authorization: token },
+    });
     return response.data;
   } catch (err) {
     throw new Error(err);
@@ -27,7 +26,7 @@ export const getUserProfile = async (username, authToken) => {
  */
 export const followUser = async (userId, authToken) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.post(`/api/user/${userId}/follow`, null, {
       headers: { authorization: token },
     });
@@ -46,7 +45,7 @@ export const followUser = async (userId, authToken) => {
  */
 export const retrieveUserFollowing = async (userId, offset, authToken) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.get(
       `/api/user/${userId}/${offset}/following`,
       {
@@ -68,7 +67,7 @@ export const retrieveUserFollowing = async (userId, offset, authToken) => {
  */
 export const retrieveUserFollowers = async (userId, offset, authToken) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.get(
       `/api/user/${userId}/${offset}/followers`,
       {

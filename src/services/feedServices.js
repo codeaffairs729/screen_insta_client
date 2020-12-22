@@ -9,7 +9,7 @@ import firebase from "../firebase";
  */
 export const retrieveFeedPosts = async (authToken, offset = 0) => {
   try {
-    const token = firebase.auth().currentUser.getIdToken();
+    const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.get(`/api/post/feed/${offset}`, {
       headers: {
         authorization: token,

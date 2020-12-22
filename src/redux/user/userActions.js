@@ -23,6 +23,7 @@ export const signInStart = (usernameOrEmail, password, authToken) => async (
   dispatch
 ) => {
   if (authToken) {
+    dispatch({ type: userTypes.SIGN_IN_START });
     console.log("signin start called with token");
     console.log(authToken);
     const user = await login(authToken);
@@ -164,10 +165,12 @@ export const bookmarkPost = (postId, authToken) => async (dispatch) => {
   }
 };
 
-export const changeAvatarStart = (formData, authToken) => async (dispatch) => {
+export const changeAvatarStart = (formData, pictureType) => async (
+  dispatch
+) => {
   try {
     dispatch({ type: userTypes.CHANGE_AVATAR_START });
-    const response = await changeAvatar(formData, authToken);
+    const response = await changeAvatar(formData, pictureType);
     dispatch({
       type: userTypes.CHANGE_AVATAR_SUCCESS,
       payload: response.avatar,
@@ -180,10 +183,10 @@ export const changeAvatarStart = (formData, authToken) => async (dispatch) => {
   }
 };
 
-export const removeAvatarStart = (authToken) => async (dispatch) => {
+export const removeAvatarStart = (pictureType) => async (dispatch) => {
   try {
     dispatch({ type: userTypes.REMOVE_AVATAR_START });
-    await removeAvatar(authToken);
+    await removeAvatar(pictureType);
     dispatch({ type: userTypes.REMOVE_AVATAR_SUCCESS });
   } catch (err) {
     dispatch({ type: userTypes.REMOVE_AVATAR_FAILURE, payload: err.message });
@@ -193,6 +196,7 @@ export const removeAvatarStart = (authToken) => async (dispatch) => {
 export const updateProfileStart = (authToken, updates) => async (dispatch) => {
   try {
     dispatch({ type: userTypes.UPDATE_PROFILE_START });
+    console.log("update profile start");
     const response = await updateProfile(authToken, updates);
     dispatch({ type: userTypes.UPDATE_PROFILE_SUCCESS, payload: response });
   } catch (err) {

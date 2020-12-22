@@ -1,5 +1,5 @@
 import React, { useEffect, Fragment, Suspense, lazy, useState } from "react";
-import { Switch, Route, useHistory } from "react-router-dom";
+import { Switch, Route, useHistory, useLocation } from "react-router-dom";
 import { connect } from "react-redux";
 import { useTransition } from "react-spring";
 
@@ -37,7 +37,7 @@ const NotFoundPage = lazy(() =>
   import("../../pages/NotFoundPage/NotFoundPage")
 );
 
-const defaultUser = { loggedIn: false, email: "", loading: true };
+const defaultUser = { authState: "loading", email: "", loading: true };
 
 function onAuthStateChange(callback) {
   return firebase.auth().onAuthStateChanged(async (user) => {
@@ -45,7 +45,7 @@ function onAuthStateChange(callback) {
       console.log("authstate changed APP.js" + JSON.stringify(user));
       const token = await user.getIdToken();
       callback({
-        loggedIn: true,
+        authState: "logged",
         email: user.email,
         username: user.displayName,
         uid: user.uid,
@@ -53,7 +53,7 @@ function onAuthStateChange(callback) {
         loading: false,
       });
     } else {
-      callback({ loggedIn: false, loading: false, token: null });
+      callback({ authState: "disconnected", loading: false, token: null });
     }
   });
 }
@@ -66,10 +66,9 @@ export function UnconnectedApp({
   fetchNotificationsStart,
   userLoading,
 }) {
-  const {
-    location: { pathname },
-  } = useHistory();
-  const [user, setUser] = useState({ loggedIn: false });
+  const location = useLocation();
+  const pathname = location.pathname;
+  const [user, setUser] = useState({ authState: "loading" });
 
   useEffect(() => {
     console.log("app useEffect");
@@ -119,11 +118,12 @@ export function UnconnectedApp({
   const renderApp = () => {
     // Wait for authentication
 
-    if (user.loading) {
+    console.log("current user is : " + JSON.stringify(currentUser));
+    if (user.authState == "loading" || userLoading) {
       console.log("Loading page");
       return <LoadingPage />;
     }
-    console.log("render app");
+    console.log("render app " + pathname);
     return (
       <Fragment>
         {pathname !== "/login" && pathname !== "/signup" && <Header />}
