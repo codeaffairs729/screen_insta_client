@@ -74,6 +74,13 @@ const userReducer = (state = INITIAL_STATE, action) => {
         fetchingAvatar: false,
       };
     }
+    case userTypes.CHANGE_COVER_SUCCESS: {
+      return {
+        ...state,
+        currentUser: { ...state.currentUser, coverPicture: action.payload },
+        fetchingAvatar: false,
+      };
+    }
     case userTypes.REMOVE_AVATAR_FAILURE:
     case userTypes.CHANGE_AVATAR_FAILURE: {
       return {

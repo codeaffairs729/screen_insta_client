@@ -50,7 +50,7 @@ const ChangeCoverPictureButton = ({
               warning: true,
               text: "Remove Current Photo",
               onClick: () => {
-                changeAvatar(null, true, "cover");
+                changeCoverPicture(null, true, "cover");
               },
             },
           ],
@@ -61,7 +61,7 @@ const ChangeCoverPictureButton = ({
     inputRef.current.click();
   };
 
-  const changeAvatar = async (event, remove, pictureType) => {
+  const changeCoverPicture = async (event, remove, pictureType) => {
     remove
       ? await removeAvatarStart(pictureType)
       : await changeAvatarStart(event.target.files[0], pictureType);
@@ -83,15 +83,15 @@ const ChangeCoverPictureButton = ({
         accept="image/*"
         style={{ display: "none" }}
         ref={inputRef}
-        onChange={(event) => changeAvatar(event, false, "cover")}
+        onChange={(event) => changeCoverPicture(event, false, "cover")}
       />
     </Fragment>
   );
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  changeAvatarStart: (image, authToken) =>
-    dispatch(changeAvatarStart(image, authToken)),
+  changeAvatarStart: (image, pictureType) =>
+    dispatch(changeAvatarStart(image, pictureType)),
   removeAvatarStart: (authToken) => dispatch(removeAvatarStart(authToken)),
   showModal: (props, component) => dispatch(showModal(props, component)),
   showAlert: (text, onClick) => dispatch(showAlert(text, onClick)),

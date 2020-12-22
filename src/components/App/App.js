@@ -36,6 +36,9 @@ const ExplorePage = lazy(() => import("../../pages/ExplorePage/ExplorePage"));
 const NotFoundPage = lazy(() =>
   import("../../pages/NotFoundPage/NotFoundPage")
 );
+const ForgotPasswordPage = lazy(() =>
+  import("../../pages/ForgotPasswordPage/ForgotPasswordPage")
+);
 
 const defaultUser = { authState: "loading", email: "", loading: true };
 
@@ -126,7 +129,9 @@ export function UnconnectedApp({
     console.log("render app " + pathname);
     return (
       <Fragment>
-        {pathname !== "/login" && pathname !== "/signup" && <Header />}
+        {pathname !== "/login" &&
+          pathname !== "/signup" &&
+          pathname !== "/forgotPassword" && <Header />}
         {renderModals()}
         {transitions.map(
           ({ item, props, key }) =>
@@ -139,6 +144,7 @@ export function UnconnectedApp({
         <Switch>
           <Route path="/login" component={LoginPage} />
           <Route path="/signup" component={SignUpPage} />
+          <Route path="/forgotPassword" component={ForgotPasswordPage} />
           <ProtectedRoute exact path="/" component={HomePage} />
           <ProtectedRoute path="/settings" component={SettingsPage} />
           <ProtectedRoute path="/activity" component={ActivityPage} />

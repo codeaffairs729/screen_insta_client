@@ -42,7 +42,9 @@ const LoginCard = ({
     signInStart(email, password);
   };
 
-  //currentUser && onClick();
+  const handleForgotPassword = () => {
+    alert("clicked");
+  };
 
   return (
     <div
@@ -104,9 +106,12 @@ const LoginCard = ({
             {error}
           </p>
         )}
-        <TextButton style={{ marginTop: "1.5rem" }} darkBlue small>
-          Forgot password?
-        </TextButton>
+
+        <Link to="/forgotPassword">
+          <TextButton style={{ marginTop: "1.5rem" }} darkBlue small>
+            Forgot password?
+          </TextButton>
+        </Link>
       </Card>
       <Card>
         <section

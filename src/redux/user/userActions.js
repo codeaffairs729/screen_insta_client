@@ -171,10 +171,17 @@ export const changeAvatarStart = (formData, pictureType) => async (
   try {
     dispatch({ type: userTypes.CHANGE_AVATAR_START });
     const response = await changeAvatar(formData, pictureType);
-    dispatch({
-      type: userTypes.CHANGE_AVATAR_SUCCESS,
-      payload: response.avatar,
-    });
+    if (pictureType === "cover") {
+      dispatch({
+        type: userTypes.CHANGE_COVER_SUCCESS,
+        payload: response.coverPicture,
+      });
+    } else {
+      dispatch({
+        type: userTypes.CHANGE_AVATAR_SUCCESS,
+        payload: response.avatar,
+      });
+    }
   } catch (err) {
     dispatch({
       type: userTypes.CHANGE_AVATAR_FAILURE,
