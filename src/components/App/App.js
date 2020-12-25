@@ -47,14 +47,16 @@ function onAuthStateChange(callback) {
     if (user) {
       console.log("authstate changed APP.js" + JSON.stringify(user));
       const token = await user.getIdToken();
-      callback({
-        authState: "logged",
-        email: user.email,
-        username: user.displayName,
-        uid: user.uid,
-        token: token,
-        loading: false,
-      });
+      setTimeout(() => {
+        callback({
+          authState: "logged",
+          email: user.email,
+          username: user.displayName,
+          uid: user.uid,
+          token: token,
+          loading: false,
+        });
+      }, 1000);
     } else {
       callback({ authState: "disconnected", loading: false, token: null });
     }
@@ -126,7 +128,9 @@ export function UnconnectedApp({
       console.log("Loading page");
       return <LoadingPage />;
     }
+
     console.log("render app " + pathname);
+    console.log(user.authState + " /// " + userLoading);
     return (
       <Fragment>
         {pathname !== "/login" &&

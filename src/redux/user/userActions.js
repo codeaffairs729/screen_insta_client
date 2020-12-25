@@ -12,10 +12,14 @@ import {
   updateProfile,
 } from "../../services/userService";
 import firebase from "../../firebase";
+import { useHistory } from "react-router-dom";
+import { showAlert } from "../alert/alertActions";
 
 export const signOut = () => async (dispatch) => {
   localStorage.removeItem("token");
   await firebase.auth().signOut();
+  localStorage.removeItem("uid");
+  localStorage.removeItem("acceptedTerms");
   dispatch({ type: userTypes.SIGN_OUT });
 };
 
@@ -24,10 +28,10 @@ export const signInStart = (usernameOrEmail, password, authToken) => async (
 ) => {
   if (authToken) {
     dispatch({ type: userTypes.SIGN_IN_START });
-    console.log("signin start called with token");
     console.log(authToken);
     const user = await login(authToken);
     if (user.error) {
+      dispatch(signOut());
       dispatch(signInFailure(user.error));
       return;
     }
@@ -71,6 +75,11 @@ export const signInStart = (usernameOrEmail, password, authToken) => async (
 };
 
 export const signInSuccess = (user, token) => {
+  console.log("signin success setting user " + JSON.stringify(user));
+  localStorage.setItem("uid", user.uid);
+  if (user.acceptedTerms) {
+    localStorage.setItem("acceptedTerms", user.acceptedTerms + "");
+  }
   return {
     type: userTypes.SIGN_IN_SUCCESS,
     payload: {
@@ -145,6 +154,7 @@ export const signUpStart = (email, password, username) => async (dispatch) => {
     await response.user.updateProfile({
       displayName: username,
     });
+    console.log("user updated to " + username);
     const sendEmailResponse = await response.user.sendEmailVerification();
     const token = await response.user.getIdToken();
     dispatch(signInStart(null, null, token));
@@ -200,13 +210,22 @@ export const removeAvatarStart = (pictureType) => async (dispatch) => {
   }
 };
 
-export const updateProfileStart = (authToken, updates) => async (dispatch) => {
+export const updateProfileStart = (updates) => async (dispatch) => {
   try {
     dispatch({ type: userTypes.UPDATE_PROFILE_START });
-    console.log("update profile start");
-    const response = await updateProfile(authToken, updates);
-    dispatch({ type: userTypes.UPDATE_PROFILE_SUCCESS, payload: response });
+    const response = await updateProfile(updates);
+    dispatch(updateProfileSuccess(response, updates.username));
   } catch (err) {
     dispatch({ type: userTypes.UPDATE_PROFILE_FAILURE, payload: err.message });
+    return false;
   }
+};
+
+export const updateProfileSuccess = (response, username) => async (
+  dispatch
+) => {
+  dispatch(showAlert("Profile saved."));
+  dispatch({ type: userTypes.UPDATE_PROFILE_SUCCESS, payload: response });
+  localStorage.setItem("acceptedTerms", "true");
+  window.location.href = "/" + username;
 };

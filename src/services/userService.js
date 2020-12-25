@@ -90,11 +90,10 @@ export const removeAvatar = async (authToken) => {
 /**
  * Updates the specified fields on the user
  * @function updateProfile
- * @param {string} authToken A user's auth token
  * @param  {object} updates An object of the fields to update on the user model
  * @returns {object} Updated user object
  */
-export const updateProfile = async (authToken, updates) => {
+export const updateProfile = async (updates) => {
   try {
     console.log("update profile get token ");
     const token = await firebase.auth().currentUser.getIdToken();

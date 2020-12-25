@@ -10,6 +10,7 @@ import {
 } from "../../redux/user/userSelectors";
 import { updateProfileStart } from "../../redux/user/userActions";
 import { showAlert } from "../../redux/alert/alertActions";
+import firebase from "../../firebase";
 
 import {
   validateEmail,
@@ -26,14 +27,16 @@ import Button from "../Button/Button";
 import SettingsForm from "../SettingsForm/SettingsForm";
 import SettingsFormGroup from "../SettingsForm/SettingsFormGroup/SettingsFormGroup";
 import ChangeAvatarButton from "../ChangeAvatarButton/ChangeAvatarButton";
+import { useHistory } from "react-router-dom";
 
 const EditProfileForm = ({
   currentUser,
   showAlert,
-  token,
   updateProfileStart,
   updatingProfile,
 }) => {
+  const uid = firebase.auth().currentUser.uid;
+
   const validate = (values) => {
     const errors = {};
     const emailError = validateEmail(values.email);
@@ -60,29 +63,36 @@ const EditProfileForm = ({
     console.log(errors);
     return errors;
   };
-
+  let currentUserUsername = "";
+  if (
+    currentUser &&
+    currentUser.username &&
+    currentUser.username.toLowerCase() != uid.toLowerCase()
+  ) {
+    currentUserUsername = currentUser.username;
+  }
+  let history = useHistory();
   const formik = useFormik({
     initialValues: {
       email: currentUser.email,
       fullName: currentUser.fullName,
-      username: currentUser.username,
+      username: currentUserUsername,
       bio: currentUser.bio || "",
       website: currentUser.website || "",
       acceptedTerms: currentUser.acceptedTerms || false,
     },
     validate,
     onSubmit: async (values) => {
-      await updateProfileStart(token, values);
-      showAlert("Profile saved.");
+      const updateRes = await updateProfileStart(values);
     },
   });
 
   useEffect(() => {
     document.title = "Edit Profile • Between Us";
-  }, []);
+  });
 
   return (
-    <SettingsForm onSubmit={formik.handleSubmit}>
+    <SettingsForm autocomplete="off" onSubmit={formik.handleSubmit}>
       <SettingsFormGroup>
         <ChangeAvatarButton>
           <Avatar
@@ -139,7 +149,11 @@ const EditProfileForm = ({
       </SettingsFormGroup>
       <SettingsFormGroup>
         <label className="heading-3 font-bold">Email</label>
-        <FormInput name="email" fieldProps={formik.getFieldProps("email")} />
+        <FormInput
+          name="email"
+          fieldProps={formik.getFieldProps("email")}
+          disabled
+        />
       </SettingsFormGroup>
       {!currentUser.acceptedTerms ? (
         <SettingsFormGroup>
@@ -151,7 +165,8 @@ const EditProfileForm = ({
               fieldProps={formik.getFieldProps("acceptedTerms")}
             />
             <p style={{ marginLeft: 10 }}>
-              By checking this box I accept the{" "}
+              By checking this box I certify that I am more than 18 years old
+              and accept the{" "}
               <a href="/terms" target="blank">
                 terms and conditions
               </a>
@@ -180,14 +195,12 @@ const EditProfileForm = ({
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  updateProfileStart: (authToken, updates) =>
-    dispatch(updateProfileStart(authToken, updates)),
+  updateProfileStart: (updates) => dispatch(updateProfileStart(updates)),
   showAlert: (text, onClick) => dispatch(showAlert(text, onClick)),
 });
 
 const mapStateToProps = createStructuredSelector({
   currentUser: selectCurrentUser,
-  token: selectToken,
   updatingProfile: selectUpdatingProfile,
 });
 

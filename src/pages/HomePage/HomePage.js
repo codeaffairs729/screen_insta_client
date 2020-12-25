@@ -20,6 +20,8 @@ import Icon from "../../components/Icon/Icon";
 import NewPostButton from "../../components/NewPost/NewPostButton/NewPostButton";
 import SuggestedUsers from "../../components/Suggestion/SuggestedUsers/SuggestedUsers";
 
+import firebase from "../../firebase";
+
 const HomePage = ({
   currentUser,
   fetchFeedPostsStart,
@@ -47,6 +49,28 @@ const HomePage = ({
     [hasMore, fetching]
   );
 
+  let isEmailVerified = false;
+  if (firebase.auth().currentUser)
+    isEmailVerified = firebase.auth().currentUser.emailVerified;
+
+  if (!isEmailVerified) {
+    return (
+      <Fragment>
+        <MobileHeader>
+          <NewPostButton />
+          <h3 style={{ fontSize: "2.5rem" }} className="heading-logo">
+            Between Us
+          </h3>
+          <Icon icon="paper-plane-outline" />
+        </MobileHeader>
+        <main data-test="page-home" className="home-page grid">
+          <div style={{ textAlign: "center" }}>
+            <h3>Please verify your email address </h3>
+          </div>
+        </main>
+      </Fragment>
+    );
+  }
   return (
     <Fragment>
       <MobileHeader>

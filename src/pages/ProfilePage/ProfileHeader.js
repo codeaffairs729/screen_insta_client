@@ -8,6 +8,7 @@ import UsersList from "../../components/UsersList/UsersList";
 import UnfollowPrompt from "../../components/UnfollowPrompt/UnfollowPrompt";
 import Button from "../../components/Button/Button";
 import SettingsButton from "../../components/SettingsButton/SettingsButton";
+import CoverPicture from "../../components/CoverPicture/CoverPicture";
 
 const ProfileHeader = ({
   currentUser,
@@ -17,7 +18,7 @@ const ProfileHeader = ({
   follow,
   loading,
 }) => {
-  const { avatar, username, bio, website, fullName } = data.user;
+  const { avatar, username, bio, website, fullName, coverPicture } = data.user;
   const { following, followers, postCount } = data;
 
   const showUsersModal = (followers, following) => {
@@ -83,49 +84,41 @@ const ProfileHeader = ({
         );
       }
     }
+    if (currentUser.username === username) {
+      return null;
+    }
     return (
       <Button loading={loading} onClick={() => follow(data.user._id, token)}>
         Follow
       </Button>
     );
   };
-
+  const defaultCover = require("../../assets/img/default-cover.jpg");
   return (
     <header className="profile-header">
       <div className="profile-header__cover">
         {currentUser && currentUser.username === username ? (
-          <ChangeCoverPictureButton>
-            <img
-              style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: 10,
-                objectFit: "cover",
-              }}
-              src={currentUser.coverPicture}
-            />
+          <ChangeCoverPictureButton editable={true}>
+            <CoverPicture editable={true} imageSrc={currentUser.coverPicture} />
           </ChangeCoverPictureButton>
         ) : (
-          <img
-            style={{
-              width: "100%",
-              height: "100%",
-              borderRadius: 10,
-              objectFit: "cover",
-            }}
-            src={currentUser.coverPicture}
-          />
+          <CoverPicture editable={false} imageSrc={coverPicture} />
         )}
       </div>
       {currentUser && currentUser.username === username ? (
         <ChangeAvatarButton>
           <Avatar
+            style={{ zIndex: 9 }}
             className="profile-header__avatar"
             imageSrc={currentUser.avatar}
           />
         </ChangeAvatarButton>
       ) : (
-        <Avatar className="profile-header__avatar" imageSrc={avatar} />
+        <Avatar
+          style={{ zIndex: 9 }}
+          className="profile-header__avatar"
+          imageSrc={avatar}
+        />
       )}
 
       <div className="profile-header__info">

@@ -6,11 +6,11 @@ import { Route, Redirect, useLocation } from "react-router-dom";
 import { selectCurrentUser } from "../../redux/user/userSelectors";
 const ProtectedRoute = ({ currentUser, children, ...props }) => {
   const location = useLocation();
-  if (
-    currentUser &&
-    !currentUser.acceptedTerms &&
-    location.pathname != "/settings/edit"
-  ) {
+  const uid = localStorage.getItem("uid");
+  const acceptedTerms = localStorage.getItem("acceptedTerms");
+  console.log("uid is : " + uid + " and terms is : " + acceptedTerms);
+  if (uid && acceptedTerms != "true" && location.pathname != "/settings/edit") {
+    console.log("redirecting to settings edit");
     return <Route {...props}>{<Redirect to="/settings/edit" />}</Route>;
   }
   return (
