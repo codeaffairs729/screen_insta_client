@@ -8,7 +8,6 @@ const CoverPicture = ({
   editable,
   onClick,
 }) => {
-  console.log("image src is : " + imageSrc);
   if (!imageSrc) {
     imageSrc = require("../../assets/img/default-cover.jpg");
   }

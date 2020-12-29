@@ -12,7 +12,9 @@ const LoginPage = ({ currentUser }) => {
   const history = useHistory();
   const { search } = useLocation();
   if (currentUser) {
-    console.log("current user is set " + currentUser);
+    console.log(
+      "current user is set in login page, redirecting to HOME" + currentUser
+    );
     history.push("/");
   }
   const params = new URLSearchParams(search);

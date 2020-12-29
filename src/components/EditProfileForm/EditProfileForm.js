@@ -37,6 +37,8 @@ const EditProfileForm = ({
 }) => {
   const uid = firebase.auth().currentUser.uid;
 
+  const emailVerified = firebase.auth().currentUser.emailVerified;
+
   const validate = (values) => {
     const errors = {};
     const emailError = validateEmail(values.email);
@@ -54,13 +56,9 @@ const EditProfileForm = ({
     const websiteError = validateWebsite(values.website);
     if (websiteError) errors.website = websiteError;
 
-    console.log("validating ");
-    console.log(values);
     if (values.acceptedTerms === false) {
       errors.acceptedTerms = "Please accept the terms and conditions";
     }
-
-    console.log(errors);
     return errors;
   };
   let currentUserUsername = "";
@@ -71,6 +69,7 @@ const EditProfileForm = ({
   ) {
     currentUserUsername = currentUser.username;
   }
+
   let history = useHistory();
   const formik = useFormik({
     initialValues: {
@@ -91,8 +90,26 @@ const EditProfileForm = ({
     document.title = "Edit Profile • Between Us";
   });
 
+  const resendEmail = async () => {
+    await firebase.auth().currentUser.sendEmailVerification();
+  };
+
   return (
-    <SettingsForm autocomplete="off" onSubmit={formik.handleSubmit}>
+    <SettingsForm onSubmit={formik.handleSubmit}>
+      {!emailVerified ? (
+        <SettingsFormGroup>
+          <div></div>
+          <div style={{ lineHeight: "2.2rem" }}>
+            <h4 className="heading-4 font-medium">
+              Please verify your email address before you continue and refresh
+              this page.{" "}
+              <a onClick={resendEmail} href="#">
+                Did not receive an email ?
+              </a>
+            </h4>
+          </div>
+        </SettingsFormGroup>
+      ) : null}
       <SettingsFormGroup>
         <ChangeAvatarButton>
           <Avatar
@@ -130,22 +147,6 @@ const EditProfileForm = ({
       <SettingsFormGroup>
         <label className="heading-3 font-bold">Bio</label>
         <FormTextarea name="bio" fieldProps={formik.getFieldProps("bio")} />
-      </SettingsFormGroup>
-      <SettingsFormGroup>
-        <label></label>
-        <div>
-          <h3 className="heading-3 color-grey font-bold">
-            Personal Information
-          </h3>
-          <p
-            style={{ fontSize: "1.3rem", lineHeight: "1.6rem" }}
-            className="color-grey"
-          >
-            Provide your personal information, even if the account is used for a
-            business, a pet or something else. This won't be a part of your
-            public profile.
-          </p>
-        </div>
       </SettingsFormGroup>
       <SettingsFormGroup>
         <label className="heading-3 font-bold">Email</label>

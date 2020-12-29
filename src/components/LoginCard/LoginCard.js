@@ -64,7 +64,7 @@ const LoginCard = ({
           className="form-card__form"
         >
           <FormInput
-            placeholder="Username or email address"
+            placeholder="Email address"
             type="text"
             onChange={(e) => setEmail(e.target.value)}
             required

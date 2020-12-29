@@ -4,7 +4,11 @@ import { connect } from "react-redux";
 import { useTransition } from "react-spring";
 
 import { selectCurrentUser } from "../../redux/user/userSelectors";
-import { signInStart } from "../../redux/user/userActions";
+import {
+  signInFailure,
+  signInStart,
+  signInSuccess,
+} from "../../redux/user/userActions";
 import { fetchNotificationsStart } from "../../redux/notification/notificationActions";
 
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
@@ -17,6 +21,7 @@ import MobileNav from "../../components/MobileNav/MobileNav";
 import firebase from "../../firebase";
 
 import LoadingPage from "../../pages/LoadingPage/LoadingPage";
+import { login } from "../../services/authenticationServices";
 const ProfilePage = lazy(() => import("../../pages/ProfilePage/ProfilePage"));
 const PostPage = lazy(() => import("../../pages/PostPage/PostPage"));
 const ConfirmationPage = lazy(() =>
@@ -42,16 +47,23 @@ const ForgotPasswordPage = lazy(() =>
 
 const defaultUser = { authState: "loading", email: "", loading: true };
 
-function onAuthStateChange(callback) {
+function onAuthStateChange(callback, signInSuccess, signInFailure) {
   return firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
       console.log("authstate changed APP.js" + JSON.stringify(user));
       const token = await user.getIdToken();
+      const mdbUser = await login(token);
+      let authState = "logged";
+      if (mdbUser.error) {
+        signInFailure(mdbUser.error);
+        authState = "disconnected";
+      } else {
+        signInSuccess(mdbUser, token);
+      }
       setTimeout(() => {
         callback({
-          authState: "logged",
+          authState: authState,
           email: user.email,
-          username: user.displayName,
           uid: user.uid,
           token: token,
           loading: false,
@@ -65,6 +77,8 @@ function onAuthStateChange(callback) {
 
 export function UnconnectedApp({
   signInStart,
+  signInFailure,
+  signInSuccess,
   modal,
   alert,
   currentUser,
@@ -77,17 +91,19 @@ export function UnconnectedApp({
 
   useEffect(() => {
     console.log("app useEffect");
-    const unsubscribe = onAuthStateChange(setUser);
+    const unsubscribe = onAuthStateChange(
+      setUser,
+      signInSuccess,
+      signInFailure
+    );
     return () => {
       unsubscribe();
     };
   }, []);
 
   useEffect(() => {
-    console.log("user logged in");
     if (user.token) {
-      console.log("found token" + user.token);
-      signInStart(null, null, user.token);
+      //signInStart(null, null, user.token);
       fetchNotificationsStart(user.token);
     }
   }, [signInStart, fetchNotificationsStart, user]);
@@ -122,15 +138,22 @@ export function UnconnectedApp({
 
   const renderApp = () => {
     // Wait for authentication
-
     console.log("current user is : " + JSON.stringify(currentUser));
-    if (user.authState == "loading" || userLoading) {
-      console.log("Loading page");
+    if (user.authState == "loading") {
+      console.log(
+        "Loading page " + user.authState + " loading: " + userLoading
+      );
       return <LoadingPage />;
     }
 
-    console.log("render app " + pathname);
-    console.log(user.authState + " /// " + userLoading);
+    console.log(
+      "rendering view " +
+        pathname +
+        " with authstate " +
+        user.authState +
+        " and isUserLoading ? " +
+        userLoading
+    );
     return (
       <Fragment>
         {pathname !== "/login" &&
@@ -187,5 +210,7 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(signInStart(usernameOrEmail, password, token)),
   fetchNotificationsStart: (authToken) =>
     dispatch(fetchNotificationsStart(authToken)),
+  signInFailure: (error) => dispatch(signInFailure(error)),
+  signInSuccess: (user, token) => dispatch(signInSuccess(user, token)),
 });
 export default connect(mapStateToProps, mapDispatchToProps)(UnconnectedApp);

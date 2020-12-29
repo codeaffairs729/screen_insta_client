@@ -95,9 +95,7 @@ export const removeAvatar = async (authToken) => {
  */
 export const updateProfile = async (updates) => {
   try {
-    console.log("update profile get token ");
     const token = await firebase.auth().currentUser.getIdToken();
-    console.log("token is " + token);
     const response = await axios.put(
       "/api/user",
       {
