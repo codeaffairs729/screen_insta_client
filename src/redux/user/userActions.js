@@ -13,7 +13,7 @@ import {
 } from "../../services/userService";
 import firebase from "../../firebase";
 import { useHistory } from "react-router-dom";
-import { showAlert } from "../alert/alertActions";
+import { hideAlert, showAlert } from "../alert/alertActions";
 
 export const signOut = () => async (dispatch) => {
   localStorage.removeItem("token");
@@ -209,8 +209,11 @@ export const updateProfileStart = (updates) => async (dispatch) => {
 export const updateProfileSuccess = (response, username) => async (
   dispatch
 ) => {
-  dispatch(showAlert("Profile saved."));
-  dispatch({ type: userTypes.UPDATE_PROFILE_SUCCESS, payload: response });
-  localStorage.setItem("acceptedTerms", "true");
-  window.location.href = "/" + username;
+  dispatch(hideAlert());
+  setTimeout(() => {
+    dispatch(showAlert("Profile saved."));
+    dispatch({ type: userTypes.UPDATE_PROFILE_SUCCESS, payload: response });
+    localStorage.setItem("acceptedTerms", "true");
+    window.location.href = "/" + username;
+  }, 200);
 };

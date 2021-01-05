@@ -37,8 +37,6 @@ const EditProfileForm = ({
 }) => {
   const uid = firebase.auth().currentUser.uid;
 
-  const emailVerified = firebase.auth().currentUser.emailVerified;
-
   const validate = (values) => {
     const errors = {};
     const emailError = validateEmail(values.email);
@@ -90,26 +88,8 @@ const EditProfileForm = ({
     document.title = "Edit Profile • Between Us";
   });
 
-  const resendEmail = async () => {
-    await firebase.auth().currentUser.sendEmailVerification();
-  };
-
   return (
     <SettingsForm onSubmit={formik.handleSubmit}>
-      {!emailVerified ? (
-        <SettingsFormGroup>
-          <div></div>
-          <div style={{ lineHeight: "2.2rem" }}>
-            <h4 className="heading-4 font-medium">
-              Please verify your email address before you continue and refresh
-              this page.{" "}
-              <a onClick={resendEmail} href="#">
-                Did not receive an email ?
-              </a>
-            </h4>
-          </div>
-        </SettingsFormGroup>
-      ) : null}
       <SettingsFormGroup>
         <ChangeAvatarButton>
           <Avatar
