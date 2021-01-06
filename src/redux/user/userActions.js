@@ -176,10 +176,17 @@ export const changeAvatarStart = (formData, pictureType) => async (
       });
     }
   } catch (err) {
-    dispatch({
-      type: userTypes.CHANGE_AVATAR_FAILURE,
-      payload: err.message,
-    });
+    if (err && err.message) {
+      dispatch({
+        type: userTypes.CHANGE_AVATAR_FAILURE,
+        payload: err.message,
+      });
+    } else {
+      dispatch({
+        type: userTypes.CHANGE_AVATAR_FAILURE,
+        payload: "A network error occurred, please try again",
+      });
+    }
   }
 };
 
