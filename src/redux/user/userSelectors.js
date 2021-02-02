@@ -26,3 +26,8 @@ export const selectUpdatingProfile = createSelector(
   [selectUser],
   (user) => user.updatingProfile
 );
+
+export const selectUpdatingCreatorProfile = createSelector(
+  [selectUser],
+  (user) => user.updatingCreatorProfile
+);

@@ -10,6 +10,7 @@ import {
   changeAvatar,
   removeAvatar,
   updateProfile,
+  updateCreator,
 } from "../../services/userService";
 import firebase from "../../firebase";
 import { useHistory } from "react-router-dom";
@@ -213,6 +214,19 @@ export const updateProfileStart = (updates) => async (dispatch) => {
   }
 };
 
+export const updateCreatorStart = (updates) => async (dispatch) => {
+  try {
+    dispatch({ type: userTypes.UPDATE_CREATOR_START });
+    const response = await updateCreator(updates);
+
+    dispatch(updateCreatorSuccess(response));
+  } catch (err) {
+    dispatch({ type: userTypes.UPDATE_PROFILE_FAILURE, payload: err.message });
+    dispatch(showAlert(err.message));
+    return false;
+  }
+};
+
 export const updateProfileSuccess = (response, username) => async (
   dispatch
 ) => {
@@ -222,5 +236,14 @@ export const updateProfileSuccess = (response, username) => async (
     dispatch({ type: userTypes.UPDATE_PROFILE_SUCCESS, payload: response });
     localStorage.setItem("acceptedTerms", "true");
     window.location.href = "/" + username;
+  }, 200);
+};
+
+export const updateCreatorSuccess = (response) => async (dispatch) => {
+  dispatch(hideAlert());
+  setTimeout(() => {
+    dispatch(showAlert("Profile saved."));
+    dispatch({ type: userTypes.UPDATE_CREATOR_SUCCESS, payload: response });
+    window.location.href = "/";
   }, 200);
 };

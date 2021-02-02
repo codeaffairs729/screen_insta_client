@@ -62,3 +62,7 @@ export const validateWebsite = (website) => {
   }
   return false;
 };
+
+export const validateBankInformation = (bankInfo) => {
+  return false;
+};

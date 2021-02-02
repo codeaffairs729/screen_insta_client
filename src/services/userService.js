@@ -114,6 +114,26 @@ export const updateProfile = async (updates) => {
   }
 };
 
+export const updateCreator = async (updates) => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.post(
+      "/api/user/upgrade",
+      {
+        ...updates,
+      },
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    throw new Error(err.response.data.error);
+  }
+};
 /**
  * Gets random suggested users for the user to follow
  * @function getSuggestedUsers

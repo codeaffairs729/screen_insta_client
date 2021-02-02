@@ -120,6 +120,28 @@ const userReducer = (state = INITIAL_STATE, action) => {
         error: action.payload,
       };
     }
+    case userTypes.UPDATE_CREATOR_START: {
+      return {
+        ...state,
+        updatingCreatorProfile: true,
+        updateCreatorError: null,
+      };
+    }
+    case userTypes.UPDATE_CREATOR_SUCCESS: {
+      return {
+        ...state,
+        updatingCreatorProfile: false,
+        updateCreatorError: null,
+        currentUser: { ...state.currentUser, ...action.payload },
+      };
+    }
+    case userTypes.UPDATE_CREATOR_FAILURE: {
+      return {
+        ...state,
+        updatingCreatorProfile: false,
+        updateCreatorError: action.payload,
+      };
+    }
     default:
       return state;
   }

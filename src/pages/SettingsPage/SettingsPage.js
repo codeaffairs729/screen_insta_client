@@ -8,6 +8,7 @@ import EditProfileForm from "../../components/EditProfileForm/EditProfileForm";
 import MobileHeader from "../../components/Header/MobileHeader/MobileHeader";
 import firebase from "../../firebase";
 import { showAlert } from "../../redux/alert/alertActions";
+import BecomeCreatorForm from "../../components/BecomeCreatorForm/BecomeCreatorForm";
 
 const SettingsPage = () => {
   const uid = firebase.auth().currentUser.uid;
@@ -46,8 +47,7 @@ const SettingsPage = () => {
             <ul className="settings-card__sidebar"></ul>
             <article className="settings-page__content">
               <h4 className="heading-4 font-medium">
-                Please verify your email address before you continue and refresh
-                this page.{" "}
+                Please verify your email address and refresh this page.{" "}
                 <a onClick={resendEmail} href="#">
                   Did not receive an email ?
                 </a>
@@ -64,11 +64,21 @@ const SettingsPage = () => {
             >
               <li className="sidebar-link__text">Edit Profile</li>
             </NavLink>
+            <NavLink
+              className="sidebar-link"
+              to="/settings/creator"
+              activeClassName="font-bold sidebar-link--active"
+            >
+              <li className="sidebar-link__text">Become Creator</li>
+            </NavLink>
           </ul>
           <article className="settings-page__content">
             <Switch>
               <ProtectedRoute path="/settings/edit">
                 <EditProfileForm />
+              </ProtectedRoute>
+              <ProtectedRoute path="/settings/creator">
+                <BecomeCreatorForm />
               </ProtectedRoute>
             </Switch>
           </article>
