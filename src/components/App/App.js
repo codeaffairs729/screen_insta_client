@@ -70,6 +70,8 @@ function onAuthStateChange(callback, signInSuccess, signInFailure) {
         });
       }, 1000);
     } else {
+      localStorage.removeItem("uid");
+      localStorage.removeItem("acceptedTerms");
       callback({ authState: "disconnected", loading: false, token: null });
     }
   });
