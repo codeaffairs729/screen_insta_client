@@ -69,7 +69,7 @@ const SettingsPage = () => {
               to="/settings/creator"
               activeClassName="font-bold sidebar-link--active"
             >
-              <li className="sidebar-link__text">Become Creator</li>
+              <li className="sidebar-link__text">Become a Creator</li>
             </NavLink>
           </ul>
           <article className="settings-page__content">

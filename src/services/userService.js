@@ -48,14 +48,29 @@ export const confirmUser = async (authToken, confirmationToken) => {
  * @param {string} authToken A user's auth token
  * @returns {string} The new avatar url
  */
-export const changeAvatar = async (image, pictureType) => {
+export const changeAvatar = async (image) => {
   const formData = new FormData();
   formData.append("image", image);
   const token = await firebase.auth().currentUser.getIdToken();
   let url = "/api/user/avatar";
-  if (pictureType === "cover") {
-    url = "/api/user/coverPicture";
+  try {
+    const response = await axios.put(url, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        authorization: token,
+      },
+    });
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response.data.error);
   }
+};
+
+export const changeCoverPicture = async (image) => {
+  const formData = new FormData();
+  formData.append("image", image);
+  const token = await firebase.auth().currentUser.getIdToken();
+  let url = "/api/user/coverPicture";
   try {
     const response = await axios.put(url, formData, {
       headers: {
@@ -74,10 +89,23 @@ export const changeAvatar = async (image, pictureType) => {
  * @function removeAvatar
  * @param {string} authToken A user's auth token
  */
-export const removeAvatar = async (authToken) => {
+export const removeAvatar = async () => {
   try {
     const token = await firebase.auth().currentUser.getIdToken();
     axios.delete("/api/user/avatar", {
+      headers: {
+        authorization: token,
+      },
+    });
+  } catch (err) {
+    throw new Error(err.response.data.error);
+  }
+};
+
+export const removeCoverPicture = async () => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    axios.delete("/api/user/coverPicture", {
       headers: {
         authorization: token,
       },

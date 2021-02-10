@@ -5,6 +5,7 @@ export const INITIAL_STATE = {
   error: false,
   fetching: false,
   fetchingAvatar: false,
+  fetchingCoverPicture: false,
   updatingProfile: false,
   token: localStorage.getItem("token"),
 };
@@ -74,13 +75,6 @@ const userReducer = (state = INITIAL_STATE, action) => {
         fetchingAvatar: false,
       };
     }
-    case userTypes.CHANGE_COVER_SUCCESS: {
-      return {
-        ...state,
-        currentUser: { ...state.currentUser, coverPicture: action.payload },
-        fetchingAvatar: false,
-      };
-    }
     case userTypes.REMOVE_AVATAR_FAILURE:
     case userTypes.CHANGE_AVATAR_FAILURE: {
       return {
@@ -96,6 +90,36 @@ const userReducer = (state = INITIAL_STATE, action) => {
         ...state,
         currentUser: { ...additionalKeys },
         fetchingAvatar: false,
+        error: false,
+      };
+    }
+    //coverpicture reducer
+    case userTypes.REMOVE_COVER_PICTURE_START:
+    case userTypes.CHANGE_COVER_PICTURE_START: {
+      return { ...state, fetchingCoverPicture: true };
+    }
+    case userTypes.CHANGE_COVER_PICTURE_SUCCESS: {
+      return {
+        ...state,
+        currentUser: { ...state.currentUser, coverPicture: action.payload },
+        fetchingCoverPicture: false,
+      };
+    }
+    case userTypes.REMOVE_COVER_PICTURE_FAILURE:
+    case userTypes.CHANGE_COVER_PICTURE_FAILURE: {
+      return {
+        ...state,
+        fetchingCoverPicture: false,
+        error: action.payload,
+      };
+    }
+    case userTypes.REMOVE_COVER_PICTURE_SUCCESS: {
+      // Removing the avatar key from the currentUser object
+      const { coverPicture, ...additionalKeys } = state.currentUser;
+      return {
+        ...state,
+        currentUser: { ...additionalKeys },
+        fetchingCoverPicture: false,
         error: false,
       };
     }

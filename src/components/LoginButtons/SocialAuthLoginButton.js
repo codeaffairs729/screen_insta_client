@@ -24,7 +24,7 @@ const SocialAuthLoginButton = ({ button, style, onClick, provider, name }) => {
         className={classNames({ "heading-4": true, "color-white": button })}
         style={{ color: "white" }}
       >
-        Log in with {name}
+        Sign up with {name}
       </h3>
     </a>
   );

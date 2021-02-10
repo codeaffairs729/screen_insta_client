@@ -9,6 +9,8 @@ import {
 import {
   changeAvatar,
   removeAvatar,
+  changeCoverPicture,
+  removeCoverPicture,
   updateProfile,
   updateCreator,
 } from "../../services/userService";
@@ -159,23 +161,14 @@ export const bookmarkPost = (postId, authToken) => async (dispatch) => {
   }
 };
 
-export const changeAvatarStart = (formData, pictureType) => async (
-  dispatch
-) => {
+export const changeAvatarStart = (formData) => async (dispatch) => {
   try {
     dispatch({ type: userTypes.CHANGE_AVATAR_START });
-    const response = await changeAvatar(formData, pictureType);
-    if (pictureType === "cover") {
-      dispatch({
-        type: userTypes.CHANGE_COVER_SUCCESS,
-        payload: response.coverPicture,
-      });
-    } else {
-      dispatch({
-        type: userTypes.CHANGE_AVATAR_SUCCESS,
-        payload: response.avatar,
-      });
-    }
+    const response = await changeAvatar(formData);
+    dispatch({
+      type: userTypes.CHANGE_AVATAR_SUCCESS,
+      payload: response.avatar,
+    });
   } catch (err) {
     if (err && err.message) {
       dispatch({
@@ -194,10 +187,47 @@ export const changeAvatarStart = (formData, pictureType) => async (
 export const removeAvatarStart = (pictureType) => async (dispatch) => {
   try {
     dispatch({ type: userTypes.REMOVE_AVATAR_START });
-    await removeAvatar(pictureType);
+    await removeAvatar();
     dispatch({ type: userTypes.REMOVE_AVATAR_SUCCESS });
   } catch (err) {
     dispatch({ type: userTypes.REMOVE_AVATAR_FAILURE, payload: err.message });
+  }
+};
+
+export const changeCoverPictureStart = (formData) => async (dispatch) => {
+  try {
+    dispatch({ type: userTypes.CHANGE_COVER_PICTURE_START });
+    const response = await changeCoverPicture(formData);
+
+    dispatch({
+      type: userTypes.CHANGE_COVER_PICTURE_SUCCESS,
+      payload: response.avatar,
+    });
+  } catch (err) {
+    if (err && err.message) {
+      dispatch({
+        type: userTypes.CHANGE_COVER_PICTURE_FAILURE,
+        payload: err.message,
+      });
+    } else {
+      dispatch({
+        type: userTypes.CHANGE_COVER_PICTURE_FAILURE,
+        payload: "A network error occurred, please try again",
+      });
+    }
+  }
+};
+
+export const removeCoverPictureStart = () => async (dispatch) => {
+  try {
+    dispatch({ type: userTypes.REMOVE_COVER_PICTURE_START });
+    await removeCoverPicture();
+    dispatch({ type: userTypes.REMOVE_COVER_PICTURE_SUCCESS });
+  } catch (err) {
+    dispatch({
+      type: userTypes.REMOVE_COVER_PICTURE_FAILURE,
+      payload: err.message,
+    });
   }
 };
 
@@ -244,6 +274,8 @@ export const updateCreatorSuccess = (response) => async (dispatch) => {
   setTimeout(() => {
     dispatch(showAlert("Profile saved."));
     dispatch({ type: userTypes.UPDATE_CREATOR_SUCCESS, payload: response });
-    window.location.href = "/";
+    console.log("update creator success");
+    console.log(response);
+    window.location.href = "/" + response.username;
   }, 200);
 };

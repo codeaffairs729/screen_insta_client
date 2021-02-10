@@ -3,8 +3,8 @@ import { connect } from "react-redux";
 import { createStructuredSelector } from "reselect";
 
 import {
-  changeAvatarStart,
-  removeAvatarStart,
+  changeCoverPictureStart,
+  removeCoverPictureStart,
 } from "../../redux/user/userActions";
 import {
   selectCurrentUser,
@@ -17,8 +17,8 @@ import { showAlert } from "../../redux/alert/alertActions";
 
 const ChangeCoverPictureButton = ({
   children,
-  changeAvatarStart,
-  removeAvatarStart,
+  changeCoverPictureStart,
+  removeCoverPictureStart,
   currentUser: { coverPicture },
   showModal,
   showAlert,
@@ -63,8 +63,8 @@ const ChangeCoverPictureButton = ({
 
   const changeCoverPicture = async (event, remove, pictureType) => {
     remove
-      ? await removeAvatarStart(pictureType)
-      : await changeAvatarStart(event.target.files[0], pictureType);
+      ? await removeCoverPictureStart()
+      : await changeCoverPictureStart(event.target.files[0]);
     if (!error) showAlert("Profile picture updated.");
   };
 
@@ -90,9 +90,8 @@ const ChangeCoverPictureButton = ({
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  changeAvatarStart: (image, pictureType) =>
-    dispatch(changeAvatarStart(image, pictureType)),
-  removeAvatarStart: (authToken) => dispatch(removeAvatarStart(authToken)),
+  changeCoverPictureStart: (image) => dispatch(changeCoverPictureStart(image)),
+  removeCoverPictureStart: () => dispatch(removeCoverPictureStart()),
   showModal: (props, component) => dispatch(showModal(props, component)),
   showAlert: (text, onClick) => dispatch(showAlert(text, onClick)),
 });
