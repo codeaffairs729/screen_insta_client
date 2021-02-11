@@ -77,12 +77,12 @@
     font-family: inherit;
     font-size: 1.4rem;
     border: none;
-    background-color: transparent;
+    background-color: "#0095f6";
     outline: none;
     cursor: pointer;
 
     &:active {
-      background-color: $color-grey-2;
+      background-color: "#0095f6";
     }
 
     &--warning {

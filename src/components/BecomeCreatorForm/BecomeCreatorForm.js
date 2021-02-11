@@ -32,6 +32,7 @@ const BecomeCreatorForm = ({
   const [selectedCountries, setSelectedCountries] = useState([]);
   const [voiceCallActivated, setVoiceCallActivated] = useState(false);
   const [videoCallActivated, setVideoCallActivated] = useState(false);
+  const [bankInformation, setBankInformation] = useState(null);
   const validate = (values) => {
     const errors = {};
     if (values.bankInformation) {
@@ -134,6 +135,10 @@ const BecomeCreatorForm = ({
       if (!videoCallActivated) {
         values.videoCallPrice = 0;
       }
+      if (bankInformation) {
+        values.bankInformation = bankInformation;
+      }
+      console.log(values);
       const updateRes = await updateCreatorStart(values);
     },
   });
@@ -154,12 +159,14 @@ const BecomeCreatorForm = ({
   }, []);
 
   const onClickModal = () => {
-    console.log("should show modal");
     return showModal(
       {
         title: "Complete the form below",
-        onFormFinished: (value) => {
-          console.log("form finished with value" + value);
+        bankInformation: currentUser.bankInformation,
+        onFormFinished: (values) => {
+          setBankInformation(values);
+          console.log("form finished with values");
+          console.log(values);
         },
       },
       "BankInformationDialog/BankInformationDialog"
@@ -215,10 +222,6 @@ const BecomeCreatorForm = ({
           <label className="heading-3 font-bold">Bank infos</label>
           <label></label>
         </div>
-        {/*<FormInput
-          name="bankInformation"
-          fieldProps={formik.getFieldProps("bankInformation")}
-        />*/}
         <a href="#" onClick={onClickModal}>
           Set your bank account infos
         </a>
