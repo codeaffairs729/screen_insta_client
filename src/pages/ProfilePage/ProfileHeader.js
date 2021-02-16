@@ -149,11 +149,6 @@ const ProfileHeader = ({
         </div>
 
         <div>
-          {fullName && (
-            <h3 className="heading-3">
-              <b>{fullName}</b>
-            </h3>
-          )}
           <p className="heading-3" style={{ whiteSpace: "pre-wrap" }}>
             {bio}
           </p>
@@ -172,11 +167,6 @@ const ProfileHeader = ({
 
       <div className="profile-header__mobile-user-details">
         <div>
-          {fullName && (
-            <p className="heading-3">
-              <b>{fullName}</b>
-            </p>
-          )}
           <h3
             className="heading-3 font-medium"
             style={{ whiteSpace: "pre-wrap" }}

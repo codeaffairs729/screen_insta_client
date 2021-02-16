@@ -155,6 +155,9 @@ const BecomeCreatorForm = ({
       if (currentUser.setVideoCallActivated > 0) {
         setVideoCallActivated(true);
       }
+      if (currentUser) {
+        setBankInformation(currentUser.bankInformation);
+      }
     }
   }, []);
 
@@ -162,7 +165,7 @@ const BecomeCreatorForm = ({
     return showModal(
       {
         title: "Complete the form below",
-        bankInformation: currentUser.bankInformation,
+        bankInformation: bankInformation,
         onFormFinished: (values) => {
           setBankInformation(values);
           console.log("form finished with values");
@@ -223,7 +226,7 @@ const BecomeCreatorForm = ({
           <label></label>
         </div>
         <a href="#" onClick={onClickModal}>
-          Set your bank account infos
+          Add your bank details to receive money from your subscribers
         </a>
       </SettingsFormGroup>
 
@@ -286,8 +289,7 @@ const BecomeCreatorForm = ({
         <div style={{ display: "grid" }}>
           <label className="heading-3 font-bold">Blocked countries</label>
           <label>
-            The users from a blocked country won’t be able to find or see your
-            profile
+            The users connecting from a blocked country won’t be able to find or see your profile
           </label>
         </div>
 

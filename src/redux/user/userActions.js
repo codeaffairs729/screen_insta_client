@@ -21,7 +21,11 @@ import { hideAlert, showAlert } from "../alert/alertActions";
 export const signOut = () => async (dispatch) => {
   localStorage.removeItem("token");
   dispatch({ type: userTypes.SIGN_OUT });
-  await firebase.auth().signOut();
+  try {
+    await firebase.auth().signOut();
+  } catch (e) { 
+    alert("An error occurred while signing out");
+  }
   localStorage.removeItem("uid");
   localStorage.removeItem("acceptedTerms");
 };
@@ -201,7 +205,7 @@ export const changeCoverPictureStart = (formData) => async (dispatch) => {
 
     dispatch({
       type: userTypes.CHANGE_COVER_PICTURE_SUCCESS,
-      payload: response.avatar,
+      payload: response.coverPicture,
     });
   } catch (err) {
     if (err && err.message) {
