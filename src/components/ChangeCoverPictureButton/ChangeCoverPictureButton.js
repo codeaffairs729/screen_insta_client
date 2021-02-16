@@ -65,7 +65,7 @@ const ChangeCoverPictureButton = ({
     remove
       ? await removeCoverPictureStart()
       : await changeCoverPictureStart(event.target.files[0]);
-    if (!error) showAlert("Profile picture updated.");
+    if (!error) showAlert("Cover picture picture updated.");
   };
 
   return (
@@ -75,7 +75,7 @@ const ChangeCoverPictureButton = ({
         style={{ cursor: "pointer", position: "relative" }}
         onClick={(event) => handleClick(event)}
       >
-        <Fragment>{children ? children : "Change Profile Photo"}</Fragment>
+        <Fragment>{children ? children : "Change Cover picture"}</Fragment>
       </label>
       <input
         id="avatar-upload"
