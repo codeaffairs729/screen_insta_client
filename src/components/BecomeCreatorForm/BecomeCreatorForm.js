@@ -187,6 +187,8 @@ const BecomeCreatorForm = ({
         <FormInput
           name="followPrice"
           type="number"
+          step="any"
+          min="0"
           fieldProps={formik.getFieldProps("followPrice")}
         />
       </SettingsFormGroup>
@@ -252,6 +254,8 @@ const BecomeCreatorForm = ({
           <FormInput
             name="audioCallPrice"
             type="number"
+            step="any"
+            min="0"
             disabled={!voiceCallActivated}
             fieldProps={formik.getFieldProps("audioCallPrice")}
           />
@@ -279,6 +283,8 @@ const BecomeCreatorForm = ({
           <FormInput
             name="videoCallPrice"
             type="number"
+            step="any"
+            min="0"
             disabled={!videoCallActivated}
             fieldProps={formik.getFieldProps("videoCallPrice")}
           />
@@ -289,7 +295,10 @@ const BecomeCreatorForm = ({
         <div style={{ display: "grid" }}>
           <label className="heading-3 font-bold">Blocked countries</label>
           <label>
-            The users connecting from a blocked country won’t be able to find or see your profile
+            The users connecting from a blocked country won’t be able to find or
+           
+           
+            see your profile
           </label>
         </div>
 
