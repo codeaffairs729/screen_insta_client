@@ -6,17 +6,21 @@ import { showModal, hideModal } from '../../../redux/modal/modalActions';
 
 import Icon from '../../Icon/Icon';
 
-const NewPostButton = ({ showModal, hideModal, plusIcon, children, style }) => {
+const NewPostButton = ({ onClick, showModal, hideModal, plusIcon, children, style }) => {
   const [file, setFile] = useState(undefined);
   const fileInputRef = useRef();
   const history = useHistory();
 
   useEffect(() => {
+    
+  }, [])
+
+  useEffect(() => {
     if (file) {
       if (window.outerWidth > 600) {
         showModal(
-          { file, hide: () => hideModal('NewPost/NewPost') },
-          'NewPost/NewPost'
+          {hide: () => hideModal('CreatePost/CreatePostModal') },
+          'CreatePostModal'
         );
       } else {
         history.push('/new', { file });
@@ -27,19 +31,26 @@ const NewPostButton = ({ showModal, hideModal, plusIcon, children, style }) => {
     }
   }, [file, showModal, hideModal, history]);
   return (
-    <Fragment>
-      <label
-        style={{ cursor: 'pointer', ...style }}
+    <Fragment onClick={onClick}>
+      
+     
+      
+    </Fragment>
+  );
+};
+/*
+ <label
+        style={{ cursor: "pointer", ...style }}
         className="icon"
         htmlFor="file-upload"
       >
         {children ? (
           children
         ) : (
-          <Icon icon={plusIcon ? 'add-circle-outline' : 'camera-outline'} />
+          <Icon icon={plusIcon ? "add-circle-outline" : "camera-outline"} />
         )}
       </label>
-      <input
+<input
         id="file-upload"
         type="file"
         style={{ display: 'none' }}
@@ -48,9 +59,7 @@ const NewPostButton = ({ showModal, hideModal, plusIcon, children, style }) => {
         onChange={(event) => setFile(event.target.files[0])}
         ref={fileInputRef}
       />
-    </Fragment>
-  );
-};
+*/ 
 
 const mapDispatchToProps = (dispatch) => ({
   showModal: (props, component) => dispatch(showModal(props, component)),

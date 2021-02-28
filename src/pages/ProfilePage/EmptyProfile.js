@@ -3,6 +3,7 @@ import React, { Fragment } from 'react';
 import Icon from '../../components/Icon/Icon';
 import NewPostButton from '../../components/NewPost/NewPostButton/NewPostButton';
 import TextButton from '../../components/Button/TextButton/TextButton';
+import CreatePostButton from "../../components/CreatePost/CreatePostButton";
 
 const EmptyProfile = ({ currentUserProfile, username }) => (
   <div className="profile-empty">
@@ -13,11 +14,7 @@ const EmptyProfile = ({ currentUserProfile, username }) => (
         <h3 className="heading-3 font-medium">
           When you share photos, they will appear on your profile.
         </h3>
-        <NewPostButton style={{ width: 'auto' }}>
-          <TextButton bold blue medium style={{ pointerEvents: 'none' }}>
-            Share your first photo
-          </TextButton>
-        </NewPostButton>
+        <CreatePostButton />
       </Fragment>
     ) : (
       <Fragment>

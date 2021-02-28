@@ -158,6 +158,8 @@ const EditProfileForm = ({
 
       <SettingsFormGroup>
         <label></label>
+        <a href="/settings/creator">Creator settings</a>
+        <br />
         <Button
           style={{ width: "10rem" }}
           disabled={Object.keys(formik.touched).length === 0}

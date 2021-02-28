@@ -66,7 +66,6 @@
 
     &__info {
       flex-grow: 1;
-      margin-left: 3rem;
       & > :not(:nth-child(1)) {
         display: none;
       }
@@ -74,7 +73,7 @@
 
     &__mobile-user-details {
       display: flex;
-
+      flex-direction: column;
       & > :nth-child(1) {
         padding: 2rem 0;
       }

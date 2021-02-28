@@ -169,7 +169,7 @@ const ProfileHeader = ({
         <div>
           <h3
             className="heading-3 font-medium"
-            style={{ whiteSpace: "pre-wrap" }}
+            style={{ whiteSpace: "pre-wrap", textAlign: "center" }}
           >
             {bio}
           </h3>
@@ -180,7 +180,7 @@ const ProfileHeader = ({
               rel="noopener noreferrer"
               className="heading-3 link font-bold"
             >
-              {website}
+              <p style={{ textAlign: "center" }}>{website}</p>
             </a>
           )}
         </div>
