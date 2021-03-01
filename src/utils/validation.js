@@ -51,9 +51,10 @@ export const validateBio = (bio) => {
 };
 
 export const validateWebsite = (website) => {
+  console.log("website : " + website + " to : " + website.toLowerCase());
   if (
     website &&
-    !website.match(
+    !website.toLowerCase().match(
       //eslint-disable-next-line
       /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/
     )

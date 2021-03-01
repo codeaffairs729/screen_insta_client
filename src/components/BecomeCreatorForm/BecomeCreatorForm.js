@@ -45,7 +45,7 @@ const BecomeCreatorForm = ({
       }
     }
     if (values.audioCallPrice) {
-      if (values.audioCallPrice < 0) {
+      if (values.audioCallPrice < 1) {
         errors.audioCallPrice = "Voice call price is not valid";
       }
       if (voiceCallActivated) {
@@ -152,7 +152,7 @@ const BecomeCreatorForm = ({
         console.log("activating audio calls");
         setVoiceCallActivated(true);
       }
-      if (currentUser.setVideoCallActivated > 0) {
+      if (currentUser.videoCallPrice > 0) {
         setVideoCallActivated(true);
       }
       if (currentUser) {
@@ -178,8 +178,8 @@ const BecomeCreatorForm = ({
 
   return (
     <SettingsForm onSubmit={formik.handleSubmit}>
-      <SettingsFormGroup>
-        <div style={{ display: "grid" }}>
+      <div style={{ display: "flex", justifyContent: "start" }}>
+        <div style={{ display: "grid", width: 200 }}>
           <label className="heading-3 font-bold">Subscription price</label>
           <label>Subscription can be free or minimum 4.99$ a month</label>
         </div>
@@ -191,11 +191,11 @@ const BecomeCreatorForm = ({
           min="0"
           fieldProps={formik.getFieldProps("followPrice")}
         />
-      </SettingsFormGroup>
+      </div>
 
       {!currentUser.isCreator ? (
-        <SettingsFormGroup>
-          <div style={{ display: "grid" }}>
+        <div style={{ display: "flex", justifyContent: "start" }}>
+          <div style={{ display: "grid", width: 200 }}>
             <label className="heading-3 font-bold">Country of residence</label>
             <label>
               This information will not be shared and is asked only for taxes
@@ -206,12 +206,12 @@ const BecomeCreatorForm = ({
           <select name="country" value={formik.values.country}>
             {populateCountryList()}
           </select>
-        </SettingsFormGroup>
+        </div>
       ) : null}
 
       {!currentUser.isCreator ? (
-        <SettingsFormGroup>
-          <div style={{ display: "grid" }}>
+        <div style={{ display: "flex", justifyContent: "start" }}>
+          <div style={{ display: "grid", width: 200 }}>
             <label className="heading-3 font-bold">Referrer</label>
             <label>Username of your referrer</label>
           </div>
@@ -219,23 +219,25 @@ const BecomeCreatorForm = ({
             name="referrerUserHandle"
             fieldProps={formik.getFieldProps("referrerUserHandle")}
           />
-        </SettingsFormGroup>
+        </div>
       ) : null}
 
-      <SettingsFormGroup>
-        <div style={{ display: "grid" }}>
+      <div style={{ display: "flex", justifyContent: "start" }}>
+        <div style={{ display: "grid", width: 200 }}>
           <label className="heading-3 font-bold">Bank infos</label>
           <label></label>
         </div>
-        <a href="#" onClick={onClickModal}>
-          Add your bank details to receive money from your subscribers
-        </a>
-      </SettingsFormGroup>
+        <div className="form-group">
+          <a className="form-group" href="#" onClick={onClickModal}>
+            Add your bank details to receive money from your subscribers
+          </a>
+        </div>
+      </div>
 
-      <SettingsFormGroup>
-        <div style={{ display: "grid" }}>
+      <div style={{ display: "flex", justifyContent: "start" }}>
+        <div style={{ display: "grid", width: 200 }}>
           <label className="heading-3 font-bold">Voice call price</label>
-          <label>Price per minute</label>
+          <label>Price per minute (minimum 1$/min)</label>
         </div>
 
         <div>
@@ -260,12 +262,12 @@ const BecomeCreatorForm = ({
             fieldProps={formik.getFieldProps("audioCallPrice")}
           />
         </div>
-      </SettingsFormGroup>
+      </div>
 
-      <SettingsFormGroup>
-        <div style={{ display: "grid" }}>
+      <div style={{ display: "flex", justifyContent: "start" }}>
+        <div style={{ display: "grid", width: 200 }}>
           <label className="heading-3 font-bold">Video call price</label>
-          <label>Price per minute</label>
+          <label>Price per minute (minimum 1$/min)</label>
         </div>
 
         <div>
@@ -276,6 +278,7 @@ const BecomeCreatorForm = ({
             <input
               id="videoCallPrice"
               type="checkbox"
+              checked={videoCallActivated}
               onClick={() => setVideoCallActivated(!videoCallActivated)}
             />
           </div>
@@ -289,27 +292,27 @@ const BecomeCreatorForm = ({
             fieldProps={formik.getFieldProps("videoCallPrice")}
           />
         </div>
-      </SettingsFormGroup>
+      </div>
 
-      <SettingsFormGroup>
-        <div style={{ display: "grid" }}>
+      <div style={{ display: "flex", justifyContent: "start" }}>
+        <div style={{ display: "grid", width: 200 }}>
           <label className="heading-3 font-bold">Blocked countries</label>
           <label>
             The users connecting from a blocked country won’t be able to find or
-           
-           
             see your profile
           </label>
         </div>
 
-        <Select
-          isMulti
-          closeMenuOnSelect={false}
-          options={populateCountryOptions()}
-          value={selectedCountries}
-          onChange={onBlockedCountrySelected}
-        />
-      </SettingsFormGroup>
+        <div style={{ minWidth: 150 }}>
+          <Select
+            isMulti
+            closeMenuOnSelect={false}
+            options={populateCountryOptions()}
+            value={selectedCountries}
+            onChange={onBlockedCountrySelected}
+          />
+        </div>
+      </div>
 
       <>
         <label></label>

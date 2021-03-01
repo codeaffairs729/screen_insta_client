@@ -5,12 +5,21 @@
     padding: 4rem 5rem;
   }
 
+  &__creator-settings {
+    display: none;
+  }
+
   @include respond(phone) {
     min-height: 100%;
     &__content {
       padding: 2rem;
     }
+    &__creator-settings {
+      display: block;
+    }
   }
+
+  
 }
 
 .settings-card {

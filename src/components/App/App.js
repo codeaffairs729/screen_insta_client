@@ -179,7 +179,7 @@ export function UnconnectedApp({
           <ProtectedRoute path="/activity" component={ActivityPage} />
           <ProtectedRoute path="/new" component={NewPostPage} />
           <ProtectedRoute path="/explore" component={ExplorePage} />
-          <Route exact path="/:username" component={ProfilePage} />
+          <ProtectedRoute exact path="/:username" component={ProfilePage} />
           <Route path="/post/:postId" component={PostPage} />
           <ProtectedRoute path="/confirm/:token" component={ConfirmationPage} />
           <Route component={NotFoundPage} />

@@ -68,7 +68,6 @@ const EditProfileForm = ({
     currentUserUsername = currentUser.username;
   }
 
-  let history = useHistory();
   const formik = useFormik({
     initialValues: {
       email: currentUser.email,
@@ -158,7 +157,9 @@ const EditProfileForm = ({
 
       <SettingsFormGroup>
         <label></label>
-        <a href="/settings/creator">Creator settings</a>
+        <a className="settings-page__creator-settings" href="/settings/creator">
+          Want to become a creator ?
+        </a>
         <br />
         <Button
           style={{ width: "10rem" }}

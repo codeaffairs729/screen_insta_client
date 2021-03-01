@@ -65,7 +65,7 @@ const ChangeCoverPictureButton = ({
     remove
       ? await removeCoverPictureStart()
       : await changeCoverPictureStart(event.target.files[0]);
-    if (!error) showAlert("Cover picture picture updated.");
+    if (!error) showAlert("Cover picture updated.");
   };
 
   return (
