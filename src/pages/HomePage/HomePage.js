@@ -33,7 +33,7 @@ const HomePage = ({
 }) => {
   useEffect(() => {
     document.title = `Between Us`;
-    fetchFeedPostsStart(token);
+    fetchFeedPostsStart();
     return () => {
       clearPosts();
     };
@@ -42,7 +42,7 @@ const HomePage = ({
   useScrollPositionThrottled(
     ({ atBottom }) => {
       if (atBottom && hasMore && !fetching) {
-        fetchFeedPostsStart(token, feedPosts.length);
+        fetchFeedPostsStart(feedPosts.length);
       }
     },
     null,
@@ -93,8 +93,7 @@ const mapStateToProps = createStructuredSelector({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  fetchFeedPostsStart: (authToken, offset) =>
-    dispatch(fetchFeedPostsStart(authToken, offset)),
+  fetchFeedPostsStart: (offset) => dispatch(fetchFeedPostsStart(offset)),
   clearPosts: () => dispatch(clearPosts()),
 });
 

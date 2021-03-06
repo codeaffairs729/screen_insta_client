@@ -1,26 +1,26 @@
-import React, { useEffect, useReducer, Fragment, useRef } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { createStructuredSelector } from 'reselect';
-import classNames from 'classnames';
-import { Link, useHistory } from 'react-router-dom';
+import React, { useEffect, useReducer, Fragment, useRef } from "react";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { createStructuredSelector } from "reselect";
+import classNames from "classnames";
+import { Link, useHistory } from "react-router-dom";
 
-import { selectToken, selectCurrentUser } from '../../redux/user/userSelectors';
+import { selectToken, selectCurrentUser } from "../../redux/user/userSelectors";
 
-import { showModal, hideModal } from '../../redux/modal/modalActions';
-import { showAlert } from '../../redux/alert/alertActions';
+import { showModal, hideModal } from "../../redux/modal/modalActions";
+import { showAlert } from "../../redux/alert/alertActions";
 
-import { getPost, deletePost } from '../../services/postService';
-import { getComments } from '../../services/commentService';
+import { getPost, deletePost } from "../../services/postService";
+import { getComments } from "../../services/commentService";
 
-import Avatar from '../Avatar/Avatar';
-import Icon from '../Icon/Icon';
-import SkeletonLoader from '../SkeletonLoader/SkeletonLoader';
-import Comment from '../Comment/Comment';
-import PostDialogCommentForm from './PostDialogCommentForm/PostDialogCommentForm';
-import PostDialogStats from './PostDialogStats/PostDialogStats';
+import Avatar from "../Avatar/Avatar";
+import Icon from "../Icon/Icon";
+import SkeletonLoader from "../SkeletonLoader/SkeletonLoader";
+import Comment from "../Comment/Comment";
+import PostDialogCommentForm from "./PostDialogCommentForm/PostDialogCommentForm";
+import PostDialogStats from "./PostDialogStats/PostDialogStats";
 
-import { INITIAL_STATE, postDialogReducer } from './postDialogReducer';
+import { INITIAL_STATE, postDialogReducer } from "./postDialogReducer";
 
 const PostDialog = ({
   postId,
@@ -46,7 +46,7 @@ const PostDialog = ({
     if (!loading) {
       // Check if the post data is already provided by another component
       if (postData) {
-        dispatch({ type: 'FETCH_POST_SUCCESS', payload: postData });
+        dispatch({ type: "FETCH_POST_SUCCESS", payload: postData });
       } else {
         window.history.pushState(
           { prevUrl: window.location.href },
@@ -56,10 +56,10 @@ const PostDialog = ({
         (async function () {
           try {
             const response = await getPost(postId);
-            dispatch({ type: 'FETCH_POST_SUCCESS', payload: response });
+            dispatch({ type: "FETCH_POST_SUCCESS", payload: response });
           } catch (err) {
-            history.push('/');
-            dispatch({ type: 'FETCH_POST_FAILURE', payload: err });
+            history.push("/");
+            dispatch({ type: "FETCH_POST_FAILURE", payload: err });
           }
         })();
       }
@@ -68,8 +68,8 @@ const PostDialog = ({
     return () => {
       if (window.history.state && window.history.state.prevUrl) {
         window.history.pushState(
-          'profile',
-          'Profile',
+          "profile",
+          "Profile",
           window.history.state.prevUrl
         );
       }
@@ -83,9 +83,9 @@ const PostDialog = ({
         state.data.comments.length,
         state.localStateComments.size
       );
-      dispatch({ type: 'ADD_COMMENT', payload: commentData.comments });
+      dispatch({ type: "ADD_COMMENT", payload: commentData.comments });
     } catch (err) {
-      showAlert('Unable to fetch additional comments.', () =>
+      showAlert("Unable to fetch additional comments.", () =>
         fetchAdditionalComments()
       );
     }
@@ -96,20 +96,40 @@ const PostDialog = ({
       await deletePost(postId, token);
       profileDispatch &&
         profileDispatch({
-          type: 'DELETE_POST',
+          type: "DELETE_POST",
           payload: postId,
         });
-      hideModal('PostDialog/PostDialog');
+      hideModal("PostDialog/PostDialog");
     } catch (err) {
-      showAlert('Unable to delete post.', () => handleDeletePost());
+      showAlert("Unable to delete post.", () => handleDeletePost());
+    }
+  };
+
+  const renderPostPreview = (fetching, medias) => {
+    if (fetching) return <SkeletonLoader animated />;
+    if (medias[0].endsWith(".mp4")) {
+      return (
+        <video
+          alt="Post"
+          style={{ filter: state.data.filter }}
+          controls
+          autoPlay
+        >
+          <source src={medias[0]} type="video/mp4" />
+        </video>
+      );
+    } else {
+      return (
+        <img src={medias[0]} alt="Post" style={{ filter: state.data.filter }} />
+      );
     }
   };
 
   return (
     <div
       className={classNames({
-        'post-dialog': true,
-        'post-dialog--simple': simple,
+        "post-dialog": true,
+        "post-dialog--simple": simple,
         [className]: className,
       })}
       data-test="component-post-dialog"
@@ -118,34 +138,26 @@ const PostDialog = ({
       <Fragment>
         <div
           className={classNames({
-            'post-dialog__image': true,
-            'post-dialog__image--simple': simple,
+            "post-dialog__image": true,
+            "post-dialog__image--simple": simple,
           })}
         >
-          {fetching ? (
-            <SkeletonLoader animated />
-          ) : (
-            <img
-              src={state.data.image}
-              alt="Post"
-              style={{ filter: state.data.filter }}
-            />
-          )}
+          {renderPostPreview(fetching, state.data.medias)}
         </div>
         <header
           className={classNames({
-            'post-dialog__header': true,
-            'post-dialog__header--simple': simple,
+            "post-dialog__header": true,
+            "post-dialog__header--simple": simple,
           })}
         >
           {fetching ? (
             <SkeletonLoader
-              style={{ height: '4rem', width: '4rem', borderRadius: '100px' }}
+              style={{ height: "4rem", width: "4rem", borderRadius: "100px" }}
             />
           ) : (
             <Link
               to={`/${state.data.author.username}`}
-              style={{ display: 'flex' }}
+              style={{ display: "flex" }}
             >
               <Avatar
                 className="avatar--small"
@@ -154,15 +166,15 @@ const PostDialog = ({
             </Link>
           )}
           {fetching ? (
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <SkeletonLoader style={{ height: '1rem', width: '10rem' }} />
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <SkeletonLoader style={{ height: "1rem", width: "10rem" }} />
               <SkeletonLoader
-                style={{ height: '1rem', width: '15rem', marginTop: '5px' }}
+                style={{ height: "1rem", width: "15rem", marginTop: "5px" }}
               />
             </div>
           ) : (
             <Link
-              style={{ textDecoration: 'none' }}
+              style={{ textDecoration: "none" }}
               to={`/${state.data.author.username}`}
             >
               <p className="heading-4 heading-4--bold">
@@ -175,20 +187,20 @@ const PostDialog = ({
               onClick={() => {
                 const options = [
                   {
-                    text: 'Go to post',
+                    text: "Go to post",
                     onClick: () => {
-                      hideModal('PostDialog/PostDialog');
+                      hideModal("PostDialog/PostDialog");
                       history.push(`/post/${postId}`);
                     },
                   },
                   {
-                    text: 'Copy link',
+                    text: "Copy link",
                     onClick: () => {
                       navigator.clipboard
                         .writeText(document.URL)
-                        .then(() => showAlert('Link copied to clipboard.'))
+                        .then(() => showAlert("Link copied to clipboard."))
                         .catch(() =>
-                          showAlert('Could not copy link to clipboard.')
+                          showAlert("Could not copy link to clipboard.")
                         );
                     },
                   },
@@ -201,20 +213,20 @@ const PostDialog = ({
                         ? [
                             ...options,
                             {
-                              text: 'Delete post',
+                              text: "Delete post",
                               warning: true,
                               onClick: () => {
                                 handleDeletePost();
-                                history.push('/' + currentUser.username);
+                                history.push("/" + currentUser.username);
                               },
                             },
                           ]
                         : options,
                   },
-                  'OptionsDialog/OptionsDialog'
+                  "OptionsDialog/OptionsDialog"
                 );
               }}
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: "pointer" }}
               className="post-dialog__more"
             >
               <Icon className="icon--small" icon="ellipsis-horizontal" />
@@ -224,15 +236,15 @@ const PostDialog = ({
         <div
           data-test="component-post-dialog-content"
           className={classNames({
-            'post-dialog__content': true,
-            'post-dialog__content--simple': simple,
+            "post-dialog__content": true,
+            "post-dialog__content--simple": simple,
           })}
         >
           <div
             ref={commentsRef}
             className={classNames({
               comments: true,
-              'comments--simple': simple,
+              "comments--simple": simple,
             })}
           >
             {/* Render a caption if there is one as a Comment component with the caption prop */}
@@ -267,12 +279,12 @@ const PostDialog = ({
               state.data.comments.length - state.localStateComments.size <
                 state.data.commentCount - state.localStateComments.size && (
                 <div
-                  style={{ padding: '2rem', cursor: 'pointer' }}
+                  style={{ padding: "2rem", cursor: "pointer" }}
                   onClick={() => fetchAdditionalComments()}
                 >
                   <Icon
                     style={{
-                      margin: '0 auto',
+                      margin: "0 auto",
                     }}
                     icon="add-circle-outline"
                   />
@@ -282,17 +294,17 @@ const PostDialog = ({
           {fetching ? (
             <div
               style={{
-                display: 'flex',
-                flexDirection: 'column',
-                padding: '2rem 2rem 6rem 2rem',
+                display: "flex",
+                flexDirection: "column",
+                padding: "2rem 2rem 6rem 2rem",
               }}
             >
-              <SkeletonLoader style={{ height: '1.5rem', width: '15rem' }} />
+              <SkeletonLoader style={{ height: "1.5rem", width: "15rem" }} />
               <SkeletonLoader
-                style={{ height: '1.5rem', width: '20rem', marginTop: '1rem' }}
+                style={{ height: "1.5rem", width: "20rem", marginTop: "1rem" }}
               />
               <SkeletonLoader
-                style={{ height: '1.5rem', width: '10rem', marginTop: '1rem' }}
+                style={{ height: "1.5rem", width: "10rem", marginTop: "1rem" }}
               />
             </div>
           ) : (

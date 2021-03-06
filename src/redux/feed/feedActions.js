@@ -2,10 +2,10 @@ import feedTypes from './feedTypes';
 
 import { retrieveFeedPosts } from '../../services/feedServices';
 
-export const fetchFeedPostsStart = (authToken, offset) => async (dispatch) => {
+export const fetchFeedPostsStart = (offset) => async (dispatch) => {
   try {
     dispatch({ type: feedTypes.FETCH_POSTS_START });
-    const response = await retrieveFeedPosts(authToken, offset);
+    const response = await retrieveFeedPosts(offset);
     dispatch({ type: feedTypes.FETCH_POSTS_SUCCESS, payload: response });
   } catch (err) {
     dispatch({ type: feedTypes.FETCH_POSTS_FAILURE, payload: err.message });

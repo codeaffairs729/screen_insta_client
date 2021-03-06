@@ -55,7 +55,7 @@ export const votePost = async (postId, authToken) => {
  * @param {string} authToken The user's auth token
  * @returns {object} The created post
  */
-export const createPost = async (formData, authToken) => {
+export const createPost = async (formData) => {
   try {
     const token = await firebase.auth().currentUser.getIdToken();
     const post = await axios.post("/api/post", formData, {

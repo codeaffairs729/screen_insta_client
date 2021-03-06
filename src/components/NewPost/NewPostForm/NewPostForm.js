@@ -4,7 +4,6 @@ import { createStructuredSelector } from 'reselect';
 import { useHistory } from 'react-router-dom';
 
 import {
-  selectToken,
   selectCurrentUser,
 } from '../../../redux/user/userSelectors';
 import { showAlert } from '../../../redux/alert/alertActions';
@@ -19,7 +18,6 @@ import TextButton from '../../Button/TextButton/TextButton';
 import Loader from '../../Loader/Loader';
 
 const NewPostForm = ({
-  token,
   file,
   previewImage,
   currentUser,
@@ -42,7 +40,7 @@ const NewPostForm = ({
     previewImage.filterName && formData.set('filter', previewImage.filterName);
     try {
       setLoading(true);
-      const post = await createPost(formData, token);
+      const post = await createPost(formData);
       setLoading(false);
       hide();
       if (history.location.pathname === '/') {
@@ -114,7 +112,6 @@ const NewPostForm = ({
 };
 
 const mapStateToProps = createStructuredSelector({
-  token: selectToken,
   currentUser: selectCurrentUser,
 });
 

@@ -22,24 +22,23 @@ const ProfileHeader = ({
   const { following, followers, postCount } = data;
 
   const showUsersModal = (followers, following) => {
-    token &&
-      showModal(
-        {
-          options: [],
-          title: followers ? "Followers" : "Following",
-          cancelButton: false,
-          children: (
-            <UsersList
-              userId={data.user._id}
-              token={token}
-              followersCount={followers}
-              followingCount={following}
-              following={following}
-            />
-          ),
-        },
-        "OptionsDialog/OptionsDialog"
-      );
+    showModal(
+      {
+        options: [],
+        title: followers ? "Followers" : "Following",
+        cancelButton: false,
+        children: (
+          <UsersList
+            userId={data.user._id}
+            token={token}
+            followersCount={followers}
+            followingCount={following}
+            following={following}
+          />
+        ),
+      },
+      "OptionsDialog/OptionsDialog"
+    );
   };
 
   const renderButton = () => {
@@ -89,7 +88,10 @@ const ProfileHeader = ({
     }
     return (
       <Button loading={loading} onClick={() => follow(data.user._id, token)}>
-        Follow
+        Follow{" "}
+        {data.user.isCreator
+          ? `(${data.user.followPrice.toFixed(2)} $)`
+          : "(Free)"}
       </Button>
     );
   };

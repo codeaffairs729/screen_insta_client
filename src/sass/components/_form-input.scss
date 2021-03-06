@@ -31,6 +31,10 @@
     @extend .form-group__input;
     resize: vertical;
     padding: 1rem;
+    &::placeholder {
+      visibility: visible;
+      opacity: 70;
+    }
   }
 
   &__placeholder {

@@ -7,7 +7,7 @@ import firebase from "../firebase";
  * @param {number} offset The offset of posts to retrieve
  * @returns {array} Array of posts
  */
-export const retrieveFeedPosts = async (authToken, offset = 0) => {
+export const retrieveFeedPosts = async (offset = 0) => {
   try {
     const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.get(`/api/post/feed/${offset}`, {

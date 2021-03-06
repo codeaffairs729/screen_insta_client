@@ -1,27 +1,34 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
-import Icon from '../Icon/Icon';
+import Icon from "../Icon/Icon";
 
-const PreviewImage = ({ onClick, image, likes, comments, filter }) => (
-  <figure onClick={onClick} key={image} className="preview-image">
-    <img src={image} alt="User post" style={{ filter }} />
-    <div className="preview-image__overlay">
-      <span className="preview-image__content">
-        {likes > 0 && (
+const PreviewImage = ({ onClick, image, likes, comments, filter }) => {
+  return (
+    <figure onClick={onClick} key={image} className="preview-image">
+      {image.endsWith(".mp4") ? (
+        <video  src={image} alt="User post" style={{   filter }} />
+      ) : (
+        <img src={image} alt="User post" style={{ filter }} />
+      )}
+
+      <div className="preview-image__overlay">
+        <span className="preview-image__content">
+          {likes > 0 && (
+            <div className="preview-image__icon">
+              <Icon icon="heart" className="icon--white" />
+              <span>{likes}</span>
+            </div>
+          )}
           <div className="preview-image__icon">
-            <Icon icon="heart" className="icon--white" />
-            <span>{likes}</span>
+            <Icon icon="chatbubbles" className="icon--white" />
+            <span>{comments}</span>
           </div>
-        )}
-        <div className="preview-image__icon">
-          <Icon icon="chatbubbles" className="icon--white" />
-          <span>{comments}</span>
-        </div>
-      </span>
-    </div>
-  </figure>
-);
+        </span>
+      </div>
+    </figure>
+  );
+};
 
 PreviewImage.propTypes = {
   onClick: PropTypes.func,

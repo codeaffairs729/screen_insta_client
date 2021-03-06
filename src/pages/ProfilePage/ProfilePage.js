@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect, Fragment } from "react";
+import React, { useReducer, useEffect, Fragment, useState } from "react";
 import { connect } from "react-redux";
 import { createStructuredSelector } from "reselect";
 import { useParams, useHistory } from "react-router-dom";
@@ -12,7 +12,7 @@ import { getUserProfile, followUser } from "../../services/profileService";
 import { getPosts } from "../../services/postService";
 
 import useScrollPositionThrottled from "../../hooks/useScrollPositionThrottled";
-
+import firebase from "../../firebase";
 import ProfileCategory from "../../components/ProfileCategory/ProfileCategory";
 import PreviewImage from "../../components/PreviewImage/PreviewImage";
 import Loader from "../../components/Loader/Loader";
@@ -23,11 +23,13 @@ import LoginCard from "../../components/LoginCard/LoginCard";
 import NotFoundPage from "../../pages/NotFoundPage/NotFoundPage";
 import ProfileHeader from "./ProfileHeader";
 import EmptyProfile from "./EmptyProfile";
+import CreatePostButton from "../../components/CreatePost/CreatePostButton";
 
 const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
   const { username } = useParams();
   const history = useHistory();
   const [state, dispatch] = useReducer(profileReducer, INITIAL_STATE);
+  const [isPostCreationAllowed, setIsPostCreationAllowed] = useState(false);
 
   const follow = async () => {
     if (!currentUser) {
@@ -82,6 +84,12 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
       try {
         dispatch({ type: "FETCH_PROFILE_START" });
         const profile = await getUserProfile(username);
+        if (profile.uid) {
+          const uid = firebase.auth().currentUser.uid;
+          if (profile.uid.toLowerCase() === uid.toLowerCase()) {
+            setIsPostCreationAllowed(true)
+          }
+        }
         dispatch({ type: "FETCH_PROFILE_SUCCESS", payload: profile });
       } catch (err) {
         dispatch({ type: "FETCH_PROFILE_FAILURE", payload: err });
@@ -90,18 +98,8 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
   }, [username, token]);
 
   const handleClick = (postId) => {
-    if (window.outerWidth <= 600) {
-      history.push(`/post/${postId}`);
-    } else {
-      showModal(
-        {
-          postId,
-          avatar: state.data.avatar,
-          profileDispatch: dispatch,
-        },
-        "PostDialog/PostDialog"
-      );
-    }
+    history.push(`/post/${postId}`);
+   
   };
 
   const renderProfile = () => {
@@ -120,13 +118,15 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
             loading={state.following}
           />
           <ProfileCategory category="POSTS" icon="apps-outline" />
+          
           {state.data.posts.length > 0 ? (
             <div className="profile-images">
+            { isPostCreationAllowed && <CreatePostButton />}
               {state.data.posts.map((post, idx) => {
                 return (
                   <PreviewImage
                     onClick={() => handleClick(post._id)}
-                    image={post.image}
+                    image={post.medias[0]}
                     likes={post.postVotes}
                     comments={post.comments}
                     filter={post.filter}
