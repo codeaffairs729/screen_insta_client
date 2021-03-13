@@ -40,6 +40,7 @@ const CreatePostMediaSelector = ({
     });
     oldFiles.splice(fileIndex, 1);
     setFiles(oldFiles);
+    onMediaSelected && onMediaSelected(oldFiles);
   };
 
   const renderPreview = (file, index) => {
