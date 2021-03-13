@@ -1,4 +1,5 @@
 import axios from "axios";
+import { rest } from "lodash";
 import firebase from "../firebase";
 
 /**
@@ -10,7 +11,32 @@ import firebase from "../firebase";
  */
 export const getPost = async (postId) => {
   try {
-    const response = await axios.get(`/api/post/${postId}`);
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.get(`/api/post/${postId}`, {
+      headers: {
+        authorization: token,
+      },
+    });
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response.data.error);
+  }
+};
+
+export const payPost = async (postId) => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.post(
+      `/api/post/pay`,
+      {
+        postId,
+      },
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    );
     return response.data;
   } catch (err) {
     throw new Error(err.response.data.error);
@@ -24,7 +50,12 @@ export const getPost = async (postId) => {
  */
 export const getPosts = async (username, offset = 0) => {
   try {
-    const response = await axios.get(`/api/user/${username}/posts/${offset}`);
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.get(`/api/user/${username}/posts/${offset}`, {
+      headers: {
+        authorization: token,
+      },
+    });
     return response.data;
   } catch (err) {
     throw new Error(err.response.data.error);

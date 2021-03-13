@@ -180,7 +180,7 @@ export function UnconnectedApp({
           <ProtectedRoute path="/new" component={NewPostPage} />
           <ProtectedRoute path="/explore" component={ExplorePage} />
           <ProtectedRoute exact path="/:username" component={ProfilePage} />
-          <Route path="/post/:postId" component={PostPage} />
+          <ProtectedRoute path="/post/:postId" component={PostPage} />
           <ProtectedRoute path="/confirm/:token" component={ConfirmationPage} />
           <Route component={NotFoundPage} />
         </Switch>

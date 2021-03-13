@@ -24,6 +24,7 @@ const FollowButton = ({
   avatar,
   showAlert,
   style,
+  followPrice,
 }) => {
   const [isFollowing, setIsFollowing] = useState(following);
   const [loading, setLoading] = useState(false);
@@ -40,7 +41,7 @@ const FollowButton = ({
       setLoading(false);
     } catch (err) {
       setLoading(false);
-      showAlert('Could not follow the user.', () => follow());
+      showAlert("Could not follow the user.", () => follow());
     }
   };
 
@@ -59,13 +60,13 @@ const FollowButton = ({
               options: [
                 {
                   warning: true,
-                  text: 'Unfollow',
+                  text: "Unfollow",
                   onClick: () => follow(),
                 },
               ],
               children: <UnfollowPrompt avatar={avatar} username={username} />,
             },
-            'OptionsDialog/OptionsDialog'
+            "OptionsDialog/OptionsDialog"
           )
         }
         inverted
@@ -76,7 +77,7 @@ const FollowButton = ({
   }
   return (
     <Button style={style} loading={loading} onClick={() => follow()}>
-      Follow
+      {followPrice ? `Follow (${followPrice.toFixed(2)} $)` : (`Follow (Free)`) }
     </Button>
   );
 };

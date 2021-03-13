@@ -7,12 +7,10 @@ import { showModal, hideModal } from "../../redux/modal/modalActions";
 import Button from "../Button/Button";
 
 const CreatePostButton = ({ showModal, hideModal }) => {
+  const history = useHistory();
   const openCreatePostModal = () => {
     console.log("create Post button clicked aaa");
-    showModal(
-      { hide: () => hideModal("CreatePost/CreatePostModal") },
-      "CreatePost/CreatePostModal"
-    );
+    history.push("/new");
   };
 
   return <Button onClick={() => openCreatePostModal()}>create Post</Button>;

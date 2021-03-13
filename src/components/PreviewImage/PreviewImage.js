@@ -3,11 +3,41 @@ import PropTypes from "prop-types";
 
 import Icon from "../Icon/Icon";
 
-const PreviewImage = ({ onClick, image, likes, comments, filter }) => {
+const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
+  if (!post.display) {
+    return (
+      <figure onClick={onClick} key={image} className="preview-image">
+        <div
+          className="d-flex align-items-center justify-content-center pay-post-div"
+          style={{ height: 303, backgroundColor: "grey" }}
+        >
+          <div className="center-div" style={{ textAlign: "center" }}>
+            <Icon style={{ margin: "auto" }} icon="lock-closed-outline" />
+            <span>Get access for {post.postPrice.toFixed(2)}$</span>
+          </div>
+        </div>
+
+        <div className="preview-image__overlay">
+          <span className="preview-image__content">
+            {likes > 0 && (
+              <div className="preview-image__icon">
+                <Icon icon="heart" className="icon--white" />
+                <span>{likes}</span>
+              </div>
+            )}
+            <div className="preview-image__icon">
+              <Icon icon="chatbubbles" className="icon--white" />
+              <span>{comments}</span>
+            </div>
+          </span>
+        </div>
+      </figure>
+    );
+  }
   return (
     <figure onClick={onClick} key={image} className="preview-image">
       {image.endsWith(".mp4") ? (
-        <video  src={image} alt="User post" style={{   filter }} />
+        <video src={image} alt="User post" style={{ filter }} />
       ) : (
         <img src={image} alt="User post" style={{ filter }} />
       )}

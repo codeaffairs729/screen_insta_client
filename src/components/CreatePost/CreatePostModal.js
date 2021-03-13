@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 
-import { getPostFilters } from "../../services/postService";
-
 import MobileHeader from "../Header/MobileHeader/MobileHeader";
 import TextButton from "../Button/TextButton/TextButton";
 import Icon from "../Icon/Icon";

@@ -8,6 +8,7 @@ import { useHistory } from "react-router-dom";
 import { selectCurrentUser } from "../../redux/user/userSelectors";
 
 import useScrollPositionThrottled from "../../hooks/useScrollPositionThrottled";
+import { showModal, hideModal } from "../../redux/modal/modalActions";
 
 import { ReactComponent as LogoCamera } from "../../assets/svg/logo-camera.svg";
 import SearchBox from "../SearchBox/SearchBox";
@@ -16,7 +17,7 @@ import NotificationButton from "../Notification/NotificationButton/NotificationB
 import Button from "../Button/Button";
 import Icon from "../Icon/Icon";
 
-const Header = memo(({ currentUser }) => {
+const Header = memo(({ currentUser, showModal, hideModal }) => {
   const [shouldMinimizeHeader, setShouldMinimizeHeader] = useState(false);
   const {
     location: { pathname },
@@ -28,6 +29,13 @@ const Header = memo(({ currentUser }) => {
       setShouldMinimizeHeader(currentScrollPosition > 100);
     }
   });
+
+  const OnClickAddPost = () => {
+    showModal(
+      { hide: () => hideModal("CreatePost/CreatePostModal") },
+      "CreatePost/CreatePostModal"
+    );
+  };;
 
   const headerClassNames = classNames({
     header: true,
@@ -49,9 +57,9 @@ const Header = memo(({ currentUser }) => {
         <div className="header__icons">
           {currentUser ? (
             <Fragment>
-              <Link to="/explore">
+              <Link to="/new">
                 <Icon
-                  icon={pathname === "/explore" ? "compass" : "compass-outline"}
+                  icon={pathname === "/new" ? "add-circle" : "add-circle-outline"}
                 />
               </Link>
               <NotificationButton />
@@ -64,7 +72,6 @@ const Header = memo(({ currentUser }) => {
                   }
                 />
               </Link>
-              <NewPostButton />
             </Fragment>
           ) : (
             <Fragment>
@@ -90,4 +97,9 @@ const mapStateToProps = createStructuredSelector({
   currentUser: selectCurrentUser,
 });
 
-export default connect(mapStateToProps)(Header);
+const mapDispatchToProps = (dispatch) => ({
+  showModal: (props, component) => dispatch(showModal(props, component)),
+  hideModal: (component) => dispatch(hideModal(component)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Header);

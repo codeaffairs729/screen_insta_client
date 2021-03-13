@@ -4,7 +4,6 @@
   grid-template-rows: 6rem 55rem;
   grid-template-columns: minmax(25vw, 100%) 35rem;
   max-width: 100vw;
-  max-height: 500px;
 
   &--simple {
     @include simplePostDialog(postDialog);
@@ -18,12 +17,6 @@
     background-color: #000000;
     img {
       object-fit: cover;
-      width: 100%;
-      height: 100%;
-    }
-
-    video {
-      object-fit: contain;
       width: 100%;
       height: 100%;
     }
@@ -125,3 +118,27 @@
     }
   }
 }
+.carousel-style {
+  width: 100%;
+  height: fit-content;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.custom-responsive-carousel {
+  
+  .carousel-inner{
+    @include respond(phone) {
+      min-width: 496px;
+      max-height: 520px;
+    }
+
+    @include respond(tab-port) {
+     
+      max-height: 520px;
+    }
+  }
+  
+}
+

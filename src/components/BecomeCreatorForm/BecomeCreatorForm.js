@@ -30,6 +30,7 @@ const BecomeCreatorForm = ({
   showModal,
 }) => {
   const [selectedCountries, setSelectedCountries] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState(null);
   const [voiceCallActivated, setVoiceCallActivated] = useState(false);
   const [videoCallActivated, setVideoCallActivated] = useState(false);
   const [bankInformation, setBankInformation] = useState(null);
@@ -67,15 +68,6 @@ const BecomeCreatorForm = ({
     return errors;
   };
 
-  const populateCountryList = () => {
-    let countryOptions = [];
-    for (let i in miscData.countries) {
-      const country = miscData.countries[i];
-      countryOptions.push(<option value={country.name}>{country.name}</option>);
-    }
-    return countryOptions;
-  };
-
   const populateCountryOptions = () => {
     let countryOptions = [];
     for (let i in miscData.countries) {
@@ -97,6 +89,11 @@ const BecomeCreatorForm = ({
     setSelectedCountries(values);
   };
 
+  const setInitialSelectedCountryValue = (data) => {
+    if (!data) return;
+    setSelectedCountry({  value: data, label: data  });
+  };
+
   const onBlockedCountrySelected = (blockedCountries) => {
     let countries = [];
     console.log(blockedCountries);
@@ -106,6 +103,11 @@ const BecomeCreatorForm = ({
     }
     console.log("countries : " + JSON.stringify(countries));
     formik.values.blockedCountries = countries;
+  };
+
+  const onCountryOfResidenceSelected = (country) => {
+    setSelectedCountry(country);
+    formik.values.country = country.value;
   };
 
   let history = useHistory();
@@ -146,6 +148,7 @@ const BecomeCreatorForm = ({
   useEffect(() => {
     document.title = "Become a creator • Between Us";
     setInitialBlockedCountriesValues(currentUser.blockedCountries);
+    setInitialSelectedCountryValue(currentUser.country);
     if (currentUser) {
       console.log("setting activated");
       if (currentUser.audioCallPrice > 0) {
@@ -190,6 +193,7 @@ const BecomeCreatorForm = ({
           step="any"
           min="0"
           fieldProps={formik.getFieldProps("followPrice")}
+          style={{ height: "fit-content" }}
         />
       </div>
 
@@ -203,9 +207,14 @@ const BecomeCreatorForm = ({
             </label>
           </div>
 
-          <select name="country" value={formik.values.country}>
-            {populateCountryList()}
-          </select>
+          <div style={{ minWidth: 150 }}>
+            <Select
+              closeMenuOnSelect={true}
+              options={populateCountryOptions()}
+              value={selectedCountry}
+              onChange={onCountryOfResidenceSelected}
+            />
+          </div>
         </div>
       ) : null}
 
@@ -227,8 +236,8 @@ const BecomeCreatorForm = ({
           <label className="heading-3 font-bold">Bank infos</label>
           <label></label>
         </div>
-        <div className="form-group">
-          <a className="form-group" href="#" onClick={onClickModal}>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <a style={{fontSize: 14}} className="form-group" href="#" onClick={onClickModal}>
             Add your bank details to receive money from your subscribers
           </a>
         </div>

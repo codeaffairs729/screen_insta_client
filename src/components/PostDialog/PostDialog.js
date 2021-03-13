@@ -7,7 +7,7 @@ import { Link, useHistory } from "react-router-dom";
 
 import { selectToken, selectCurrentUser } from "../../redux/user/userSelectors";
 
-import { showModal, hideModal } from "../../redux/modal/modalActions";
+import { showModal, hideModal } from "./../../redux/modal/modalActions";
 import { showAlert } from "../../redux/alert/alertActions";
 
 import { getPost, deletePost } from "../../services/postService";
@@ -19,6 +19,8 @@ import SkeletonLoader from "../SkeletonLoader/SkeletonLoader";
 import Comment from "../Comment/Comment";
 import PostDialogCommentForm from "./PostDialogCommentForm/PostDialogCommentForm";
 import PostDialogStats from "./PostDialogStats/PostDialogStats";
+import Carousel from "react-bootstrap/Carousel";
+import { payPost } from "./../../services/postService";
 
 import { INITIAL_STATE, postDialogReducer } from "./postDialogReducer";
 
@@ -105,24 +107,65 @@ const PostDialog = ({
     }
   };
 
-  const renderPostPreview = (fetching, medias) => {
-    if (fetching) return <SkeletonLoader animated />;
-    if (medias[0].endsWith(".mp4")) {
-      return (
-        <video
-          alt="Post"
-          style={{ filter: state.data.filter }}
-          controls
-          autoPlay
-        >
-          <source src={medias[0]} type="video/mp4" />
-        </video>
-      );
+  const payPostClicked = async (toPayPostId) => {
+    const result = await payPost(toPayPostId);
+    if (result) {
+      let newPost = { ...state.data };
+      newPost.medias = result;
+      dispatch({ type: "FETCH_POST_SUCCESS", payload: newPost });
     } else {
+      showAlert("An error occurred");
+    }
+  };
+
+  const renderPostPreview = (fetching, post) => {
+    if (fetching) return <SkeletonLoader animated />;
+    let medias = post.medias;
+    if (!medias) {
       return (
-        <img src={medias[0]} alt="Post" style={{ filter: state.data.filter }} />
+        <div
+          className="d-flex align-items-center justify-content-center pay-post-div"
+          style={{ height: "100%", backgroundColor: "grey" }}
+          onClick={(e) => payPostClicked(post._id)}
+        >
+          <div className="center-div">
+            <Icon style={{ margin: "auto" }} icon="lock-closed-outline" />
+            <span>Get access for {post.postPrice.toFixed(2)}$</span>
+          </div>
+        </div>
       );
     }
+    return (
+      <Carousel
+        interval={null}
+        controls={post.medias && post.medias.length === 1 ? false : true}
+        indicators={post.medias && post.medias.length === 1 ? false : true}
+        touch={true}
+        className={"custom-responsive-carousel"}
+      >
+        {post.medias &&
+          post.medias.map((media, index) => (
+            <Carousel.Item key={index}>
+              {media && media.endsWith(".mp4") && (
+                <video
+                  alt="Post"
+                  style={{ filter: state.data.filter, width: "100%" }}
+                  controls
+                >
+                  <source src={media} type="video/mp4" />
+                </video>
+              )}
+              {media && !media.endsWith(".mp4") && (
+                <img
+                  className="d-block w-100"
+                  src={media}
+                  style={{ width: "100%" }}
+                />
+              )}
+            </Carousel.Item>
+          ))}
+      </Carousel>
+    );
   };
 
   return (
@@ -142,7 +185,8 @@ const PostDialog = ({
             "post-dialog__image--simple": simple,
           })}
         >
-          {renderPostPreview(fetching, state.data.medias)}
+          {renderPostPreview(fetching, state.data)}
+          {/*<img src="https://res.cloudinary.com/drwb19czo/image/upload/v1604873123/v5lunckwgpjmupcb3z4p.jpg" />*/}
         </div>
         <header
           className={classNames({
@@ -182,14 +226,16 @@ const PostDialog = ({
               </p>
             </Link>
           )}
+
           {!fetching && (
             <div
               onClick={() => {
+                
                 const options = [
                   {
-                    text: "Go to post",
+                    text: 'Go to post',
                     onClick: () => {
-                      hideModal("PostDialog/PostDialog");
+                      hideModal('PostDialog/PostDialog');
                       history.push(`/post/${postId}`);
                     },
                   },
@@ -198,13 +244,14 @@ const PostDialog = ({
                     onClick: () => {
                       navigator.clipboard
                         .writeText(document.URL)
-                        .then(() => showAlert("Link copied to clipboard."))
+                        .then(() => showAlert('Link copied to clipboard.'))
                         .catch(() =>
-                          showAlert("Could not copy link to clipboard.")
+                          showAlert('Could not copy link to clipboard.')
                         );
                     },
                   },
                 ];
+
                 showModal(
                   {
                     options:
@@ -223,7 +270,7 @@ const PostDialog = ({
                           ]
                         : options,
                   },
-                  "OptionsDialog/OptionsDialog"
+                  'OptionsDialog/OptionsDialog'
                 );
               }}
               style={{ cursor: "pointer" }}
@@ -310,7 +357,6 @@ const PostDialog = ({
           ) : (
             <PostDialogStats
               currentUser={currentUser}
-              token={token}
               post={state.data}
               dispatch={dispatch}
               profileDispatch={profileDispatch}

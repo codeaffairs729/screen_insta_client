@@ -27,7 +27,6 @@ const PostDialogStats = ({
   simple,
 }) => {
   const ref = useRef();
-  console.log("wtf");
   const handleClick = async () => {
     if (!currentUser) {
       return showModal(

@@ -84,10 +84,11 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
       try {
         dispatch({ type: "FETCH_PROFILE_START" });
         const profile = await getUserProfile(username);
-        if (profile.uid) {
+        if (profile && profile.user && profile.user.uid) {
           const uid = firebase.auth().currentUser.uid;
-          if (profile.uid.toLowerCase() === uid.toLowerCase()) {
-            setIsPostCreationAllowed(true)
+          console.log(`User UID ${uid} and prfileUID: ${profile.user.uid}`);
+          if (profile.user.uid.toLowerCase() === uid.toLowerCase()) {
+            setIsPostCreationAllowed(true);
           }
         }
         dispatch({ type: "FETCH_PROFILE_SUCCESS", payload: profile });
@@ -95,11 +96,10 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
         dispatch({ type: "FETCH_PROFILE_FAILURE", payload: err });
       }
     })();
-  }, [username, token]);
+  }, [username]);
 
   const handleClick = (postId) => {
     history.push(`/post/${postId}`);
-   
   };
 
   const renderProfile = () => {
@@ -118,21 +118,24 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
             loading={state.following}
           />
           <ProfileCategory category="POSTS" icon="apps-outline" />
-          
-          {state.data.posts.length > 0 ? (
+
+          {state.data.posts && state.data.posts.length > 0 ? (
             <div className="profile-images">
-            { isPostCreationAllowed && <CreatePostButton />}
+              {isPostCreationAllowed && <CreatePostButton />}
               {state.data.posts.map((post, idx) => {
+                
                 return (
                   <PreviewImage
                     onClick={() => handleClick(post._id)}
-                    image={post.medias[0]}
+                    image={post.medias ? post.medias[0] : null}
                     likes={post.postVotes}
                     comments={post.comments}
                     filter={post.filter}
+                    post={post}
                     key={idx}
                   />
                 );
+                
               })}
               {state.fetchingAdditionalPosts && (
                 <Fragment>
@@ -150,6 +153,7 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
             </div>
           ) : (
             <EmptyProfile
+              data={state.data}
               currentUserProfile={
                 currentUser && currentUser.username === username
               }

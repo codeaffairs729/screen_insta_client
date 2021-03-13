@@ -43,6 +43,7 @@ const SuggestedUsers = ({ token, showAlert, card, style, max }) => {
               username={user.username}
               following={false}
               avatar={user.avatar}
+              followPrice={user.followPrice}
             />
           </UserCard>
         ))

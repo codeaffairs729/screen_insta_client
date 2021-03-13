@@ -16,27 +16,10 @@ const NewPostButton = ({ onClick, showModal, hideModal, plusIcon, children, styl
   }, [])
 
   useEffect(() => {
-    if (file) {
-      if (window.outerWidth > 600) {
-        showModal(
-          {hide: () => hideModal('CreatePost/CreatePostModal') },
-          'CreatePostModal'
-        );
-      } else {
-        history.push('/new', { file });
-      }
-      // Resetting the input value so you are able to
-      // use the same file twice
-      fileInputRef.current.value = '';
-    }
-  }, [file, showModal, hideModal, history]);
-  return (
-    <Fragment onClick={onClick}>
       
      
-      
-    </Fragment>
-  );
+  }, [file, showModal, hideModal, history]);
+  return <Fragment></Fragment>;
 };
 /*
  <label

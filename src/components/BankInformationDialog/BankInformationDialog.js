@@ -64,9 +64,9 @@ const BankInformationDialog = ({
       >
         <SettingsForm onSubmit={formik.handleSubmit}>
           <SettingsFormGroup>
-            <div style={{ display: "grid" }}>
-              <label className="heading-3 font-bold">Full name</label>
-            </div>
+            <label style={{ width: 80 }} className="heading-3 font-bold">
+              Full name
+            </label>
 
             <FormInput
               fieldProps={formik.getFieldProps("fullName")}
@@ -74,57 +74,68 @@ const BankInformationDialog = ({
             />
           </SettingsFormGroup>
 
-          <SettingsFormGroup>
-            <div style={{ display: "grid" }}>
-              <label className="heading-3 font-bold">IBAN</label>
-            </div>
+          <SettingsForm>
+            <SettingsFormGroup>
+              <label style={{ width: 80 }} className="heading-3 font-bold">
+                IBAN
+              </label>
+              <FormInput
+                fieldProps={formik.getFieldProps("iban")}
+                name="iban"
+              />
+            </SettingsFormGroup>
+          </SettingsForm>
 
-            <FormInput fieldProps={formik.getFieldProps("iban")} name="iban" />
-          </SettingsFormGroup>
+          <SettingsForm>
+            <SettingsFormGroup>
+              <label style={{ width: 80 }} className="heading-3 font-bold">
+                BIC (SWIFT)
+              </label>
 
-          <SettingsFormGroup>
-            <div style={{ display: "grid" }}>
-              <label className="heading-3 font-bold">BIC (SWIFT)</label>
-            </div>
+              <FormInput
+                fieldProps={formik.getFieldProps("swift")}
+                name="swift"
+              />
+            </SettingsFormGroup>
+          </SettingsForm>
 
-            <FormInput
-              fieldProps={formik.getFieldProps("swift")}
-              name="swift"
-            />
-          </SettingsFormGroup>
+          <SettingsForm>
+            <SettingsFormGroup>
+              <label style={{ width: 80 }} className="heading-3 font-bold">
+                Bank name
+              </label>
 
-          <SettingsFormGroup>
-            <div style={{ display: "grid" }}>
-              <label className="heading-3 font-bold">Bank name</label>
-            </div>
+              <FormInput
+                fieldProps={formik.getFieldProps("bankName")}
+                name="bankName"
+              />
+            </SettingsFormGroup>
+          </SettingsForm>
 
-            <FormInput
-              fieldProps={formik.getFieldProps("bankName")}
-              name="bankName"
-            />
-          </SettingsFormGroup>
+          <SettingsForm>
+            <SettingsFormGroup>
+              <label style={{ width: 80 }} className="heading-3 font-bold">
+                Country
+              </label>
+              <FormInput
+                fieldProps={formik.getFieldProps("country")}
+                name="country"
+              />
+            </SettingsFormGroup>
+          </SettingsForm>
 
-          <SettingsFormGroup>
-            <div style={{ display: "grid" }}>
-              <label className="heading-3 font-bold">Country</label>
-            </div>
+          <SettingsForm>
+            <SettingsFormGroup>
+              <label style={{ width: 80 }} className="heading-3 font-bold">
+                Address
+              </label>
 
-            <FormInput
-              fieldProps={formik.getFieldProps("country")}
-              name="country"
-            />
-          </SettingsFormGroup>
-
-          <SettingsFormGroup>
-            <div style={{ display: "grid" }}>
-              <label className="heading-3 font-bold">Address</label>
-            </div>
-
-            <FormInput
-              fieldProps={formik.getFieldProps("address")}
-              name="address"
-            />
-          </SettingsFormGroup>
+              <FormInput
+                fieldProps={formik.getFieldProps("address")}
+                name="address"
+              />
+            </SettingsFormGroup>
+          </SettingsForm>
         </SettingsForm>
       </div>
     );
