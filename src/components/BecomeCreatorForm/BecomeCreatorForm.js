@@ -146,7 +146,7 @@ const BecomeCreatorForm = ({
   });
 
   useEffect(() => {
-    document.title = "Become a creator • Between Us";
+    document.title = "Become a creator • BetweenUs";
     setInitialBlockedCountriesValues(currentUser.blockedCountries);
     setInitialSelectedCountryValue(currentUser.country);
     if (currentUser) {

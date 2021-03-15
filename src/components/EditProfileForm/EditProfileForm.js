@@ -84,7 +84,7 @@ const EditProfileForm = ({
   });
 
   useEffect(() => {
-    document.title = "Edit Profile • Between Us";
+    document.title = "Edit Profile • BetweenUs";
   });
 
   return (

@@ -14,7 +14,7 @@ import NotFoundPage from "../NotFoundPage/NotFoundPage";
 
 const ExplorePage = ({ token, showAlert, showModal, match }) => {
   useEffect(() => {
-    document.title = "Between Us";
+    document.title = "BetweenUs";
   }, []);
 
   return (

@@ -5,6 +5,7 @@ import Icon from "../Icon/Icon";
 import { isVideo } from "../../validUploads";
 
 const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
+  if (!post) return null;
   if (!post.display) {
     return (
       <figure onClick={onClick} key={image} className="preview-image">

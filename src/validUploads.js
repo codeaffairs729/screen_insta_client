@@ -21,9 +21,25 @@ export const isVideo = (link) => {
     let mimeType = mimeTypes.contentType(extension);
     if (mimeType) {
       mimeType = mimeType.toLowerCase();
-      if (validAudioFiles.indexOf(mimeType) !== -1) {
+      if (validVideoFiles.indexOf(mimeType) !== -1) {
         return true;
-      } else if (validVideoFiles.indexOf(mimeType) !== -1) {
+      } else {
+        return false;
+      }
+    }
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+};
+
+export const isAudio = (link) => {
+  try {
+    const extension = link.split(".")[link.split(".").length - 1];
+    let mimeType = mimeTypes.contentType(extension);
+    if (mimeType) {
+      mimeType = mimeType.toLowerCase();
+      if (validAudioFiles.indexOf(mimeType) !== -1) {
         return true;
       } else {
         return false;

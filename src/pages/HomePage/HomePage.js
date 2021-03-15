@@ -32,7 +32,7 @@ const HomePage = ({
   fetching,
 }) => {
   useEffect(() => {
-    document.title = `Between Us`;
+    document.title = `BetweenUs`;
     fetchFeedPostsStart();
     return () => {
       clearPosts();
@@ -52,8 +52,8 @@ const HomePage = ({
   return (
     <Fragment>
       <MobileHeader>
-        <h3 style={{ fontSize: "2.5rem" }} className="heading-logo">
-          Between Us
+        <h3 style={{ fontSize: "2rem" }} className="heading-logo">
+          BetweenUs
         </h3>
       </MobileHeader>
       <main data-test="page-home" className="home-page grid">

@@ -22,7 +22,7 @@ import Carousel from "react-bootstrap/Carousel";
 import { payPost } from "./../../services/postService";
 
 import { INITIAL_STATE, postDialogReducer } from "./postDialogReducer";
-import { isVideo } from "../../validUploads";
+import { isAudio, isVideo } from "../../validUploads";
 
 const PostDialog = ({
   postId,
@@ -50,11 +50,6 @@ const PostDialog = ({
       if (postData) {
         dispatch({ type: "FETCH_POST_SUCCESS", payload: postData });
       } else {
-        /*window.history.pushState(
-          { prevUrl: window.location.href },
-          null,
-          `/post/${postId}`
-        );*/
         (async function () {
           try {
             const response = await getPost(postId);
@@ -66,7 +61,7 @@ const PostDialog = ({
         })();
       }
     }
-    
+
     return () => {
       if (window.history.state && window.history.state.prevUrl) {
         window.history.pushState(
@@ -118,8 +113,6 @@ const PostDialog = ({
     }
   };
 
-  
-
   const renderPostPreview = (fetching, post) => {
     if (fetching) return <SkeletonLoader animated />;
     let medias = post.medias;
@@ -143,9 +136,8 @@ const PostDialog = ({
         controls={post.medias && post.medias.length === 1 ? false : true}
         indicators={post.medias && post.medias.length === 1 ? false : true}
         touch={true}
-        prevLabel= ""
-        nextLabel =""
-        className={"custom-responsive-carousel carousel-height"}
+        prevLabel=""
+        nextLabel=""
       >
         {post.medias &&
           post.medias.map((media, index) => (
@@ -153,23 +145,32 @@ const PostDialog = ({
               {media && isVideo(media) && (
                 <video
                   alt="Post"
-                  className="responsive-img"
                   style={{
                     filter: state.data.filter,
                     width: "100%",
-                    height: "fit-content",
-                    maxHeight: 590,
                   }}
                   controls
                 >
                   <source src={media} type="video/mp4" />
                 </video>
               )}
-              {media && !isVideo(media) && (
+              {media && isAudio(media) && (
+                <audio
+                  alt="Post"
+                  style={{
+                    filter: state.data.filter,
+                    width: "100%",
+                  }}
+                  controls
+                >
+                  <source src={media} type="video/mp4" />
+                </audio>
+              )}
+              {media && !isVideo(media) && !isAudio(media) && (
                 <img
-                  className="d-block w-100 responsive-img"
+                  className="d-block w-100"
                   src={media}
-                  style={{ width: "100%", maxHeight: 590}}
+                  style={{ width: "100%"      }}
                 />
               )}
             </Carousel.Item>
@@ -239,12 +240,11 @@ const PostDialog = ({
           {!fetching && (
             <div
               onClick={() => {
-                
                 const options = [
                   {
-                    text: 'Go to post',
+                    text: "Go to post",
                     onClick: () => {
-                      hideModal('PostDialog/PostDialog');
+                      hideModal("PostDialog/PostDialog");
                       history.push(`/post/${postId}`);
                     },
                   },
@@ -253,9 +253,9 @@ const PostDialog = ({
                     onClick: () => {
                       navigator.clipboard
                         .writeText(document.URL)
-                        .then(() => showAlert('Link copied to clipboard.'))
+                        .then(() => showAlert("Link copied to clipboard."))
                         .catch(() =>
-                          showAlert('Could not copy link to clipboard.')
+                          showAlert("Could not copy link to clipboard.")
                         );
                     },
                   },
@@ -279,7 +279,7 @@ const PostDialog = ({
                           ]
                         : options,
                   },
-                  'OptionsDialog/OptionsDialog'
+                  "OptionsDialog/OptionsDialog"
                 );
               }}
               style={{ cursor: "pointer" }}

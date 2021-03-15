@@ -5,7 +5,7 @@ import NotificationFeed from "../../components/Notification/NotificationFeed/Not
 
 const ActivityPage = () => {
   useEffect(() => {
-    document.title = "Between Us";
+    document.title = "BetweenUs";
   }, []);
 
   return (

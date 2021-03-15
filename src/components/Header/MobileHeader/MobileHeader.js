@@ -29,8 +29,8 @@ const MobileHeader = ({ children, backArrow, style, show, currentUser }) => {
         </Fragment>
       ) : (
         <Fragment>
-          <h3 style={{ fontSize: "2.5rem" }} className="heading-logo">
-            Between Us
+          <h3 style={{ fontSize: "2rem" }} className="heading-logo">
+            BetweenUs
           </h3>
           <div style={{ gridColumn: "-1" }}>
             <Button

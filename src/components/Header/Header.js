@@ -50,7 +50,7 @@ const Header = memo(({ currentUser, showModal, hideModal }) => {
             <LogoCamera />
           </div>
           <div className="header__logo-header">
-            <h3 className="heading-logo">Between us</h3>
+            <h3 className="heading-logo">BetweenUs</h3>
           </div>
         </Link>
         <SearchBox />

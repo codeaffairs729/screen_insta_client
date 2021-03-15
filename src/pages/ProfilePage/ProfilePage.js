@@ -79,7 +79,7 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
   }, null);
 
   useEffect(() => {
-    document.title = `@${username} • Between Us photos`;
+    document.title = `@${username} • BetweenUs photos`;
     (async function () {
       try {
         dispatch({ type: "FETCH_PROFILE_START" });

@@ -24,6 +24,19 @@
     &--simple {
       @include simplePostDialog(image);
     }
+
+    .carousel {
+      height: 100%;
+      .carousel-inner {
+        height: 100%;
+        .carousel-item {
+          height: 100%;
+          video {
+            height: 100%;
+          }
+        }
+      }
+    }
   }
 
   &__content {
@@ -101,7 +114,7 @@
 
   @include respond(phone) {
     @include simplePostDialog(postDialog);
-    grid-template-rows: min-content 50rem min-content;
+    grid-template-rows: min-content min-content min-content;
     border: none;
     &__image {
       @include simplePostDialog(image);
@@ -115,47 +128,6 @@
     &__stats {
       @include simplePostDialog(stats);
       padding: 1rem 1.5rem;
-    }
-  }
-}
-.carousel-style {
-  width: 100%;
-  height: fit-content;
-  &:hover {
-    cursor: pointer;
-  }
-}
-
-.custom-responsive-carousel {
-  
-  .carousel-inner{
-    @include respond(phone) {
-      min-width: 496px;
-      max-height: 520px;
-    }
-
-    @include respond(tab-port) {
-     
-      max-height: 520px;
-    }
-  }
-  
-}
-
-.responsive-img {
-  max-height: 650px;
-
-  @include respond(phone) {
-    max-height: 500px;
-  }
-}
-
-.carousel-height {
-  height: 100%;
-  .carousel-inner {
-    height: 100%;
-    .carousel-item {
-      height: 100%;
     }
   }
 }

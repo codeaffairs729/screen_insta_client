@@ -58,7 +58,7 @@ const LoginCard = ({
       }
     >
       <Card className="form-card">
-        <h1 className="heading-logo text-center">Between Us</h1>
+        <h1 className="heading-logo text-center">BetweenUs</h1>
         <form
           onSubmit={(event) => handleSubmit(event)}
           className="form-card__form"
