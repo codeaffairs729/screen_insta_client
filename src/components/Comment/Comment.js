@@ -201,7 +201,8 @@ const Comment = ({
                     {comment.commentVotes.length === 1 ? 'like' : 'likes'}
                   </p>
                 )}
-                <button
+                <p
+                  style={{cursor: "pointer"}}
                   onClick={() =>
                     // Telling the PostDialogCommentForm that we want to reply to this comment
                     dialogDispatch({
@@ -215,7 +216,7 @@ const Comment = ({
                   className="heading-5 heading--button color-light"
                 >
                   reply
-                </button>
+                </p>
               </Fragment>
             )}
           </div>

@@ -3,6 +3,12 @@ import React, { useState, useEffect, useRef } from "react";
 import Button from "../../Button/Button";
 import Icon from "../../Icon/Icon";
 import PostText from "../PostText";
+import {
+  isVideo,
+  validAudioFiles,
+  validImageFiles,
+  validVideoFiles,
+} from "./../../../validUploads";
 
 const CreatePostMediaSelector = ({
   onMediaSelected,
@@ -44,7 +50,7 @@ const CreatePostMediaSelector = ({
   };
 
   const renderPreview = (file, index) => {
-    if (file && file.name && file.name.endsWith(".mp4")) {
+    if (file && file.name && isVideo(file.name)) {
       return (
         <div className="video-preview" key={index}>
           <span className="preview-close-button">
@@ -63,7 +69,7 @@ const CreatePostMediaSelector = ({
           </video>
         </div>
       );
-    } else if (file && file.name && !file.name.endsWith(".mp4")) {
+    } else if (file && file.name && !isVideo(file.name)) {
       return (
         <div className="image-preview" key={index}>
           <span className="preview-close-button">
@@ -92,6 +98,7 @@ const CreatePostMediaSelector = ({
         onChange={(e) => onFileSelected(e.target.files[0])}
         ref={fileInputRef}
         type="file"
+        accept={validAudioFiles.concat(validImageFiles).concat(validVideoFiles)}
       />
       <div style={{ display: "flex", flexWrap: "wrap" }}>
         {files.map((file, index) => {

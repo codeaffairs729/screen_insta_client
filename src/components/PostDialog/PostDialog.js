@@ -12,7 +12,6 @@ import { showAlert } from "../../redux/alert/alertActions";
 
 import { getPost, deletePost } from "../../services/postService";
 import { getComments } from "../../services/commentService";
-
 import Avatar from "../Avatar/Avatar";
 import Icon from "../Icon/Icon";
 import SkeletonLoader from "../SkeletonLoader/SkeletonLoader";
@@ -23,6 +22,7 @@ import Carousel from "react-bootstrap/Carousel";
 import { payPost } from "./../../services/postService";
 
 import { INITIAL_STATE, postDialogReducer } from "./postDialogReducer";
+import { isVideo } from "../../validUploads";
 
 const PostDialog = ({
   postId,
@@ -50,11 +50,11 @@ const PostDialog = ({
       if (postData) {
         dispatch({ type: "FETCH_POST_SUCCESS", payload: postData });
       } else {
-        window.history.pushState(
+        /*window.history.pushState(
           { prevUrl: window.location.href },
           null,
           `/post/${postId}`
-        );
+        );*/
         (async function () {
           try {
             const response = await getPost(postId);
@@ -66,7 +66,7 @@ const PostDialog = ({
         })();
       }
     }
-
+    
     return () => {
       if (window.history.state && window.history.state.prevUrl) {
         window.history.pushState(
@@ -118,6 +118,8 @@ const PostDialog = ({
     }
   };
 
+  
+
   const renderPostPreview = (fetching, post) => {
     if (fetching) return <SkeletonLoader animated />;
     let medias = post.medias;
@@ -141,25 +143,33 @@ const PostDialog = ({
         controls={post.medias && post.medias.length === 1 ? false : true}
         indicators={post.medias && post.medias.length === 1 ? false : true}
         touch={true}
-        className={"custom-responsive-carousel"}
+        prevLabel= ""
+        nextLabel =""
+        className={"custom-responsive-carousel carousel-height"}
       >
         {post.medias &&
           post.medias.map((media, index) => (
             <Carousel.Item key={index}>
-              {media && media.endsWith(".mp4") && (
+              {media && isVideo(media) && (
                 <video
                   alt="Post"
-                  style={{ filter: state.data.filter, width: "100%" }}
+                  className="responsive-img"
+                  style={{
+                    filter: state.data.filter,
+                    width: "100%",
+                    height: "fit-content",
+                    maxHeight: 590,
+                  }}
                   controls
                 >
                   <source src={media} type="video/mp4" />
                 </video>
               )}
-              {media && !media.endsWith(".mp4") && (
+              {media && !isVideo(media) && (
                 <img
-                  className="d-block w-100"
+                  className="d-block w-100 responsive-img"
                   src={media}
-                  style={{ width: "100%" }}
+                  style={{ width: "100%", maxHeight: 590}}
                 />
               )}
             </Carousel.Item>
@@ -186,7 +196,6 @@ const PostDialog = ({
           })}
         >
           {renderPostPreview(fetching, state.data)}
-          {/*<img src="https://res.cloudinary.com/drwb19czo/image/upload/v1604873123/v5lunckwgpjmupcb3z4p.jpg" />*/}
         </div>
         <header
           className={classNames({

@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import Icon from "../Icon/Icon";
+import { isVideo } from "../../validUploads";
 
 const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
   if (!post.display) {
@@ -36,7 +37,7 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
   }
   return (
     <figure onClick={onClick} key={image} className="preview-image">
-      {image.endsWith(".mp4") ? (
+      {isVideo(image) ? (
         <video src={image} alt="User post" style={{ filter }} />
       ) : (
         <img src={image} alt="User post" style={{ filter }} />

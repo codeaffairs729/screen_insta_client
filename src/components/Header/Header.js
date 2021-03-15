@@ -57,9 +57,14 @@ const Header = memo(({ currentUser, showModal, hideModal }) => {
         <div className="header__icons">
           {currentUser ? (
             <Fragment>
+              <Link to="/">
+                <Icon icon={pathname === "/" ? "home" : "home-outline"} />
+              </Link>
               <Link to="/new">
                 <Icon
-                  icon={pathname === "/new" ? "add-circle" : "add-circle-outline"}
+                  icon={
+                    pathname === "/new" ? "add-circle" : "add-circle-outline"
+                  }
                 />
               </Link>
               <NotificationButton />

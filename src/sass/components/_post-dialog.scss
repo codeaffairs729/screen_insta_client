@@ -142,3 +142,20 @@
   
 }
 
+.responsive-img {
+  max-height: 650px;
+
+  @include respond(phone) {
+    max-height: 500px;
+  }
+}
+
+.carousel-height {
+  height: 100%;
+  .carousel-inner {
+    height: 100%;
+    .carousel-item {
+      height: 100%;
+    }
+  }
+}
