@@ -124,7 +124,7 @@ const PostDialog = ({
           onClick={(e) => payPostClicked(post._id)}
         >
           <div className="center-div">
-            <Icon style={{ margin: "auto" }} icon="lock-closed-outline" />
+            <Icon icon="lock-closed-outline" />
             <span>Get access for {post.postPrice.toFixed(2)}$</span>
           </div>
         </div>
@@ -155,22 +155,46 @@ const PostDialog = ({
                 </video>
               )}
               {media && isAudio(media) && (
-                <audio
-                  alt="Post"
+                <div
                   style={{
-                    filter: state.data.filter,
-                    width: "100%",
+                    minHeight: 300,
+                    display: "flex",
+                    flexFlow: "column",
                   }}
-                  controls
                 >
-                  <source src={media} type="video/mp4" />
-                </audio>
+                  <div
+                    style={{
+                      textAlign: "center",
+                      flex: "1 1 auto",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      display: "flex",
+                    }}
+                  >
+                    <Icon
+                      style={{ width: "100%", height: 50, color: "white" }}
+                      className="icon--small"
+                      icon="mic"
+                    />
+                  </div>
+                  <audio
+                    alt="Post"
+                    style={{
+                      filter: state.data.filter,
+                      width: "100%",
+                      flex: "0 1 auto",
+                    }}
+                    controls
+                  >
+                    <source src={media} type="video/mp4" />
+                  </audio>
+                </div>
               )}
               {media && !isVideo(media) && !isAudio(media) && (
                 <img
                   className="d-block w-100"
                   src={media}
-                  style={{ width: "100%"      }}
+                  style={{ width: "100%" }}
                 />
               )}
             </Carousel.Item>
