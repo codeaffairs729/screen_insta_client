@@ -17,7 +17,7 @@ import { addPost } from "../../redux/feed/feedActions";
 import PostPrice from "../../components/CreatePost/PostPrice";
 import Button from "../../components/Button/Button";
 
-const NewPostPage = ({ location, currentUser }) => {
+const NewPostPage = ({ location, currentUser, showAlert }) => {
   const history = useHistory();
   const [medias, setMedias] = useState([]);
   const [price, setPrice] = useState(0);
@@ -29,6 +29,9 @@ const NewPostPage = ({ location, currentUser }) => {
   };
 
   const onPriceSelected = (selectedPrice) => {
+    if (!selectedPrice) {
+      selectedPrice = 0;
+    }
     setPrice(selectedPrice);
   };
 
@@ -38,6 +41,10 @@ const NewPostPage = ({ location, currentUser }) => {
 
   const onSubmitClicked = async () => {
     console.log("onSubmit clicked");
+    if (price !== 0 && price < 5) {
+      showAlert("The minimum price for a post should be 5$");
+      return;
+    }
     setLoading(true);
     const formData = new FormData();
     for (let i = 0; i < medias.length; i++) {
@@ -139,8 +146,13 @@ const NewPostPage = ({ location, currentUser }) => {
     </Fragment>
   );
 };
+
+const mapDispatchToProps = (dispatch) => ({
+  showAlert: (text, onClick) => dispatch(showAlert(text, onClick)),
+});
+
 const mapStateToProps = createStructuredSelector({
   currentUser: selectCurrentUser,
 });
 
-export default connect(mapStateToProps, null)(NewPostPage);
+export default connect(mapStateToProps, mapDispatchToProps)(NewPostPage);

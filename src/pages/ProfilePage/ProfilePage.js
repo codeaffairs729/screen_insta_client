@@ -52,6 +52,8 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
         type: "FOLLOW_USER_SUCCESS",
         payload: response.operation,
       });
+      const profile = await getUserProfile(username);
+      dispatch({ type: "FETCH_PROFILE_SUCCESS", payload: profile });
     } catch (err) {
       dispatch({
         type: "FOLLOW_USER_FAILURE",
