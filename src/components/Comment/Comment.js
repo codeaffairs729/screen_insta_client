@@ -220,15 +220,17 @@ const Comment = ({
               </Fragment>
             )}
           </div>
-          {caption && post.commentData ? (
+          {caption && post.commentData && post.commentData.commentCount > 0 ? (
             <Link
               className="heading-4 color-grey font-medium"
               style={{ textDecoration: 'none' }}
               to={`/post/${post._id}`}
             >
-              View all {post.commentData.commentCount} comments
+              View {post.commentData.commentCount == 1 ? "" : "all"} {post.commentData.commentCount} 
+              {post.commentData.commentCount == 1 ? " Comment" : " Comments"}
             </Link>
           ) : null}
+
           {dialogDispatch && !caption && comment.commentReplies > 0 ? (
             <p
               onClick={() => handleGetCommentReplies()}
