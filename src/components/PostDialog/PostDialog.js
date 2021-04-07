@@ -20,6 +20,7 @@ import PostDialogCommentForm from "./PostDialogCommentForm/PostDialogCommentForm
 import PostDialogStats from "./PostDialogStats/PostDialogStats";
 import Carousel from "react-bootstrap/Carousel";
 import { payPost } from "./../../services/postService";
+import Video from "./../Video/Video";
 
 import { INITIAL_STATE, postDialogReducer } from "./postDialogReducer";
 import { isAudio, isVideo } from "../../validUploads";
@@ -37,6 +38,7 @@ const PostDialog = ({
   postData,
   loading,
   simple,
+  key,
 }) => {
   const commentsRef = useRef();
   const [state, dispatch] = useReducer(postDialogReducer, INITIAL_STATE);
@@ -113,6 +115,7 @@ const PostDialog = ({
     }
   };
 
+  const onSlide = () => {};
   const renderPostPreview = (fetching, post) => {
     if (fetching) return <SkeletonLoader animated />;
     let medias = post.medias;
@@ -136,6 +139,7 @@ const PostDialog = ({
         controls={post.medias && post.medias.length === 1 ? false : true}
         indicators={post.medias && post.medias.length === 1 ? false : true}
         touch={true}
+        onSlide={onSlide}
         prevLabel=""
         nextLabel=""
       >
@@ -153,6 +157,7 @@ const PostDialog = ({
                 >
                   <source src={media} type="video/mp4" />
                 </video>
+                /*<Video  noControls src={media} />*/
               )}
               {media && isAudio(media) && (
                 <div
@@ -394,6 +399,7 @@ const PostDialog = ({
               dispatch={dispatch}
               profileDispatch={profileDispatch}
               simple={simple}
+              postId={postId}
             />
           )}
           {!fetching && (

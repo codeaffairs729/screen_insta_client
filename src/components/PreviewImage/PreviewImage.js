@@ -14,7 +14,7 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
           style={{ height: 303, backgroundColor: "grey" }}
         >
           <div className="center-div" style={{ textAlign: "center" }}>
-            <Icon style={{ margin: "auto" }} icon="lock-closed-outline" />
+            <Icon icon="lock-closed-outline" />
             <span>Get access for {post.postPrice.toFixed(2)}$</span>
           </div>
         </div>
@@ -39,9 +39,17 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
   return (
     <figure onClick={onClick} key={image} className="preview-image">
       {isVideo(image) ? (
-        <video src={image} alt="User post" style={{ filter }} />
+        <video
+          src={image}
+          alt="User post"
+          style={{ filter, objectFit: "cover" }}
+        />
       ) : (
-        <img src={image} alt="User post" style={{ filter }} />
+        <img
+          src={image}
+          alt="User post"
+          style={{ filter, objectFit: "cover" }}
+        />
       )}
 
       <div className="preview-image__overlay">
@@ -56,6 +64,13 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
             <Icon icon="chatbubbles" className="icon--white" />
             <span>{comments}</span>
           </div>
+        </span>
+        <span className="preview-image__topRightContent">
+          {post && post.medias && post.medias.length > 1 && (
+            <div className="preview-image__icon">
+                  <Icon icon="documents-outline" className="icon--white" />
+            </div>
+          )}
         </span>
       </div>
     </figure>

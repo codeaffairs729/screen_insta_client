@@ -11,6 +11,13 @@
   transform: translateX(-50%);
 }
 
+@mixin absoluteTopRight {
+  position: absolute;
+  left: 95%;
+  top: 7%;
+  transform: translate(-50%, -50%);
+}
+
 @mixin simplePostDialog($component) {
   @if $component == postDialog {
     grid-template-columns: 100%;

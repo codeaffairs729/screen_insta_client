@@ -115,15 +115,15 @@ const PostDialogCommentForm = ({
           <Fragment>
             {state.posting && <Loader />}
             <input
-              className="add-comment__input"
+              className={"add-comment__input" + postId}
               type="text"
               placeholder="Add a comment..."
               onChange={(event) => {
                 // Removed the `@username` from the input so the user is no longer looking to reply
                 if (replying && !event.target.value) {
-                  dialogDispatch({ type: 'SET_REPLYING' });
+                  dialogDispatch({ type: "SET_REPLYING" });
                 }
-                dispatch({ type: 'SET_COMMENT', payload: event.target.value });
+                dispatch({ type: "SET_COMMENT", payload: event.target.value });
                 // Checking for an @ mention
                 let string = event.target.value.match(
                   new RegExp(/@[a-zA-Z0-9]+$/)
@@ -158,7 +158,7 @@ const PostDialogCommentForm = ({
               <span>
                 <Link to="/login" className="link">
                   Log in
-                </Link>{' '}
+                </Link>{" "}
               </span>
               to like or comment.
             </h4>
@@ -174,7 +174,7 @@ const PostDialogCommentForm = ({
             let comment = commentInputRef.current.value;
             // Replace the last word with the @mention
             dispatch({
-              type: 'SET_COMMENT',
+              type: "SET_COMMENT",
               payload: comment.replace(/@\b(\w+)$/, `@${user.username} `),
             });
             commentInputRef.current.focus();

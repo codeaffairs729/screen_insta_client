@@ -25,6 +25,7 @@ const PostDialogStats = ({
   showModal,
   hideModal,
   simple,
+  postId,
 }) => {
   const ref = useRef();
   const handleClick = async () => {
@@ -94,7 +95,9 @@ const PostDialogStats = ({
         )}
         <Icon
           onClick={() =>
-            currentUser && document.querySelector(".add-comment__input").focus()
+            currentUser &&
+     
+                  document.querySelector(".add-comment__input"  +  postId).focus()
           }
           className="icon--button"
           icon="chatbubble-outline"
