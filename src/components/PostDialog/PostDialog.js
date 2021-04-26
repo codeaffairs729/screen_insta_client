@@ -1,4 +1,10 @@
-import React, { useEffect, useReducer, Fragment, useRef } from "react";
+import React, {
+  useEffect,
+  useReducer,
+  Fragment,
+  useRef,
+  useState,
+} from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { createStructuredSelector } from "reselect";
@@ -9,7 +15,7 @@ import { selectToken, selectCurrentUser } from "../../redux/user/userSelectors";
 
 import { showModal, hideModal } from "./../../redux/modal/modalActions";
 import { showAlert } from "../../redux/alert/alertActions";
-
+import ReactPlayer from "react-player";
 import { getPost, deletePost } from "../../services/postService";
 import { getComments } from "../../services/commentService";
 import Avatar from "../Avatar/Avatar";
@@ -20,7 +26,6 @@ import PostDialogCommentForm from "./PostDialogCommentForm/PostDialogCommentForm
 import PostDialogStats from "./PostDialogStats/PostDialogStats";
 import Carousel from "react-bootstrap/Carousel";
 import { payPost } from "./../../services/postService";
-import Video from "./../Video/Video";
 
 import { INITIAL_STATE, postDialogReducer } from "./postDialogReducer";
 import { isAudio, isVideo } from "../../validUploads";
@@ -43,6 +48,7 @@ const PostDialog = ({
   const commentsRef = useRef();
   const [state, dispatch] = useReducer(postDialogReducer, INITIAL_STATE);
   const history = useHistory();
+  const [videoIndex, setVideoIndex] = useState(0);
 
   const fetching = loading !== undefined ? loading : state.fetching;
 
@@ -115,7 +121,10 @@ const PostDialog = ({
     }
   };
 
-  const onSlide = () => {};
+  const onSlide = (index) => {
+    console.log("onSlide to : " + index);
+    setVideoIndex(index);
+  };
   const renderPostPreview = (fetching, post) => {
     if (fetching) return <SkeletonLoader animated />;
     let medias = post.medias;
@@ -144,66 +153,77 @@ const PostDialog = ({
         nextLabel=""
       >
         {post.medias &&
-          post.medias.map((media, index) => (
-            <Carousel.Item key={index}>
-              {media && isVideo(media) && (
-                <video
-                  alt="Post"
-                  style={{
-                    filter: state.data.filter,
-                    width: "100%",
-                  }}
-                  controls
-                >
-                  <source src={media} type="video/mp4" />
-                </video>
-                /*<Video  noControls src={media} />*/
-              )}
-              {media && isAudio(media) && (
-                <div
-                  style={{
-                    minHeight: 300,
-                    display: "flex",
-                    flexFlow: "column",
-                  }}
-                >
+          post.medias.map((media, index) => {
+            console.log("media index " + index);
+            return (
+              <Carousel.Item key={index}>
+                {media && isVideo(media) && (
                   <div
-                    style={{
-                      textAlign: "center",
-                      flex: "1 1 auto",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      display: "flex",
-                    }}
+                    style={{ height: "100%" }}
                   >
-                    <Icon
-                      style={{ width: "100%", height: 50, color: "white" }}
-                      className="icon--small"
-                      icon="mic"
+                    <ReactPlayer
+                      alt="Post"
+                      width="100%"
+                      height="100%"
+                      url={media}
+                      playing={index === videoIndex}
+                      controls
+                      config={{
+                        file: {
+                          attributes: {
+                            controlsList: "nodownload",
+                          },
+                        },
+                      }}
                     />
                   </div>
-                  <audio
-                    alt="Post"
+                )}
+                {media && isAudio(media) && (
+                  <div
                     style={{
-                      filter: state.data.filter,
-                      width: "100%",
-                      flex: "0 1 auto",
+                      minHeight: 300,
+                      display: "flex",
+                      flexFlow: "column",
                     }}
-                    controls
                   >
-                    <source src={media} type="video/mp4" />
-                  </audio>
-                </div>
-              )}
-              {media && !isVideo(media) && !isAudio(media) && (
-                <img
-                  className="d-block w-100"
-                  src={media}
-                  style={{ width: "100%" }}
-                />
-              )}
-            </Carousel.Item>
-          ))}
+                    <div
+                      style={{
+                        textAlign: "center",
+                        flex: "1 1 auto",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        display: "flex",
+                      }}
+                    >
+                      <Icon
+                        style={{ width: "100%", height: 50, color: "white" }}
+                        className="icon--small"
+                        icon="mic"
+                      />
+                    </div>
+                    <audio
+                      alt="Post"
+                      style={{
+                        filter: state.data.filter,
+                        width: "100%",
+                        flex: "0 1 auto",
+                      }}
+                      controls
+                    >
+                      <source src={media} type="video/mp4" />
+                    </audio>
+                  </div>
+                )}
+                {media && !isVideo(media) && !isAudio(media) && (
+                  <img
+                    className="d-block w-100"
+                    src={media}
+                    style={{ width: "100%" }}
+                  />
+                )}
+              </Carousel.Item>
+            );
+          })}
       </Carousel>
     );
   };

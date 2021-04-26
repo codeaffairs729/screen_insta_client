@@ -4,6 +4,7 @@ import Button from "../../Button/Button";
 import Icon from "../../Icon/Icon";
 import PostText from "../PostText";
 import {
+  isAudio,
   isVideo,
   validAudioFiles,
   validImageFiles,
@@ -67,6 +68,19 @@ const CreatePostMediaSelector = ({
           >
             <source src={URL.createObjectURL(file)} type="video/mp4" />
           </video>
+        </div>
+      );
+    } else if (file && file.name && isAudio(file.name)) {
+      return (
+        <div className="icon-preview" key={index}>
+          <span className="preview-close-button">
+            <Icon icon={"trash-outline"} />
+          </span>
+          <Icon
+            onClick={(e) => deleteFile(index)}
+            icon={"mic-outline"}
+            style={{ width: 120, height: 70 }}
+          />
         </div>
       );
     } else if (file && file.name && !isVideo(file.name)) {

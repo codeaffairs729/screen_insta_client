@@ -109,3 +109,21 @@
     }
   }
 }
+
+.icon-preview {
+  display: flex;
+  flex-direction: column;
+
+  & > span {
+    width: 30px;
+    height: 30px;
+    opacity: 1;
+    
+  };
+  & > div {
+    &:hover {
+      opacity: 0.4;
+      cursor: pointer;
+    }
+  }
+}
