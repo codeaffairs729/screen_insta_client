@@ -51,19 +51,8 @@ const NewPostPage = ({ location, currentUser, showAlert }) => {
       const media = medias[i];
       formData.append(`medias`, media);
     }
-    try {
-      let captionData = !caption || caption == "" ? null : caption;
-      if (captionData != null) formData.set("caption", caption);
-    } catch (ex) {
-      console.error("couldn't not set caption, sending empty caption formdata");
-    }
-    try {
-      let priceData = !price || price == 0 ? null : price.toString();
-      if (priceData != null) formData.set("postPrice", price);
-    } catch (ex) {
-      console.error("couldn't not set price, sending empty price formdata");
-    }
-    
+    formData.set("caption", caption);
+    formData.set("postPrice", price);
     try {
       const post = await createPost(formData);
       showAlert("Post created successfully");
