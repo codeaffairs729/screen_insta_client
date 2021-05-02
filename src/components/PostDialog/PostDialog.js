@@ -157,7 +157,7 @@ const PostDialog = ({
             console.log("media index " + index);
             return (
               <Carousel.Item key={index}>
-                {media && isVideo(media) && (
+                {media && (isVideo(media) || isAudio(media)) && (
                   <div
                     style={{ height: "100%" }}
                   >
@@ -176,42 +176,6 @@ const PostDialog = ({
                         },
                       }}
                     />
-                  </div>
-                )}
-                {media && isAudio(media) && (
-                  <div
-                    style={{
-                      minHeight: 300,
-                      display: "flex",
-                      flexFlow: "column",
-                    }}
-                  >
-                    <div
-                      style={{
-                        textAlign: "center",
-                        flex: "1 1 auto",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        display: "flex",
-                      }}
-                    >
-                      <Icon
-                        style={{ width: "100%", height: 50, color: "white" }}
-                        className="icon--small"
-                        icon="mic"
-                      />
-                    </div>
-                    <audio
-                      alt="Post"
-                      style={{
-                        filter: state.data.filter,
-                        width: "100%",
-                        flex: "0 1 auto",
-                      }}
-                      controls
-                    >
-                      <source src={media} type="video/mp4" />
-                    </audio>
                   </div>
                 )}
                 {media && !isVideo(media) && !isAudio(media) && (

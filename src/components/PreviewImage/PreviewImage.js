@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import Icon from "../Icon/Icon";
-import { isVideo } from "../../validUploads";
+import { isAudio, isVideo } from "../../validUploads";
 
 const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
   if (!post) return null;
@@ -36,15 +36,38 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
       </figure>
     );
   }
+  let postContainVideo = false;
+  if (post && post.medias) {
+    for (let index = 0; index < post.medias.length; index++) {
+      const media = post.medias[index];
+      if (isVideo(media)) {
+        postContainVideo = true;
+        break;
+      }
+    }
+  }
   return (
-    <figure onClick={onClick} key={image} className="preview-image">
-      {isVideo(image) ? (
+    <figure
+      onClick={onClick}
+      key={image}
+      className="preview-image"
+      style={{ margin: "auto" }}
+    >
+      {isVideo(image) && (
         <video
           src={image}
           alt="User post"
           style={{ filter, objectFit: "cover" }}
         />
-      ) : (
+      )}
+
+      {isAudio(image) && (
+        <div className="icon-preview">
+          <Icon style={{ width: 120, height: 70 }} icon="mic-outline" />
+        </div>
+      )}
+
+      {!isVideo(image) && !isAudio(image) && (
         <img
           src={image}
           alt="User post"
@@ -65,13 +88,29 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
             <span>{comments}</span>
           </div>
         </span>
-        <span className="preview-image__topRightContent">
-          {post && post.medias && post.medias.length > 1 && (
-            <div className="preview-image__icon">
-                  <Icon icon="documents-outline" className="icon--white" />
-            </div>
-          )}
-        </span>
+        {postContainVideo && (
+          <div className="preview-image__topRightContentTwoIcons">
+            {post && post.medias && post.medias.length > 0 && (
+              <div className="preview-image__icon">
+                <Icon icon="play" className="icon--white" />
+              </div>
+            )}
+            {post && post.medias && post.medias.length > 1 && (
+              <div className="preview-image__icon">
+                <Icon icon="documents-outline" className="icon--white" />
+              </div>
+            )}
+          </div>
+        )}
+        {!postContainVideo && (
+          <div className="preview-image__topRightContent">
+            {post && post.medias && post.medias.length > 1 && (
+              <div className="preview-image__icon">
+                <Icon icon="documents-outline" className="icon--white" />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </figure>
   );

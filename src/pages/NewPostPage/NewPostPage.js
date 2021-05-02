@@ -16,6 +16,9 @@ import { connect } from "react-redux";
 import { addPost } from "../../redux/feed/feedActions";
 import PostPrice from "../../components/CreatePost/PostPrice";
 import Button from "../../components/Button/Button";
+import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
+import AddAPhotoIcon from "@material-ui/icons/AddAPhoto";
+
 
 const NewPostPage = ({ location, currentUser, showAlert }) => {
   const history = useHistory();
@@ -99,7 +102,7 @@ const NewPostPage = ({ location, currentUser, showAlert }) => {
                       borderLeft: "1px solid #000",
                     }}
                   >
-                    <Icon icon={"camera-outline"} />
+                    <AddAPhotoIcon fontSize="large" />
                   </Tab>
                   <Tab
                     style={{
@@ -113,7 +116,7 @@ const NewPostPage = ({ location, currentUser, showAlert }) => {
                       borderLeft: "1px solid #000",
                     }}
                   >
-                    <Icon icon={"wallet-outline"} />
+                    <AttachMoneyIcon fontSize={"large"} />
                   </Tab>
                 </TabList>
               </Tabs>
