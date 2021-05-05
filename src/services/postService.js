@@ -194,3 +194,15 @@ export const getHashtagPosts = async (authToken, hashtag, offset = 0) => {
     throw new Error(err.response.data.error);
   }
 };
+
+export const reportPost = async (postId) => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.get(`/api/post/report/${postId}`, {
+      headers: { authorization: token },
+    });
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response.data.error);
+  }
+};

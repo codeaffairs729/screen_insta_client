@@ -10,13 +10,13 @@ import { connect } from "react-redux";
 import { createStructuredSelector } from "reselect";
 import classNames from "classnames";
 import { Link, useHistory } from "react-router-dom";
-
+import TrackVisibility from "react-on-screen";
 import { selectToken, selectCurrentUser } from "../../redux/user/userSelectors";
 
 import { showModal, hideModal } from "./../../redux/modal/modalActions";
 import { showAlert } from "../../redux/alert/alertActions";
 import ReactPlayer from "react-player";
-import { getPost, deletePost } from "../../services/postService";
+import { getPost, deletePost, reportPost } from "../../services/postService";
 import { getComments } from "../../services/commentService";
 import Avatar from "../Avatar/Avatar";
 import Icon from "../Icon/Icon";
@@ -158,25 +158,25 @@ const PostDialog = ({
             return (
               <Carousel.Item key={index}>
                 {media && (isVideo(media) || isAudio(media)) && (
-                  <div
-                    style={{ height: "100%" }}
-                  >
-                    <ReactPlayer
-                      alt="Post"
-                      width="100%"
-                      height="100%"
-                      url={media}
-                      playing={index === videoIndex}
-                      controls
-                      config={{
-                        file: {
-                          attributes: {
-                            controlsList: "nodownload",
+                  <TrackVisibility style={{ height: "100%" }}>
+                    {({ isVisible }) => (
+                      <ReactPlayer
+                        alt="Post"
+                        width="100%"
+                        height="100%"
+                        url={media}
+                        playing={index === videoIndex && isVisible}
+                        controls
+                        config={{
+                          file: {
+                            attributes: {
+                              controlsList: "nodownload",
+                            },
                           },
-                        },
-                      }}
-                    />
-                  </div>
+                        }}
+                      />
+                    )}
+                  </TrackVisibility>
                 )}
                 {media && !isVideo(media) && !isAudio(media) && (
                   <img
@@ -270,6 +270,17 @@ const PostDialog = ({
                         .catch(() =>
                           showAlert("Could not copy link to clipboard.")
                         );
+                    },
+                  },
+                  {
+                    text: "Report post",
+                    onClick: async () => {
+                      let res = await reportPost(postId);
+                      if (res.success) {
+                        showAlert("Post reported Successfully");
+                      } else {
+                        showAlert("Could not report post, try again later");
+                      }
                     },
                   },
                 ];
