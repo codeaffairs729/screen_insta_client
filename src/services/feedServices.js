@@ -20,3 +20,17 @@ export const retrieveFeedPosts = async (offset = 0) => {
     throw new Error(err.response.data);
   }
 };
+
+export const retrieveBookmarkFeedPosts = async () => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.get(`/api/user/bookmarks`, {
+      headers: {
+        authorization: token,
+      },
+    });
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response.data);
+  }
+};

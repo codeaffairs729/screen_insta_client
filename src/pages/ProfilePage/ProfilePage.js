@@ -120,12 +120,10 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
             loading={state.following}
           />
           <ProfileCategory category="POSTS" icon="apps-outline" />
-
           {state.data.posts && state.data.posts.length > 0 ? (
             <div className="profile-images">
               {isPostCreationAllowed && <CreatePostButton />}
               {state.data.posts.map((post, idx) => {
-                
                 return (
                   <PreviewImage
                     onClick={() => handleClick(post._id)}
@@ -137,7 +135,6 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
                     key={idx}
                   />
                 );
-                
               })}
               {state.fetchingAdditionalPosts && (
                 <Fragment>

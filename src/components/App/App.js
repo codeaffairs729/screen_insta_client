@@ -22,6 +22,7 @@ import firebase from "../../firebase";
 
 import LoadingPage from "../../pages/LoadingPage/LoadingPage";
 import { login } from "../../services/authenticationServices";
+import BookmarkPage from "../../pages/Bookmark/BookmarkPage";
 const ProfilePage = lazy(() => import("../../pages/ProfilePage/ProfilePage"));
 const PostPage = lazy(() => import("../../pages/PostPage/PostPage"));
 const ConfirmationPage = lazy(() =>
@@ -178,6 +179,7 @@ export function UnconnectedApp({
           <ProtectedRoute path="/settings" component={SettingsPage} />
           <ProtectedRoute path="/activity" component={ActivityPage} />
           <ProtectedRoute path="/new" component={NewPostPage} />
+          <ProtectedRoute path="/bookmarks" component={BookmarkPage} />
           <ProtectedRoute path="/explore" component={ExplorePage} />
           <ProtectedRoute exact path="/:username" component={ProfilePage} />
           <ProtectedRoute path="/post/:postId" component={PostPage} />

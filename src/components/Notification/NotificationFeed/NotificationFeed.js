@@ -1,30 +1,32 @@
-import React, { useEffect, Fragment } from 'react';
-import { connect } from 'react-redux';
-import { createStructuredSelector } from 'reselect';
-import { Link } from 'react-router-dom';
+import React, { useEffect, Fragment } from "react";
+import { connect } from "react-redux";
+import { createStructuredSelector } from "reselect";
+import { Link } from "react-router-dom";
+import VideoThumbnail from "react-video-thumbnail"; // use npm published version
 
 import {
   selectNotifications,
   selectNotificationState,
-} from '../../../redux/notification/notificationSelectors';
-import { selectToken } from '../../../redux/user/userSelectors';
+} from "../../../redux/notification/notificationSelectors";
+import { selectToken } from "../../../redux/user/userSelectors";
 
 import {
   fetchNotificationsStart,
   readNotificationsStart,
   clearNotifications,
-} from '../../../redux/notification/notificationActions';
+} from "../../../redux/notification/notificationActions";
 
-import UserCard from '../../UserCard/UserCard';
-import UsersListSkeleton from '../../UsersList/UsersListSkeleton/UsersListSkeleton';
-import Icon from '../../Icon/Icon';
-import FollowButton from '../../Button/FollowButton/FollowButton';
-import Divider from '../../Divider/Divider';
-import Linkify from 'linkifyjs/react';
-import * as linkify from 'linkifyjs';
-import mention from 'linkifyjs/plugins/mention';
+import UserCard from "../../UserCard/UserCard";
+import UsersListSkeleton from "../../UsersList/UsersListSkeleton/UsersListSkeleton";
+import Icon from "../../Icon/Icon";
+import FollowButton from "../../Button/FollowButton/FollowButton";
+import Divider from "../../Divider/Divider";
+import Linkify from "linkifyjs/react";
+import * as linkify from "linkifyjs";
+import mention from "linkifyjs/plugins/mention";
 
-import { linkifyOptions } from '../../../utils/linkifyUtils';
+import { linkifyOptions } from "../../../utils/linkifyUtils";
+import { isAudio, isVideo } from "../../../validUploads";
 
 mention(linkify);
 
@@ -56,7 +58,7 @@ const NotificationFeed = ({
   return (
     <Fragment>
       {notificationState.fetching ? (
-        <UsersListSkeleton style={{ height: '7rem' }} />
+        <UsersListSkeleton style={{ height: "7rem" }} />
       ) : notifications.length > 0 ? (
         notifications.map((notification, idx) => {
           const userCardProps = {
@@ -65,13 +67,65 @@ const NotificationFeed = ({
             subTextDark: true,
             token: token,
             date: notification.date,
-            style: { minHeight: '7rem', padding: '1rem 1.5rem' },
+            style: { minHeight: "7rem", padding: "1rem 1.5rem" },
           };
           let userCardChild = null;
 
+          let preview = null;
+          if (
+            notification &&
+            notification.notificationData &&
+            notification.notificationData.image
+          ) {
+            if (isVideo(notification.notificationData.image)) {
+              preview = (
+                <video
+                  style={{
+                    width: 50,
+                    height: 50,
+                  }}
+                  preload="metadata"
+                >
+                  <source
+                    src={notification.notificationData.image}
+                    type="video/mp4"
+                  />
+                </video>
+              );
+            } else if (isAudio(notification.notificationData.image)) {
+              preview = (
+                <span
+                  className="preview-close-button"
+                  onClick={() =>
+                    setShowNotifications && setShowNotifications(false)
+                  }
+                >
+                  <Icon
+                    icon={"mic-outline"}
+                    style={{ width: 120, height: 70 }}
+                  />
+                </span>
+              );
+            } else {
+              preview = (
+                <img
+                  src={notification.notificationData.image}
+                  style={{
+                    display: "flex",
+                    filter: notification.notificationData.filter,
+                  }}
+                  onClick={() =>
+                    setShowNotifications && setShowNotifications(false)
+                  }
+                  alt="post commented on"
+                />
+              );
+            }
+          }
+
           switch (notification.notificationType) {
-            case 'follow': {
-              userCardProps.subText = 'started following you.';
+            case "follow": {
+              userCardProps.subText = "started following you.";
               userCardChild = (
                 <FollowButton
                   username={notification.sender.username}
@@ -82,21 +136,11 @@ const NotificationFeed = ({
               );
               break;
             }
-            case 'like': {
-              userCardProps.subText = 'liked your photo.';
+            case "like": {
+              userCardProps.subText = "liked your post.";
               userCardChild = (
                 <Link to={`/post/${notification.notificationData.postId}`}>
-                  <img
-                    src={notification.notificationData.image}
-                    style={{
-                      display: 'flex',
-                      filter: notification.notificationData.filter,
-                    }}
-                    onClick={() =>
-                      setShowNotifications && setShowNotifications(false)
-                    }
-                    alt="liked post"
-                  />
+                  {preview}
                 </Link>
               );
               break;
@@ -104,24 +148,14 @@ const NotificationFeed = ({
             default: {
               userCardProps.subText = (
                 <Linkify options={linkifyOptions}>{`${
-                  notification.notificationType === 'comment'
-                    ? 'commented:'
-                    : 'mentioned you in a comment:'
+                  notification.notificationType === "comment"
+                    ? "commented:"
+                    : "mentioned you in a comment:"
                 } ${notification.notificationData.message}`}</Linkify>
               );
               userCardChild = (
                 <Link to={`/post/${notification.notificationData.postId}`}>
-                  <img
-                    src={notification.notificationData.image}
-                    style={{
-                      display: 'flex',
-                      filter: notification.notificationData.filter,
-                    }}
-                    onClick={() =>
-                      setShowNotifications && setShowNotifications(false)
-                    }
-                    alt="post commented on"
-                  />
+                  {preview}
                 </Link>
               );
             }

@@ -13,6 +13,8 @@ import { votePost } from "../../../services/postService";
 import Icon from "../../Icon/Icon";
 import PulsatingIcon from "../../Icon/PulsatingIcon/PulsatingIcon";
 import LoginCard from "../../LoginCard/LoginCard";
+import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
+
 
 const PostDialogStats = ({
   currentUser,
@@ -96,13 +98,15 @@ const PostDialogStats = ({
         <Icon
           onClick={() =>
             currentUser &&
-     
-                  document.querySelector(".add-comment__input"  +  postId).focus()
+            document.querySelector(".add-comment__input" + postId).focus()
           }
           className="icon--button"
           icon="chatbubble-outline"
         />
         <Icon className="icon--button" icon="paper-plane-outline" />
+
+        {post && post.postPrice > 0 && <AttachMoneyIcon fontSize={"large"} />}
+        
         <Icon
           className="icon--button"
           onClick={() => bookmarkPost(post._id, token)}

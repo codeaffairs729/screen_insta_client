@@ -30,6 +30,12 @@ const SettingsButton = ({ showModal, signOut }) => {
         history.push("/login");
       },
     },
+    {
+      text: "Bookmarks",
+      onClick: () => {
+        history.push("/bookmarks");
+      },
+    },
   ];
 
   let providers = [];

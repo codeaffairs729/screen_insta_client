@@ -32,6 +32,29 @@ const feedReducer = (state = INITIAL_STATE, action) => {
         error: action.payload,
       };
     }
+    case feedTypes.FETCH_BOOKMARKS_START: {
+      return {
+        ...state,
+        fetching: true,
+        error: false,
+      };
+    }
+    case feedTypes.FETCH_BOOKMARKS_SUCCESS: {
+      return {
+        ...state,
+        fetching: false,
+        error: false,
+        posts: [...state.posts, ...action.payload],
+        hasMore: false,
+      };
+    }
+    case feedTypes.FETCH_BOOKMARKS_FAILURE: {
+      return {
+        ...state,
+        fetching: false,
+        error: action.payload,
+      };
+    }
     case feedTypes.ADD_POST: {
       return {
         ...state,

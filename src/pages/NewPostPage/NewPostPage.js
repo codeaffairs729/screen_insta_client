@@ -48,14 +48,18 @@ const NewPostPage = ({ location, currentUser, showAlert }) => {
       showAlert("The minimum price for a post should be 5$");
       return;
     }
+    if (!medias || medias.length == 0) {
+      showAlert("Please add at least 1 media");
+      return;
+    }
     setLoading(true);
     const formData = new FormData();
     for (let i = 0; i < medias.length; i++) {
       const media = medias[i];
       formData.append(`medias`, media);
     }
-    formData.set("caption", caption);
-    formData.set("postPrice", price);
+    if (caption && caption != "") formData.set("caption", caption);
+    formData.set("postPrice", price + "");
     try {
       const post = await createPost(formData);
       showAlert("Post created successfully");
@@ -79,13 +83,14 @@ const NewPostPage = ({ location, currentUser, showAlert }) => {
               <Tabs>
                 <TabPanel>
                   <CreatePostMediaSelector
+                    caption={caption}
                     onCaptionChanged={onCaptionChanged}
                     selectedMedias={medias}
                     onMediaSelected={onMediaSelected}
                   />
                 </TabPanel>
                 <TabPanel>
-                  <PostPrice onChange={onPriceSelected} />
+                  <PostPrice price={price} onChange={onPriceSelected} />
                 </TabPanel>
                 <TabList
                   style={{ borderTop: "1px solid #000", borderBottom: "none" }}

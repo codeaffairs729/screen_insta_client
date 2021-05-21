@@ -8,14 +8,22 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
   if (!post) return null;
   if (!post.display) {
     return (
-      <figure onClick={onClick} key={image} className="preview-image">
+      <figure
+        onClick={onClick}
+        key={image}
+        className="preview-image"
+        style={{ width: "100%" }}
+      >
         <div
           className="d-flex align-items-center justify-content-center pay-post-div"
           style={{ height: 303, backgroundColor: "grey" }}
         >
-          <div className="center-div" style={{ textAlign: "center" }}>
-            <Icon icon="lock-closed-outline" />
-            <span>Get access for {post.postPrice.toFixed(2)}$</span>
+          <div style={{paddingTop: 200}}>
+            <div className="center-div" style={{ textAlign: "center", }}>
+              <Icon icon="lock-closed-outline" />
+              <span>Get access for {post.postPrice.toFixed(2)}$</span>
+            </div>
+            
           </div>
         </div>
 
@@ -51,7 +59,7 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
       onClick={onClick}
       key={image}
       className="preview-image"
-      style={{ margin: "auto" }}
+      style={{ margin: "auto", width: "100%" }}
     >
       {isVideo(image) && (
         <video
@@ -62,9 +70,12 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
       )}
 
       {isAudio(image) && (
-        <div className="icon-preview">
-          <Icon style={{ width: 120, height: 70 }} icon="mic-outline" />
+        <div style={{paddingTop: 200}}>
+          <div className="center-div icon-preview d-flex align-items-center justify-content-center pay-post-div">
+          <Icon style={{ width: 60, height: 35 }} icon="mic-outline" />
         </div>
+        </div>
+        
       )}
 
       {!isVideo(image) && !isAudio(image) && (
@@ -76,7 +87,7 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
       )}
 
       <div className="preview-image__overlay">
-        <span className="preview-image__content">
+        <icons className="preview-image__content">
           {likes > 0 && (
             <div className="preview-image__icon">
               <Icon icon="heart" className="icon--white" />
@@ -85,9 +96,8 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
           )}
           <div className="preview-image__icon">
             <Icon icon="chatbubbles" className="icon--white" />
-            <span>{comments}</span>
-          </div>
-        </span>
+            <span>{comments}</span></div>
+        </icons>
         {postContainVideo && (
           <div className="preview-image__topRightContentTwoIcons">
             {post && post.medias && post.medias.length > 0 && (

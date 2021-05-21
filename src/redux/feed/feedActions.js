@@ -1,6 +1,9 @@
 import feedTypes from './feedTypes';
 
-import { retrieveFeedPosts } from '../../services/feedServices';
+import {
+  retrieveFeedPosts,
+  retrieveBookmarkFeedPosts,
+} from "../../services/feedServices";
 
 export const fetchFeedPostsStart = (offset) => async (dispatch) => {
   try {
@@ -9,6 +12,16 @@ export const fetchFeedPostsStart = (offset) => async (dispatch) => {
     dispatch({ type: feedTypes.FETCH_POSTS_SUCCESS, payload: response });
   } catch (err) {
     dispatch({ type: feedTypes.FETCH_POSTS_FAILURE, payload: err.message });
+  }
+};
+
+export const fetchBookmarkFeedStart = () => async (dispatch) => {
+  try {
+    dispatch({ type: feedTypes.FETCH_BOOKMARKS_START });
+    const response = await retrieveBookmarkFeedPosts();
+    dispatch({ type: feedTypes.FETCH_BOOKMARKS_SUCCESS, payload: response });
+  } catch (err) {
+    dispatch({ type: feedTypes.FETCH_BOOKMARKS_FAILURE, payload: err.message });
   }
 };
 

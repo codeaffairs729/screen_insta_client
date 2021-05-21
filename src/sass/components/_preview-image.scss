@@ -23,16 +23,24 @@
     opacity: 0.7;
     color: $color-white;
     fill: $color-white;
-
-    &:hover {
-      opacity: 1;
+    
+    & > icons {
+      opacity: 0;
+      
     }
+    
+    &:hover {
+      & > icons{
+        opacity: 1;
+      }
+    }
+
+    
   }
 
   &__content {
     @include absoluteCenter;
     display: flex;
-
     align-items: center;
     font-size: 1.5rem;
     font-weight: 600;
@@ -57,10 +65,10 @@
   &__icon {
     display: flex;
     margin: 0;
-
     & > * {
       margin-right: 1rem;
     }
+    
   }
 
   &__image {

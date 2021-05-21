@@ -15,6 +15,7 @@ const CreatePostMediaSelector = ({
   onMediaSelected,
   onCaptionChanged,
   selectedMedias,
+  caption,
 }) => {
   const initialState = {
     files: selectedMedias,
@@ -106,7 +107,7 @@ const CreatePostMediaSelector = ({
 
   return (
     <div>
-      <PostText onChange={onCaptionChanged} />
+      <PostText caption={caption} onChange={onCaptionChanged} />
       <input
         style={{ display: "none" }}
         onChange={(e) => onFileSelected(e.target.files[0])}
