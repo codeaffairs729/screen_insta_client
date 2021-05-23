@@ -9,6 +9,7 @@ const FormInput = ({
   valid,
   placeholder,
   fieldProps,
+  onKeyPress,
   ...additionalProps
 }) => {
   const [inputType, setInputType] = useState("password");
@@ -29,6 +30,7 @@ const FormInput = ({
         type={type === "password" ? inputType : type}
         placeholder={placeholder}
         style={!placeholder ? { padding: "1rem" } : {}}
+        onKeyPress={onKeyPress}
         {...fieldProps}
         {...additionalProps}
       />

@@ -1,12 +1,16 @@
-import React, { Fragment } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { Fragment, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
-import PostDialog from '../../components/PostDialog/PostDialog';
-import MobileHeader from '../../components/Header/MobileHeader/MobileHeader';
+import PostDialog from "../../components/PostDialog/PostDialog";
+import MobileHeader from "../../components/Header/MobileHeader/MobileHeader";
 
 const PostPage = () => {
   const { postId } = useParams();
 
+  useEffect(() => {
+    window.scrollTo(0, 0);;
+  }, []);
+  
   return (
     <Fragment>
       <MobileHeader backArrow>

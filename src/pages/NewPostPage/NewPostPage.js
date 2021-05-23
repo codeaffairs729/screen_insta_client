@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useEffect } from "react";
 import { useHistory, Redirect } from "react-router-dom";
 
 import { createStructuredSelector } from "reselect";
@@ -19,13 +19,16 @@ import Button from "../../components/Button/Button";
 import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
 import AddAPhotoIcon from "@material-ui/icons/AddAPhoto";
 
-
 const NewPostPage = ({ location, currentUser, showAlert }) => {
   const history = useHistory();
   const [medias, setMedias] = useState([]);
   const [price, setPrice] = useState(0);
   const [caption, setCaption] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);;
+  }, []);
 
   const onMediaSelected = (selectedMedias) => {
     setMedias(selectedMedias);
