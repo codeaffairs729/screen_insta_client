@@ -28,15 +28,6 @@ const ExplorePage = ({ token, showAlert, showModal, match }) => {
           />
         </main>
       </ProtectedRoute>
-      <ProtectedRoute path={match.url + "/tags/:hashtag"}>
-        <main className="explore-page grid">
-          <HashtagPosts
-            token={token}
-            showModal={showModal}
-            showAlert={showAlert}
-          />
-        </main>
-      </ProtectedRoute>
       <Route component={NotFoundPage} />
     </Switch>
   );

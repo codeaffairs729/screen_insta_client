@@ -11,6 +11,8 @@ import UserCard from '../../components/UserCard/UserCard';
 import PreviewImage from '../../components/PreviewImage/PreviewImage';
 import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
 import ImageGrid from '../../components/ImageGrid/ImageGrid';
+import { getSuggestedUsers } from "../../services/userService";
+import PreviewProfile from "../PreviewProfile/PreviewProfile";
 
 const SuggestedPosts = ({ token, showModal, showAlert }) => {
   const history = useHistory();
@@ -39,7 +41,7 @@ const SuggestedPosts = ({ token, showModal, showAlert }) => {
   const retrievePosts = async (offset) => {
     try {
       setPosts((previous) => ({ ...previous, fetching: true }));
-      const response = await getSuggestedPosts(token, offset);
+      const response = await getSuggestedUsers(offset);
       setPosts((previous) => ({
         posts: previous.posts ? [...previous.posts, ...response] : response,
         fetching: false,
@@ -76,18 +78,22 @@ const SuggestedPosts = ({ token, showModal, showAlert }) => {
     return skeleton;
   };
 
+  const onProfileClicked = (userName) => {
+    history.push("/" + userName);
+  };
+
   return (
     <Fragment>
       <MobileHeader
         style={
           search && {
-            gridTemplateColumns: 'repeat(2, 1fr) min-content',
-            gridColumnGap: '2rem',
+            gridTemplateColumns: "repeat(2, 1fr) min-content",
+            gridColumnGap: "2rem",
           }
         }
       >
         <SearchBox
-          style={{ gridColumn: `${search ? '1 / span 2' : '1 / -1'}` }}
+          style={{ gridColumn: `${search ? "1 / span 2" : "1 / -1"}` }}
           setResult={setResult}
           onClick={() => setSearch(true)}
         />
@@ -111,13 +117,11 @@ const SuggestedPosts = ({ token, showModal, showAlert }) => {
         <ImageGrid>
           {posts.posts &&
             posts.posts.map((post, idx) => (
-              <PreviewImage
-                key={idx}
-                image={post.thumbnail}
-                likes={post.postVotes}
-                comments={post.comments}
-                filter={post.filter}
-                onClick={() => handleClick(post._id, post.avatar)}
+              <PreviewProfile
+                image={post.avatar}
+                username={post.username}
+                fullname={post.fullName}
+                onClick={(username) => onProfileClicked(username)}
               />
             ))}
           {posts.fetching && renderSkeleton(10)}

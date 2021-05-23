@@ -142,6 +142,7 @@ const PostDialog = ({
         </div>
       );
     }
+    console.log("rendering");
     return (
       <Carousel
         interval={null}
@@ -154,51 +155,45 @@ const PostDialog = ({
       >
         {post.medias &&
           post.medias.map((media, index) => {
-            console.log("rendering medias");
-            console.log("media index " + index);
             return (
-              <Carousel.Item style={{  minHeight: 300  }} key={index}>
-                {media && (isVideo(media)) && (
-                  <TrackVisibility style={{ backgroundColor: "transparent" }}>
-                    {({ isVisible }) => (
-                      <ReactPlayer
-                        alt="Post"
-                        width="100%"
-                        height="100%"
-                        url={media}
-                        playing={index === videoIndex && isVisible}
-                        controls
-                        config={{
-                          file: {
-                            attributes: {
-                              controlsList: "nodownload",
-                              preload: "none"
-                            },
-                          },
-                        }}
-                      />
-                    )}
-                  </TrackVisibility>
-                )}
-                {media && isAudio(media) && (
-                 
+              <Carousel.Item style={{ minHeight: 300 }} key={index}>
+                {media && isVideo(media) && (
                   <ReactPlayer
                     alt="Post"
-                        width="100%"
-                        height="100%"
-                        url={media}
-                        playing={index === videoIndex }
-                        controls
-                        config={{
-                          file: {
-                            attributes: {
-                              controlsList: "nodownload",
-                              autoPlay: false,
-                              preload:"none"
-                            },
-                          },
-                        }}
-                  />)}
+                    width="100%"
+                    height="100%"
+                    url={media}
+                    playing={index === videoIndex}
+                    controls
+                    config={{
+                      file: {
+                        attributes: {
+                          controlsList: "nodownload",
+                          preload: "none",
+                        },
+                      },
+                    }}
+                  />
+                )}
+                {media && isAudio(media) && (
+                  <ReactPlayer
+                    alt="Post"
+                    width="100%"
+                    height="100%"
+                    url={media}
+                    playing={index === videoIndex}
+                    controls
+                    config={{
+                      file: {
+                        attributes: {
+                          controlsList: "nodownload",
+                          autoPlay: false,
+                          preload: "none",
+                        },
+                      },
+                    }}
+                  />
+                )}
                 )}
                 {media && !isVideo(media) && !isAudio(media) && (
                   <img

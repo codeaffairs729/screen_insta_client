@@ -219,6 +219,7 @@
   grid-template-columns: repeat(3, 1fr);
   grid-column-gap: 2.5rem;
   grid-row-gap: 2.5rem;
+  grid-auto-rows: 1fr;
 
   @include respond(tab-port) {
     grid-column: full-start / full-end;

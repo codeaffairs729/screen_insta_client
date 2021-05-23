@@ -35,7 +35,7 @@ const Header = memo(({ currentUser, showModal, hideModal }) => {
       { hide: () => hideModal("CreatePost/CreatePostModal") },
       "CreatePost/CreatePostModal"
     );
-  };;
+  };
 
   const headerClassNames = classNames({
     header: true,
@@ -59,6 +59,11 @@ const Header = memo(({ currentUser, showModal, hideModal }) => {
             <Fragment>
               <Link to="/">
                 <Icon icon={pathname === "/" ? "home" : "home-outline"} />
+              </Link>
+              <Link to="/explore">
+                <Icon
+                  icon={pathname === "/explore" ? "compass" : "compass-outline"}
+                />
               </Link>
               <Link to="/new">
                 <Icon

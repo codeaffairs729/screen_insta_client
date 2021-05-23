@@ -122,7 +122,6 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
           <ProfileCategory category="POSTS" icon="apps-outline" />
           {state.data.posts && state.data.posts.length > 0 ? (
             <div className="profile-images">
-              {isPostCreationAllowed && <CreatePostButton />}
               {state.data.posts.map((post, idx) => {
                 return (
                   <PreviewImage

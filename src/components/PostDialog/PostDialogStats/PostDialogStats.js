@@ -105,8 +105,8 @@ const PostDialogStats = ({
         />
         <Icon className="icon--button" icon="paper-plane-outline" />
 
-        {post && post.postPrice > 0 && <AttachMoneyIcon fontSize={"large"} />}
-        
+        <Icon className="icon--button" icon="lock-closed-outline" />
+
         <Icon
           className="icon--button"
           onClick={() => bookmarkPost(post._id, token)}
