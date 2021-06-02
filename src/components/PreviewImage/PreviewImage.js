@@ -16,14 +16,13 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
       >
         <div
           className="d-flex align-items-center justify-content-center pay-post-div"
-          style={{ height: 303, backgroundColor: "grey" }}
+          style={{ height: "100%", backgroundColor: "grey" }}
         >
-          <div style={{paddingTop: 200}}>
-            <div className="center-div" style={{ textAlign: "center", }}>
+          <div style={{ paddingTop: 200 }}>
+            <div className="center-div" style={{ textAlign: "center" }}>
               <Icon icon="lock-closed-outline" />
               <span>Get access for {post.postPrice.toFixed(2)}$</span>
             </div>
-            
           </div>
         </div>
 
@@ -70,12 +69,11 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
       )}
 
       {isAudio(image) && (
-        <div style={{paddingTop: 200}}>
+        <div style={{ paddingTop: 200 }}>
           <div className="center-div icon-preview d-flex align-items-center justify-content-center pay-post-div">
-          <Icon style={{ width: 60, height: 35 }} icon="mic-outline" />
+            <Icon style={{ width: 60, height: 35 }} icon="mic-outline" />
+          </div>
         </div>
-        </div>
-        
       )}
 
       {!isVideo(image) && !isAudio(image) && (
@@ -96,7 +94,8 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
           )}
           <div className="preview-image__icon">
             <Icon icon="chatbubbles" className="icon--white" />
-            <span>{comments}</span></div>
+            <span>{comments}</span>
+          </div>
         </icons>
         {postContainVideo && (
           <div className="preview-image__topRightContentTwoIcons">

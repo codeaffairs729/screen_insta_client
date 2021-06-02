@@ -55,6 +55,10 @@ const NotificationFeed = ({
     token,
   ]);
 
+  const videoClicked = () => {
+    console.log("video clicked");
+  };
+
   return (
     <Fragment>
       {notificationState.fetching ? (
@@ -81,10 +85,11 @@ const NotificationFeed = ({
               preview = (
                 <video
                   style={{
-                    width: 50,
-                    height: 50,
+                    width: 70,
+                    height: 70,
                   }}
                   preload="metadata"
+                  onClick={videoClicked}
                 >
                   <source
                     src={notification.notificationData.image}
@@ -102,7 +107,7 @@ const NotificationFeed = ({
                 >
                   <Icon
                     icon={"mic-outline"}
-                    style={{ width: 120, height: 70 }}
+                    style={{ width: 70, height: 70 }}
                   />
                 </span>
               );
@@ -113,6 +118,8 @@ const NotificationFeed = ({
                   style={{
                     display: "flex",
                     filter: notification.notificationData.filter,
+                    width: 70,
+                    height: 70,
                   }}
                   onClick={() =>
                     setShowNotifications && setShowNotifications(false)

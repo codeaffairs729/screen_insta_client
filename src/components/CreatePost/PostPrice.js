@@ -9,7 +9,10 @@ const PostPrice = ({ onChange, price }) => {
     e = e || window.event;
     var charCode = typeof e.which == "undefined" ? e.keyCode : e.which;
     var charStr = String.fromCharCode(charCode);
-    if (charStr != "." && parseInt(charStr) == NaN) {
+    if (charStr == ".") {
+      return;
+    }
+    if (isNaN(parseInt(charStr))) {
       e.preventDefault();
     }
   }

@@ -132,10 +132,13 @@ const PostDialog = ({
       return (
         <div
           className="d-flex align-items-center justify-content-center pay-post-div"
-          style={{ height: "100%", backgroundColor: "grey" }}
+          style={{
+            height: "100%",
+            backgroundColor: "grey",
+          }}
           onClick={(e) => payPostClicked(post._id)}
         >
-          <div className="center-div">
+          <div className="center-div" style={{ height: "100%", minHeight: "400px",}}>
             <Icon icon="lock-closed-outline" />
             <span>Get access for {post.postPrice.toFixed(2)}$</span>
           </div>
@@ -193,7 +196,6 @@ const PostDialog = ({
                       },
                     }}
                   />
-                )}
                 )}
                 {media && !isVideo(media) && !isAudio(media) && (
                   <img

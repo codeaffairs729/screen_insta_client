@@ -25,6 +25,7 @@ const FollowButton = ({
   showAlert,
   style,
   followPrice,
+  onFollowPressed,
 }) => {
   const [isFollowing, setIsFollowing] = useState(following);
   const [loading, setLoading] = useState(false);
@@ -39,6 +40,9 @@ const FollowButton = ({
         setIsFollowing(false);
       }
       setLoading(false);
+      if (onFollowPressed) {
+        onFollowPressed();;
+      }
     } catch (err) {
       setLoading(false);
       showAlert("Could not follow the user.", () => follow());
@@ -77,7 +81,7 @@ const FollowButton = ({
   }
   return (
     <Button style={style} loading={loading} onClick={() => follow()}>
-      {followPrice ? `Follow (${followPrice.toFixed(2)} $)` : (`Follow (Free)`) }
+      {followPrice ? `Follow (${followPrice.toFixed(2)} $)` : `Follow (Free)`}
     </Button>
   );
 };

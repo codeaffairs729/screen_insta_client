@@ -1,16 +1,16 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { Fragment, useState, useEffect, useRef } from "react";
+import { useHistory } from "react-router-dom";
 
-import useScrollPositionThrottled from '../../hooks/useScrollPositionThrottled';
-import { getSuggestedPosts } from '../../services/postService';
+import useScrollPositionThrottled from "../../hooks/useScrollPositionThrottled";
+import { getSuggestedPosts } from "../../services/postService";
 
-import MobileHeader from '../../components/Header/MobileHeader/MobileHeader';
-import SearchBox from '../../components/SearchBox/SearchBox';
-import TextButton from '../../components/Button/TextButton/TextButton';
-import UserCard from '../../components/UserCard/UserCard';
-import PreviewImage from '../../components/PreviewImage/PreviewImage';
-import SkeletonLoader from '../../components/SkeletonLoader/SkeletonLoader';
-import ImageGrid from '../../components/ImageGrid/ImageGrid';
+import MobileHeader from "../../components/Header/MobileHeader/MobileHeader";
+import SearchBox from "../../components/SearchBox/SearchBox";
+import TextButton from "../../components/Button/TextButton/TextButton";
+import UserCard from "../../components/UserCard/UserCard";
+import PreviewImage from "../../components/PreviewImage/PreviewImage";
+import SkeletonLoader from "../../components/SkeletonLoader/SkeletonLoader";
+import ImageGrid from "../../components/ImageGrid/ImageGrid";
 import { getSuggestedUsers } from "../../services/userService";
 import PreviewProfile from "../PreviewProfile/PreviewProfile";
 
@@ -33,7 +33,7 @@ const SuggestedPosts = ({ token, showModal, showAlert }) => {
           postId,
           avatar,
         },
-        'PostDialog/PostDialog'
+        "PostDialog/PostDialog"
       );
     }
   };
@@ -72,7 +72,7 @@ const SuggestedPosts = ({ token, showModal, showAlert }) => {
     const skeleton = [];
     for (let i = 0; i < amount; i++) {
       skeleton.push(
-        <SkeletonLoader key={i} style={{ minHeight: '30rem' }} animated />
+        <SkeletonLoader key={i} style={{ minHeight: "30rem" }} animated />
       );
     }
     return skeleton;
@@ -105,25 +105,33 @@ const SuggestedPosts = ({ token, showModal, showAlert }) => {
       </MobileHeader>
       {search ? (
         <div className="explore-users">
-          {result.map((user) => (
-            <UserCard
-              avatar={user.avatar}
-              username={user.username}
-              subText={user.fullName}
-            />
-          ))}
+          {result.map((user) => {
+            if (user.avatar && user.avatar != "") {
+              return (
+                <UserCard
+                  avatar={user.avatar}
+                  username={user.username}
+                  subText={user.fullName}
+                />
+              );
+            }
+          })}
         </div>
       ) : (
         <ImageGrid>
           {posts.posts &&
-            posts.posts.map((post, idx) => (
-              <PreviewProfile
-                image={post.avatar}
-                username={post.username}
-                fullname={post.fullName}
-                onClick={(username) => onProfileClicked(username)}
-              />
-            ))}
+            posts.posts.map((post, idx) => {
+              if (post.avatar && post.avatar != "") {
+                return (
+                  <PreviewProfile
+                    image={post.avatar}
+                    username={post.username}
+                    fullname={post.fullName}
+                    onClick={(username) => onProfileClicked(username)}
+                  />
+                );
+              }
+            })}
           {posts.fetching && renderSkeleton(10)}
         </ImageGrid>
       )}

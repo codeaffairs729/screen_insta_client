@@ -189,7 +189,7 @@ export function UnconnectedApp({
     }, []);
   }
 
-  useVideoAutoplay();
+  //useVideoAutoplay();
 
   const renderApp = () => {
     // Wait for authentication

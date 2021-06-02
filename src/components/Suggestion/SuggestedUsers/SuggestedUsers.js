@@ -27,6 +27,15 @@ const SuggestedUsers = ({ token, showAlert, card, style, max }) => {
     })();
   }, [token, showAlert]);
 
+  const onFollowPressed = async () => {
+    try {
+      const response = await getSuggestedUsers(token, max);
+      setUsers(response);
+    } catch (err) {
+      showAlert(err.message);
+    }
+  };
+
   const renderUsers = () => {
     if (users) {
       return users.length > 0 ? (
@@ -44,6 +53,7 @@ const SuggestedUsers = ({ token, showAlert, card, style, max }) => {
               following={false}
               avatar={user.avatar}
               followPrice={user.followPrice}
+              onFollowPressed={onFollowPressed}
             />
           </UserCard>
         ))

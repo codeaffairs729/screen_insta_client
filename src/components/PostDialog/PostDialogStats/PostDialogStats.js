@@ -103,9 +103,10 @@ const PostDialogStats = ({
           className="icon--button"
           icon="chatbubble-outline"
         />
-        <Icon className="icon--button" icon="paper-plane-outline" />
 
-        <Icon className="icon--button" icon="lock-closed-outline" />
+        {post && post.postPrice > 0 && (
+          <Icon className="icon--button" icon="lock-closed-outline" />
+        )}
 
         <Icon
           className="icon--button"
