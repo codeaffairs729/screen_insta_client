@@ -7,7 +7,7 @@
   justify-content: center;
   position: fixed;
   width: 100%;
-  z-index: 10;
+  z-index: 100;
   transition: height 300ms ease;
 
   @include respond(phone) {
@@ -100,7 +100,7 @@
     padding: 0 2rem;
     border-bottom: 1px solid $color-grey-2;
     display: none;
-    z-index: 10;
+    z-index: 100;
     width: 100%;
     height: $mobile-header-height;
     top: 0;

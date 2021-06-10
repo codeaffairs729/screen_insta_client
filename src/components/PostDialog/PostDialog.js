@@ -12,7 +12,8 @@ import classNames from "classnames";
 import { Link, useHistory } from "react-router-dom";
 import TrackVisibility from "react-on-screen";
 import { selectToken, selectCurrentUser } from "../../redux/user/userSelectors";
-
+import AwesomeSlider from "react-awesome-slider";
+import "react-awesome-slider/dist/styles.css";
 import { showModal, hideModal } from "./../../redux/modal/modalActions";
 import { showAlert } from "../../redux/alert/alertActions";
 import ReactPlayer from "react-player";
@@ -138,7 +139,10 @@ const PostDialog = ({
           }}
           onClick={(e) => payPostClicked(post._id)}
         >
-          <div className="center-div" style={{ height: "100%", minHeight: "400px",}}>
+          <div
+            className="center-div"
+            style={{ height: "100%", minHeight: "400px" }}
+          >
             <Icon icon="lock-closed-outline" />
             <span>Get access for {post.postPrice.toFixed(2)}$</span>
           </div>
@@ -146,45 +150,43 @@ const PostDialog = ({
       );
     }
     console.log("rendering");
+    
     return (
-      <Carousel
-        interval={null}
-        controls={post.medias && post.medias.length === 1 ? false : true}
-        indicators={post.medias && post.medias.length === 1 ? false : true}
-        touch={true}
-        onSlide={onSlide}
-        prevLabel=""
-        nextLabel=""
+      <AwesomeSlider
+        bullets={false}
+        style={{ height: 600 }}
+        organicArrows={post.medias && post.medias.length > 1}
+        className="awesome-slider"
+        onTransitionStart={(e) => {
+          var video = e.currentSlide.querySelector("video");
+          // console.log(video);
+          if (video !== null && !video.paused) {
+            video.pause();
+          }
+        }}
       >
         {post.medias &&
           post.medias.map((media, index) => {
             return (
-              <Carousel.Item style={{ minHeight: 300 }} key={index}>
+              <div style={{ minHeight: 300 }} key={index}>
                 {media && isVideo(media) && (
                   <ReactPlayer
-                    alt="Post"
-                    width="100%"
-                    height="100%"
-                    url={media}
-                    playing={index === videoIndex}
-                    controls
-                    config={{
-                      file: {
-                        attributes: {
-                          controlsList: "nodownload",
-                          preload: "none",
-                        },
-                      },
+                    style={{
+                      position: "absolute",
+                      right: 0,
+                      bottom: 0,
+                      minWidth: "100%",
+                      minHeight: "100%",
+                      width: "auto",
+                      height: "auto",
+                      backgroundSize: "cover",
+                      overflow: "hidden",
+                      backgroundColor: "black",
                     }}
-                  />
-                )}
-                {media && isAudio(media) && (
-                  <ReactPlayer
                     alt="Post"
                     width="100%"
                     height="100%"
                     url={media}
-                    playing={index === videoIndex}
                     controls
                     config={{
                       file: {
@@ -197,17 +199,53 @@ const PostDialog = ({
                     }}
                   />
                 )}
-                {media && !isVideo(media) && !isAudio(media) && (
-                  <img
-                    className="d-block w-100"
-                    src={media}
-                    style={{ width: "100%" }}
+                {media && isAudio(media) && (
+                  <ReactPlayer
+                    alt="Post"
+                    width="100%"
+                    height="100%"
+                    style={{
+                      position: "absolute",
+                      right: 0,
+                      bottom: 0,
+                      minWidth: "100%",
+                      minHeight: "100%",
+                      width: "auto",
+                      height: "auto",
+                      backgroundSize: "cover",
+                      overflow: "hidden",
+                      backgroundColor:"white"
+                    }}
+                    
+                    url={media}
+                    playing={index === videoIndex}
+                    controls
+                    config={{
+                      file: {
+                        attributes: {
+                          controlsList: "nodownload",
+                          autoPlay: false,
+                          preload: "none",
+                          poster: "/audio-poster.png"
+                        },
+                      },
+                    }}
                   />
                 )}
-              </Carousel.Item>
+                {media && !isVideo(media) && !isAudio(media) && (
+                  <img
+                  
+                    className="d-block w-100"
+                    src={media}
+                    style={{
+                      width: "100%",
+                    }}
+                  />
+                )}
+              </div>
             );
           })}
-      </Carousel>
+      </AwesomeSlider>
     );
   };
 
