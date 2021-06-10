@@ -181,3 +181,25 @@ export const getSuggestedUsers = async (authToken, max) => {
     throw new Error(err.response.data.error);
   }
 };
+
+
+export const sendTipToUser = async (payload) => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.post(
+      "/api/user/sendTip",
+      {
+        ...payload,
+      },
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    throw new Error(err.response.data.error);
+  }
+};

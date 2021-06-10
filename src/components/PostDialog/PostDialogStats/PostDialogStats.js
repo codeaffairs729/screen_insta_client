@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import classNames from "classnames";
 
-import { bookmarkPost } from "../../../redux/user/userActions";
+import { bookmarkPost, sendTip } from "../../../redux/user/userActions";
 import { showAlert } from "../../../redux/alert/alertActions";
 import { showModal, hideModal } from "../../../redux/modal/modalActions";
 
@@ -14,7 +14,6 @@ import Icon from "../../Icon/Icon";
 import PulsatingIcon from "../../Icon/PulsatingIcon/PulsatingIcon";
 import LoginCard from "../../LoginCard/LoginCard";
 import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
-
 
 const PostDialogStats = ({
   currentUser,
@@ -28,8 +27,11 @@ const PostDialogStats = ({
   hideModal,
   simple,
   postId,
+  sendTip,
 }) => {
   const ref = useRef();
+  console.log("POST");
+  console.log(post);
   const handleClick = async () => {
     if (!currentUser) {
       return showModal(
@@ -45,6 +47,7 @@ const PostDialogStats = ({
       );
     }
     // Dispatch the action immediately to avoid a delay between the user's click and something happening
+
     dispatch({
       type: "VOTE_POST",
       payload: { currentUser, postId: post._id, dispatch: profileDispatch },
@@ -61,6 +64,15 @@ const PostDialogStats = ({
     "post-dialog__stats--simple": simple,
   });
 
+  const startSendTip = (amount) => {
+    console.log(
+      "send tip called with amount " +
+        amount +
+        " and user id : " +
+        post.author._id
+    );
+    sendTip(amount, post.author._id);
+  };
   return (
     <div
       ref={ref}
@@ -103,6 +115,23 @@ const PostDialogStats = ({
           className="icon--button"
           icon="chatbubble-outline"
         />
+
+        {post && post.author && post.author.isCreator && (
+          <Icon
+            className="icon--button"
+            icon="gift-outline"
+            onClick={() => {
+              showModal(
+                {
+                  title: "Send a tip",
+                  cancelButton: false,
+                  sendTip: startSendTip,
+                },
+                "DonationDialog/DonationDialog"
+              );
+            }}
+          />
+        )}
 
         {post && post.postPrice > 0 && (
           <Icon className="icon--button" icon="lock-closed-outline" />
@@ -166,6 +195,7 @@ const mapDispatchToProps = (dispatch) => ({
   showAlert: (text, onClick) => dispatch(showAlert(text, onClick)),
   showModal: (props, component) => dispatch(showModal(props, component)),
   hideModal: (component) => dispatch(hideModal(component)),
+  sendTip: (tipAmount, userId) => dispatch(sendTip(tipAmount, userId)),
 });
 
 export default connect(null, mapDispatchToProps)(PostDialogStats);

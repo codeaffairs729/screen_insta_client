@@ -9,6 +9,9 @@ import UnfollowPrompt from "../../components/UnfollowPrompt/UnfollowPrompt";
 import Button from "../../components/Button/Button";
 import SettingsButton from "../../components/SettingsButton/SettingsButton";
 import CoverPicture from "../../components/CoverPicture/CoverPicture";
+import Icon from "../../components/Icon/Icon";
+import { connect } from "react-redux";
+import { sendTip } from "../../redux/user/userActions";
 
 const ProfileHeader = ({
   currentUser,
@@ -17,6 +20,7 @@ const ProfileHeader = ({
   token,
   follow,
   loading,
+  sendTip,
 }) => {
   const { avatar, username, bio, website, fullName, coverPicture } = data.user;
   const { following, followers, postCount } = data;
@@ -41,6 +45,11 @@ const ProfileHeader = ({
     );
   };
 
+  const startSendTip = (amount) => {
+    console.log("send tip called with amount " + amount + " and user id : " + data.user._id);
+    sendTip(amount, data.user._id);
+  }
+
   const renderButton = () => {
     if (currentUser) {
       if (currentUser.username === username) {
@@ -54,32 +63,46 @@ const ProfileHeader = ({
         );
       } else if (data.isFollowing) {
         return (
-          <Button
-            loading={loading}
-            onClick={() =>
-              showModal(
-                {
-                  options: [
-                    {
-                      warning: true,
-                      text: "Unfollow",
-                      onClick: () => follow(),
-                    },
-                  ],
-                  children: (
-                    <UnfollowPrompt
-                      avatar={data.user.avatar}
-                      username={data.user.username}
-                    />
-                  ),
-                },
-                "OptionsDialog/OptionsDialog"
-              )
-            }
-            inverted
-          >
-            Following
-          </Button>
+          <div style={{   display: "flex"   }}>
+            <Button
+              loading={loading}
+              onClick={() =>
+                showModal(
+                  {
+                    options: [
+                      {
+                        warning: true,
+                        text: "Unfollow",
+                        onClick: () => follow(),
+                      },
+                    ],
+                    children: (
+                      <UnfollowPrompt
+                        avatar={data.user.avatar}
+                        username={data.user.username}
+                      />
+                    ),
+                  },
+                  "OptionsDialog/OptionsDialog"
+                )
+              }
+              inverted
+            >
+              Following
+            </Button>
+            <Icon
+              icon="gift-outline"
+              style={{ cursor: "pointer", marginLeft: 8 }}
+              onClick={() => {showModal(
+                  {
+                    title: "Send a tip",
+                    cancelButton: false,
+                    sendTip: startSendTip
+                  },
+                  "DonationDialog/DonationDialog"
+                )}}
+            />
+          </div>
         );
       }
     }
@@ -218,4 +241,8 @@ const ProfileHeader = ({
   );
 };
 
-export default ProfileHeader;
+const mapDispatchToProps = (dispatch) => ({
+  sendTip: (tipAmount, userId) => dispatch(sendTip(tipAmount, userId)),
+});
+
+export default connect(null, mapDispatchToProps)(ProfileHeader);

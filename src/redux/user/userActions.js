@@ -13,6 +13,7 @@ import {
   removeCoverPicture,
   updateProfile,
   updateCreator,
+  sendTipToUser,
 } from "../../services/userService";
 import firebase from "../../firebase";
 import { useHistory } from "react-router-dom";
@@ -283,3 +284,18 @@ export const updateCreatorSuccess = (response) => async (dispatch) => {
     window.location.href = "/" + response.username;
   }, 200);
 };
+
+export const sendTip = (tipAmount, userId) => async (dispatch) => {
+  try {
+    dispatch({ type: userTypes.SEND_TIP_START });
+    const response = await sendTipToUser({ tipAmount, userId });
+
+    dispatch(showAlert("Tip was sent successfully!"));
+    dispatch({ type: userTypes.SEND_TIP_SUCCESS, payload: response });
+  } catch (err) {
+    dispatch({ type: userTypes.SEND_TIP_FAILURE, payload: err.message });
+    dispatch(showAlert("An error occurred while sending the tip"));
+    return false;
+  }
+};
+

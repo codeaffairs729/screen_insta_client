@@ -8,6 +8,7 @@ export const INITIAL_STATE = {
   fetchingCoverPicture: false,
   updatingProfile: false,
   token: localStorage.getItem("token"),
+  tipSending: false,
 };
 
 const userReducer = (state = INITIAL_STATE, action) => {
@@ -164,6 +165,24 @@ const userReducer = (state = INITIAL_STATE, action) => {
         ...state,
         updatingCreatorProfile: false,
         updateCreatorError: action.payload,
+      };
+    }
+    case userTypes.SEND_TIP_START: {
+      return {
+        ...state,
+        tipSending: true,
+      };
+    }
+    case userTypes.SEND_TIP_FAILURE: {
+      return {
+        ...state,
+        tipSending: false,
+      };
+    }
+    case userTypes.SEND_TIP_SUCCESS: {
+      return {
+        ...state,
+        tipSending: false,
       };
     }
     default:

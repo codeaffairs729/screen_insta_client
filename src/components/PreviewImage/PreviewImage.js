@@ -6,6 +6,8 @@ import { isAudio, isVideo } from "../../validUploads";
 
 const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
   if (!post) return null;
+  console.log("POST");
+  console.log(post);
   if (!post.display) {
     return (
       <figure
