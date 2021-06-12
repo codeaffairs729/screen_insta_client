@@ -45,10 +45,15 @@ const ProfileHeader = ({
     );
   };
 
-  const startSendTip = (amount) => {
-    console.log("send tip called with amount " + amount + " and user id : " + data.user._id);
-    sendTip(amount, data.user._id);
-  }
+  const startSendTip = (amount, tipMessage) => {
+    console.log(
+      "send tip called with amount " +
+        amount +
+        " and user id : " +
+        data.user._id
+    );
+    sendTip(amount, data.user._id, tipMessage);
+  };
 
   const renderButton = () => {
     if (currentUser) {
@@ -242,7 +247,8 @@ const ProfileHeader = ({
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  sendTip: (tipAmount, userId) => dispatch(sendTip(tipAmount, userId)),
+  sendTip: (tipAmount, userId, tipMessage) =>
+    dispatch(sendTip(tipAmount, userId, tipMessage)),
 });
 
 export default connect(null, mapDispatchToProps)(ProfileHeader);

@@ -40,10 +40,12 @@ const BookmarkPage = ({
           BetweenUs
         </h3>
       </MobileHeader>
-      <main data-test="page-home" className="home-page grid">
-        {!fetching && feedPosts.length === 0 ? (
+      {!fetching && feedPosts.length === 0 ? (
+        <div style={{ width: "100%", textAlign: "center", marginTop: 150 }}>
           <h2>You don't have any bookmarks</h2>
-        ) : (
+        </div>
+      ) : (
+        <main data-test="page-home" className="home-page grid">
           <Fragment>
             <Feed />
             <aside className="sidebar">
@@ -60,8 +62,8 @@ const BookmarkPage = ({
               </div>
             </aside>
           </Fragment>
-        )}
-      </main>
+        </main>
+      )}
     </Fragment>
   );
 };

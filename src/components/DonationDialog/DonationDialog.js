@@ -6,7 +6,7 @@ import FormInput from "../FormInput/FormInput";
 
 import TextButton from "../Button/TextButton/TextButton";
 
-const OptionsDialog = ({
+const DonationDialog = ({
   hide,
   options,
   children,
@@ -15,6 +15,8 @@ const OptionsDialog = ({
   sendTip,
 }) => {
   const [tipAmount, setTipAmount] = useState(0);
+  const [tipMessage, setTipMessage] = useState("");
+  const [tipAmountError, setTipAmountError] = useState(null);
   const transitions = useTransition(true, null, {
     from: { transform: "scale(1.2)", opacity: 0.5 },
     enter: { transform: "scale(1)", opacity: 1 },
@@ -59,6 +61,14 @@ const OptionsDialog = ({
             type={"tel"}
             onKeyPress={preventNonNumericalInput}
             onChange={(e) => setTipAmount(e.target.value)}
+            autocomplete="off"
+          />
+          {tipAmountError ? <h3 style={{color: "red"}}>{tipAmountError}</h3>: null}
+          <FormInput
+            style={{marginTop: 10}}
+            id="tipMessage"
+            placeholder="Enter message"
+            onChange={(e) => setTipMessage(e.target.value)}
           />
         </div>
       }
@@ -76,8 +86,13 @@ const OptionsDialog = ({
       <button
         className="options-dialog__button"
         onClick={(event) => {
-          sendTip(tipAmount);
-          hide();
+          if (parseFloat(tipAmount) >= 5) {
+            sendTip(tipAmount, tipMessage);
+            hide();
+          }
+          else {
+            setTipAmountError("The tip amount must be at least 5$");
+          }
         }}
       >
         Send
@@ -86,9 +101,9 @@ const OptionsDialog = ({
   ));
 };
 
-OptionsDialog.propTypes = {
+DonationDialog.propTypes = {
   hide: PropTypes.func.isRequired,
   options: PropTypes.array.isRequired,
 };
 
-export default OptionsDialog;
+export default DonationDialog;

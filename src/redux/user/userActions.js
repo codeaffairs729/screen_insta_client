@@ -285,10 +285,10 @@ export const updateCreatorSuccess = (response) => async (dispatch) => {
   }, 200);
 };
 
-export const sendTip = (tipAmount, userId) => async (dispatch) => {
+export const sendTip = (tipAmount, userId, tipMessage) => async (dispatch) => {
   try {
     dispatch({ type: userTypes.SEND_TIP_START });
-    const response = await sendTipToUser({ tipAmount, userId });
+    const response = await sendTipToUser({ tipAmount, userId, tipMessage });
 
     dispatch(showAlert("Tip was sent successfully!"));
     dispatch({ type: userTypes.SEND_TIP_SUCCESS, payload: response });

@@ -64,14 +64,14 @@ const PostDialogStats = ({
     "post-dialog__stats--simple": simple,
   });
 
-  const startSendTip = (amount) => {
+  const startSendTip = (amount, tipMessage) => {
     console.log(
       "send tip called with amount " +
         amount +
         " and user id : " +
         post.author._id
     );
-    sendTip(amount, post.author._id);
+    sendTip(amount, post.author._id, tipMessage);
   };
   return (
     <div
@@ -195,7 +195,8 @@ const mapDispatchToProps = (dispatch) => ({
   showAlert: (text, onClick) => dispatch(showAlert(text, onClick)),
   showModal: (props, component) => dispatch(showModal(props, component)),
   hideModal: (component) => dispatch(hideModal(component)),
-  sendTip: (tipAmount, userId) => dispatch(sendTip(tipAmount, userId)),
+  sendTip: (tipAmount, userId, tipMessage) =>
+    dispatch(sendTip(tipAmount, userId, tipMessage)),
 });
 
 export default connect(null, mapDispatchToProps)(PostDialogStats);

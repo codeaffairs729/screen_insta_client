@@ -193,7 +193,6 @@ const PostDialog = ({
                         attributes: {
                           controlsList: "nodownload",
                           autoPlay: false,
-                          preload: "none",
                         },
                       },
                     }}
@@ -214,9 +213,8 @@ const PostDialog = ({
                       height: "auto",
                       backgroundSize: "cover",
                       overflow: "hidden",
-                      backgroundColor:"white"
+                      backgroundColor: "white",
                     }}
-                    
                     url={media}
                     playing={index === videoIndex}
                     controls
@@ -226,7 +224,7 @@ const PostDialog = ({
                           controlsList: "nodownload",
                           autoPlay: false,
                           preload: "none",
-                          poster: "/audio-poster.png"
+                          poster: "/audio-poster.png",
                         },
                       },
                     }}
@@ -234,7 +232,6 @@ const PostDialog = ({
                 )}
                 {media && !isVideo(media) && !isAudio(media) && (
                   <img
-                  
                     className="d-block w-100"
                     src={media}
                     style={{
