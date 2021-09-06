@@ -60,6 +60,15 @@ const Header = memo(({ currentUser, showModal, hideModal }) => {
               <Link to="/">
                 <Icon icon={pathname === "/" ? "home" : "home-outline"} />
               </Link>
+              <Link to="/messages/all">
+                <Icon
+                  icon={
+                    pathname === "/messages/"
+                      ? "paper-plane"
+                      : "paper-plane-outline"
+                  }
+                />
+              </Link>
               <Link to="/explore">
                 <Icon
                   icon={pathname === "/explore" ? "compass" : "compass-outline"}
