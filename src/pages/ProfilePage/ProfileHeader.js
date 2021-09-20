@@ -12,6 +12,7 @@ import CoverPicture from "../../components/CoverPicture/CoverPicture";
 import Icon from "../../components/Icon/Icon";
 import { connect } from "react-redux";
 import { sendTip } from "../../redux/user/userActions";
+import { useHistory } from "react-router-dom";
 
 const ProfileHeader = ({
   currentUser,
@@ -24,7 +25,7 @@ const ProfileHeader = ({
 }) => {
   const { avatar, username, bio, website, fullName, coverPicture } = data.user;
   const { following, followers, postCount } = data;
-
+  const history = useHistory();
   const showUsersModal = (followers, following) => {
     showModal(
       {
@@ -46,12 +47,6 @@ const ProfileHeader = ({
   };
 
   const startSendTip = (amount, tipMessage) => {
-    console.log(
-      "send tip called with amount " +
-        amount +
-        " and user id : " +
-        data.user._id
-    );
     sendTip(amount, data.user._id, tipMessage);
   };
 
@@ -68,7 +63,7 @@ const ProfileHeader = ({
         );
       } else if (data.isFollowing) {
         return (
-          <div style={{   display: "flex"   }}>
+          <div style={{ display: "flex" }}>
             <Button
               loading={loading}
               onClick={() =>
@@ -98,14 +93,23 @@ const ProfileHeader = ({
             <Icon
               icon="gift-outline"
               style={{ cursor: "pointer", marginLeft: 8 }}
-              onClick={() => {showModal(
+              onClick={() => {
+                showModal(
                   {
                     title: "Send a tip",
                     cancelButton: false,
-                    sendTip: startSendTip
+                    sendTip: startSendTip,
                   },
                   "DonationDialog/DonationDialog"
-                )}}
+                );
+              }}
+            />
+            <Icon
+              icon="paper-plane-outline"
+              style={{ cursor: "pointer", marginLeft: 8 }}
+              onClick={() => {
+                history.push("/messages/all");
+              }}
             />
           </div>
         );

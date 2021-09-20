@@ -11,6 +11,7 @@ const ConversationsList = ({ data }) => {
   }, []);
 
   const history = useHistory();
+  console.log(data);
   return (
     <div id="conversations-list">
       {data.map((conversation) => {
@@ -22,8 +23,8 @@ const ConversationsList = ({ data }) => {
             avatar={conversation.avatar}
             alt={""}
             title={conversation.fullName}
-            subtitle={conversation.lastMessageText}
-            date={conversation.lastMessage}
+            subtitle={conversation.lastMessage}
+            date={new Date(conversation.lastMessageAt)}
             unread={0}
           />
         );

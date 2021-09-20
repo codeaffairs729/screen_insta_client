@@ -91,6 +91,7 @@ const ChatPanel = ({
           <RecipientInfo
             avatar={recipient.avatar}
             fullName={recipient.fullName}
+            username={recipient.username}
           />
           <Messages
             data={messages}

@@ -41,6 +41,7 @@ export const sendNewMessage = (payload) => async (dispatch) => {
         message,
       },
     });
+    dispatch(fetchConversations(0));
     return;
   } catch (err) {
     console.error("Error while sending message");

@@ -40,6 +40,7 @@ const Messages = ({ data, recipient, onMessageSent }) => {
               position={message.incoming ? "left" : "right"}
               type={message.type}
               text={message.text}
+              date={new Date(message.sentAt)}
             />
           );
         })}
