@@ -24,6 +24,7 @@ import LoadingPage from "../../pages/LoadingPage/LoadingPage";
 import { login } from "../../services/authenticationServices";
 import BookmarkPage from "../../pages/Bookmark/BookmarkPage";
 import ChatPage from "../Chat/ChatPage";
+const TermsAndConditions = lazy(() => import("../../pages/TermsAndConditions/TermsAndConditions"));
 const ProfilePage = lazy(() => import("../../pages/ProfilePage/ProfilePage"));
 const PostPage = lazy(() => import("../../pages/PostPage/PostPage"));
 const ConfirmationPage = lazy(() =>
@@ -47,7 +48,7 @@ const ForgotPasswordPage = lazy(() =>
   import("../../pages/ForgotPasswordPage/ForgotPasswordPage")
 );
 
-const defaultUser = { authState: "loading", email: "", loading: true };
+// const defaultUser = { authState: "loading", email: "", loading: true };
 
 function onAuthStateChange(callback, signInSuccess, signInFailure) {
   return firebase.auth().onAuthStateChanged(async (user) => {
@@ -204,11 +205,11 @@ export function UnconnectedApp({
 
     console.log(
       "rendering view " +
-        pathname +
-        " with authstate " +
-        user.authState +
-        " and isUserLoading ? " +
-        userLoading
+      pathname +
+      " with authstate " +
+      user.authState +
+      " and isUserLoading ? " +
+      userLoading
     );
     return (
       <Fragment>
@@ -228,6 +229,7 @@ export function UnconnectedApp({
           <Route path="/login" component={LoginPage} />
           <Route path="/signup" component={SignUpPage} />
           <Route path="/forgotPassword" component={ForgotPasswordPage} />
+          <Route path="/termsandconditions" component={TermsAndConditions} />
           <ProtectedRoute exact path="/" component={HomePage} />
           <ProtectedRoute
             path="/messages/:conversationId"

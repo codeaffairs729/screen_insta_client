@@ -16,11 +16,8 @@ import Feed from "../../components/Feed/Feed";
 import UserCard from "../../components/UserCard/UserCard";
 import SmallFooter from "../../components/Footer/SmallFooter/SmallFooter";
 import MobileHeader from "../../components/Header/MobileHeader/MobileHeader";
-import Icon from "../../components/Icon/Icon";
-import NewPostButton from "../../components/NewPost/NewPostButton/NewPostButton";
 import SuggestedUsers from "../../components/Suggestion/SuggestedUsers/SuggestedUsers";
 
-import firebase from "../../firebase";
 
 const HomePage = ({
   currentUser,

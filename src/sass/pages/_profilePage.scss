@@ -1,8 +1,8 @@
-.profile-page {
+.terms-page {
   overflow-x: hidden;
 }
 
-.profile-header {
+.terms-header {
   grid-column: center-start / center-end;
   display: flex;
   flex-direction: column;
@@ -78,7 +78,7 @@
         padding: 2rem 0;
       }
 
-      & > .profile-stats {
+      & > .terms-stats {
         justify-content: space-around;
         padding: 1.5rem 0;
         position: relative;
@@ -112,7 +112,7 @@
   }
 }
 
-.profile-buttons {
+.terms-buttons {
   display: flex;
   align-items: center;
   width: 100%;
@@ -151,7 +151,7 @@
   }
 }
 
-.profile-stats {
+.terms-stats {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -163,7 +163,7 @@
   }
 }
 
-.profile-categories {
+.terms-categories {
   grid-column: center-start / center-end;
   display: flex;
   justify-content: center;
@@ -213,7 +213,7 @@
   }
 }
 
-.profile-images {
+.terms-images {
   display: grid;
   grid-column: center-start / center-end;
   grid-template-columns: repeat(3, 1fr);
@@ -228,7 +228,7 @@
   }
 }
 
-.profile-image {
+.terms-image {
   height: 100%;
 
   @include respond(phone) {
@@ -238,7 +238,7 @@
   }
 }
 
-.profile-empty {
+.terms-empty {
   grid-column: center-start / center-end;
   display: flex;
   flex-direction: column;

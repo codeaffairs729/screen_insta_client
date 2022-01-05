@@ -1,10 +1,9 @@
 import userTypes from "./userTypes";
-
+import { hideAlert, showAlert } from "../alert/alertActions";
 import { bookmarkPost as bookmark } from "../../services/postService";
+
 import {
-  registerUser,
   login,
-  githubAuthentication,
 } from "../../services/authenticationServices";
 import {
   changeAvatar,
@@ -16,15 +15,13 @@ import {
   sendTipToUser,
 } from "../../services/userService";
 import firebase from "../../firebase";
-import { useHistory } from "react-router-dom";
-import { hideAlert, showAlert } from "../alert/alertActions";
 
 export const signOut = () => async (dispatch) => {
   localStorage.removeItem("token");
   dispatch({ type: userTypes.SIGN_OUT });
   try {
     await firebase.auth().signOut();
-  } catch (e) { 
+  } catch (e) {
     alert("An error occurred while signing out");
   }
   localStorage.removeItem("uid");

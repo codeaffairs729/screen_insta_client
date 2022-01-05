@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === "development") {
   console.log("Node development");
   axios.defaults.baseURL = constants.DEV_API_URL;
 } else {
-  axios.defaults.baseURL = constants.API_URL;
+  axios.defaults.baseURL = constants.DEV_API_URL;
 }
 
 ReactDOM.render(
