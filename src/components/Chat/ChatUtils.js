@@ -4,7 +4,7 @@ export function getConversationMessages(conversations, conversationId) {
   if (conversations) {
     for (let i = 0; i < conversations.length; i++) {
       const conversation = conversations[i];
-      if (conversation.conversationId === conversationId) {
+      if (conversation._id === conversationId) {
         return conversation.messages;
       }
     }

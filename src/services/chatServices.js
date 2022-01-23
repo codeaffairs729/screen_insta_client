@@ -7,11 +7,45 @@ import firebase from "../firebase";
  * @param {number} offset The offset of posts to retrieve
  * @returns {array} Array of posts
  */
-export const retrieveConversations = async (offset = 0) => {
+export const getConversations = async (offset = 0) => {
   try {
     const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.get(
       `/api/chat/conversations?offset=${offset}`,
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response.data);
+  }
+};
+export const getMessages = async (conversation, offset = 0) => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.get(
+      `/api/chat/messages`,
+      {
+        headers: {
+          authorization: token,
+        },
+        params: { conversation, offset }
+      }
+    );
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response.data);
+  }
+};
+
+export const getRecipients = async (offset = 0) => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.get(
+      `/api/chat/recipients?offset=${offset}`,
       {
         headers: {
           authorization: token,
