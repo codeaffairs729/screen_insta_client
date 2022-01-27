@@ -23,7 +23,24 @@ export const getConversations = async (offset = 0) => {
     throw new Error(err.response.data);
   }
 };
-export const getMessages = async (conversation, offset = 0) => {
+export const getFollowers = async (params) => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.get(
+      `/api/chat/followers`,
+      {
+        headers: {
+          authorization: token,
+        },
+        params
+      }
+    );
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response.data);
+  }
+};
+export const getMessages = async (conversation, firstSentAt) => {
   try {
     const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.get(
@@ -32,7 +49,7 @@ export const getMessages = async (conversation, offset = 0) => {
         headers: {
           authorization: token,
         },
-        params: { conversation, offset }
+        params: { conversation, firstSentAt }
       }
     );
     return response.data;

@@ -3,7 +3,8 @@ import chatTypes from "./chatTypes";
 import {
   getConversations,
   getMessages,
-  getRecipients
+  getRecipients,
+  getFollowers
 } from "../../services/chatServices";
 
 export const fetchConversations = (offset = 0) =>
@@ -28,11 +29,33 @@ export const fetchConversations = (offset = 0) =>
     }
 
   };
-export const fetchMessages = (conversation_id, offset = 0) =>
+export const fetchFollowers = (offset = 0) =>
+  async (dispatch) => {
+    dispatch({ type: chatTypes.FETCH_FOLLOWERS_START });
+    try {
+      let followers = await getFollowers(offset);
+      dispatch({
+        type: chatTypes.FETCH_FOLLOWERS_SUCCESS,
+        payload: {
+          followers,
+        },
+      });
+    } catch (err) {
+      console.error("Error while retrieving followers");
+      dispatch({
+        type: chatTypes.FETCH_FOLLOWERS_ERROR,
+        payload: {
+          error: "Error while retrieving followers",
+        },
+      });
+    }
+
+  };
+export const fetchMessages = (conversation_id, firstSentAt) =>
   async (dispatch) => {
     dispatch({ type: chatTypes.FETCH_MESSAGES_START });
     try {
-      let messages = await getMessages(conversation_id, offset);
+      let messages = await getMessages(conversation_id, firstSentAt);
       dispatch({
         type: chatTypes.FETCH_MESSAGES_SUCCESS,
         payload: {
@@ -74,28 +97,11 @@ export const fetchRecipients = (offset = 0) =>
 
   };
 
-// export const sendNewMessage = (payload) => async (dispatch) => {
-//   dispatch({ type: chatTypes.SEND_MESSAGE_START });
-//   try {
-//     let message = await postMessage(payload);
-//     dispatch({
-//       type: chatTypes.SEND_MESSAGE_SUCCESS,
-//       payload: {
-//         message,
-//       },
-//     });
-//   } catch (err) {
-//     console.error("Error while sending message");
-//     console.error(err);
-//   }
-//   dispatch({
-//     type: chatTypes.SEND_MESSAGE_ERROR,
-//     payload: {
-//       error: "An Error occurred while connecting to chat service",
-//     },
-//   });
-// };
-//socket.io in 
+
+export const addMessage = (message) => ({
+  type: chatTypes.ADD_MESSAGE,
+  payload: message,
+})
 
 //socket.io out
 export const sendMessageStart = (message) => ({

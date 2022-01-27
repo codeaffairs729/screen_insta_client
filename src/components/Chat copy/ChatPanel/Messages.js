@@ -258,4 +258,5 @@ const mapDispatchToProps = (dispatch) => ({
   startUploadFile: (formData, onImageUploaded) =>
     dispatch(uploadNewFile(formData, onImageUploaded)),
 });
+
 export default connect(null, mapDispatchToProps)(Messages);

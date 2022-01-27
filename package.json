@@ -18,6 +18,7 @@
     "bson": "^4.6.1",
     "classnames": "^2.2.6",
     "date-fns": "^2.11.0",
+    "file-type": "^17.1.1",
     "firebase": "^8.2.0",
     "formik": "^2.1.4",
     "linkifyjs": "^2.1.9",

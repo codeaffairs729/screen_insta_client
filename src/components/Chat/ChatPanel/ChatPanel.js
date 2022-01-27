@@ -4,12 +4,13 @@ import { useParams } from "react-router";
 import "./ChatPanel.css";
 import ConversationsList from "./ConversationsList";
 import Messages from "./Messages";
-// import RecipientInfo from "./RecipientInfo";
+import RecipientInfo from "./RecipientInfo";
 import SenderInfo from "./SenderInfo";
 import { useSocket } from "../../../providers/SocketProvider"
 
 import {
   fetchConversations,
+  fetchFollowers,
   fetchMessages,
   sendMessageStart,
   sendMessageSuccess,
@@ -24,6 +25,8 @@ import { selectCurrentUser } from "../../../redux/user/userSelectors";
 import {
   selectConversation,
   selectConversationMessages,
+  selectConversationLastSentAt,
+  selectConversationFirstSentAt
 } from "../../../redux/chat/chatSelectors"
 
 import {
@@ -35,12 +38,13 @@ const ChatPanel = ({
   conversationsFetching,
   fetchConversationsError,
   fetchConversationsDispatch,
+  fetchFollowersDispatch,
   messages,
   messagesFetching,
   fetchMessagesError,
   fetchMessagesDispatch,
   conversationMessagesSelector,
-  allMessagesSelector,
+  conversationFirstSentAtSelector,
   sendMessageStartDispatch,
   sendMessageSuccessDispatch,
   receiveMessageStartDispatch,
@@ -54,16 +58,22 @@ const ChatPanel = ({
   const history = useHistory();
   const socket = useSocket();
 
+  ///////////////////////////////////// INIT /////////////////////////////////////////////////////////////
   useEffect(() => { //fetch all the conversations 
     if (!conversationsFetching && !fetchConversationsError) {
       fetchConversationsDispatch(0);
+    }
+  }, []);
+  useEffect(() => { //fetch all the conversations 
+    if (!conversationsFetching && !fetchConversationsError) {
+      fetchFollowersDispatch(0);
     }
   }, []);
 
   useEffect(() => { //fetch all the messages 
     if (!conversationsFetching && conversations) {
       conversations.map(conv => {
-        fetchMessagesDispatch(conv._id, 0);
+        fetchMessagesDispatch(conv._id);
         return '';
       })
     }
@@ -71,9 +81,20 @@ const ChatPanel = ({
   }, [conversationsFetching]);
 
 
+  ///////////////////////////////////////// NAVIGATION //////////////////////////////////////////////////////
+  useEffect(() => {
 
+    if (conversation_id === "all") {
+      if (conversations && conversations.length > 0) {
+        history.push("/messages/" + conversations[0]._id);
+      }
+    }
+  }, [conversations, conversation_id, history]);
+
+
+  ////////////////////////////////////////////////// REAL TIME SOCKET ////////////////////////////////////////
   useEffect(() => {// listening on upcoming events // real time chat
-    const log = true;
+    const log = false;
     if (socket && currentUser._id && conversation_id) {
       socket.off('send-message-start');
       socket.off('send-message-success');
@@ -127,35 +148,11 @@ const ChatPanel = ({
 
   }, [socket, currentUser, conversation_id]);
 
-  // useEffect(() => {// receive-message-start for all received messages
-  //   if (messages && socket) {
-  //     const notReadMessages = messages.filter(message => message.sender !== currentUser._id && !message.receivedBy.find(rcb => rcb === currentUser._id));
-  //     notReadMessages.map(message => {
-  //       socket.emit('receive-message-start', { _id: message._id, receivedBy: currentUser._id });
-  //       receiveMessageStartDispatch(message)
-  //       return '';
-  //     })
 
+  ////////////////////////////////////////////////////////// EVENT SYNC ////////////////////////////////////////////////
 
-  //   }
-  // }, [messages, socket])
+  useEffect(() => { //Sync Messages
 
-  // useEffect(() => {//read-message-start for all read messages,
-  //   if (socket) {
-  //     const messages = conversationMessagesSelector(conversation_id);
-  //     messages
-  //       .filter(message => message.sender !== currentUser._id && !message.readBy.find(rb => rb === currentUser._id))
-  //       .map(message => {
-  //         socket.emit('read-message-start', { _id: message._id, readBy: currentUser._id });
-  //         readMessageStartDispatch(message);
-  //         return '';
-  //       })
-  //   }
-
-  // }, [messages, conversation_id, socket])
-  useEffect(() => {//read-message-start for all read messages,
-
-    // console.log(syncLock.current)
     if (socket && messages && !syncLock.current) {
       messages
         .filter(message => message.sender !== currentUser._id && message.status !== 'read')// only received messages
@@ -175,22 +172,9 @@ const ChatPanel = ({
         })
     }
 
-  }, [messages, conversation_id, socket])
+  }, [socket, messages, conversation_id,])
 
-  useEffect(() => {
-
-    if (conversation_id === "all") {
-      if (conversations && conversations.length > 0) {
-        history.push("/messages/" + conversations[0]._id);
-      }
-    }
-    if (conversations && conversation_id !== "all") {
-      // setMessages(getConversationMessages(conversations, conversation_id));
-      setRecipient(getConversationRecipient(conversations, conversation_id));
-    }
-  }, [conversations, conversation_id, history]);
-
-
+  ///////////////////////////////////////////////////////////// RENDER ////////////////////////////////////////////////////////
   if (!conversations || !conversationMessagesSelector(conversation_id)) {
     return <p>Loading...</p>;
   }
@@ -212,19 +196,18 @@ const ChatPanel = ({
           <ConversationsList conversations={conversations} />
         </div>
         <div className="content">
-          {/* <RecipientInfo
-            avatar={recipient.avatar}
-            fullName={recipient.fullName}
-            username={recipient.username}
-          /> */}
+          <RecipientInfo
+            avatar={currentUser.avatar}
+            fullName={currentUser.fullName}
+            username={currentUser.username}
+          />
           <Messages
             conversation_id={conversation_id}
             messages={conversationMessagesSelector(conversation_id)}
+            firstSentAt={conversationFirstSentAtSelector(conversation_id)}
             userId={currentUser._id}
+            messagesFetching={messagesFetching}
             recipient={recipient}
-            onReadConversation={() => { }}
-          // onMessageSent={onMessageSent}
-          // onMessageSent={onMessageSent}
           />
           <div className="message-input">
             <div className="wrap"></div>
@@ -246,12 +229,15 @@ const mapStateToProps = state => {
     fetchMessagesError: state.chat.fetchMessagesError,
     conversationSelector: (conversation_id) => selectConversation(state, conversation_id),
     conversationMessagesSelector: (conversation_id) => selectConversationMessages(state, conversation_id),
+    conversationLastSentAtSelector: (conversation_id) => selectConversationLastSentAt(state, conversation_id),
+    conversationFirstSentAtSelector: (conversation_id) => selectConversationFirstSentAt(state, conversation_id)
 
   };
 };
 
 const mapDistpachToProps = (dispatch) => ({
   fetchConversationsDispatch: (offset) => dispatch(fetchConversations(offset)),
+  fetchFollowersDispatch: (offset) => dispatch(fetchFollowers(offset)),
   fetchMessagesDispatch: (conversation_id, offset) => dispatch(fetchMessages(conversation_id, offset)),
   sendMessageStartDispatch: (message) => dispatch(sendMessageStart(message)),
   sendMessageSuccessDispatch: (message) => dispatch(sendMessageSuccess(message)),

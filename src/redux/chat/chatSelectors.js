@@ -9,30 +9,48 @@ export const selectConversations = createSelector(
 
 export const selectConversation = createSelector(
   [
-    state => state.chat,
+    state => state.chat.conversations,
     (state, conversation_id) => conversation_id,
   ],
-  (chat, conversation_id) => chat?.conversations?.find(conv => conv._id === conversation_id)
+  (conversations, conversation_id) => conversations?.find(conv => conv._id === conversation_id)
 );
 export const selectConversationMessages = createSelector(
   [
-    state => state.chat,
+    state => state.chat.messages,
     (state, conversation_id) => conversation_id,
   ],
-  (chat, conversation_id) => chat.messages ? chat.messages.filter(message => message.conversation === conversation_id) : []
+  (messages, conversation_id) => messages ? messages.filter(message => message.conversation === conversation_id) : []
 );
 
-// export const selectConversationMessages = createSelector(
-//   [
-//     state => state.chat,
-//     (state, conversation_id) => conversation_id,
-//   ],
-//   (chat, conversation_id) => chat.conversations.find(conv => conv._id === conversation_id)?.messages
-// );
-// export const selectAllMessages = createSelector(
+export const selectConversationLastSentAt = createSelector(
+  [
+    state => state.chat.messages,
+    (state, conversation_id) => conversation_id,
+  ],
+  (messages, conversation_id) => {
+    if (messages) {
+      const conversationMessages = messages.filter(message => message.conversation === conversation_id);
+      if (conversationMessages && conversationMessages.length > 0) {
+        return new Date(conversationMessages[conversationMessages.length - 1].sentAt);
+      }
+    }
+    return null;
+  }
 
-//   state => state.chat.conversations,
-//   conversations => conversations ? conversations.map(conv => conv.messages).flat() : []
-// );
+)
+export const selectConversationFirstSentAt = createSelector(
+  [
+    state => state.chat.messages,
+    (state, conversation_id) => conversation_id,
+  ],
+  (messages, conversation_id) => {
+    if (messages) {
+      const conversationMessages = messages.filter(message => message.conversation === conversation_id);
+      if (conversationMessages && conversationMessages.length > 0) {
+        return new Date(conversationMessages[0].sentAt);
+      }
+    }
+    return null;
+  }
 
-
+)

@@ -8,7 +8,7 @@ export const INITIAL_STATE = {
 
 const mediaReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
-    case mediaTypes.UPLOAD_FILE_STARTED: {
+    case mediaTypes.UPLOAD_FILE_START: {
       return {
         ...state,
         uploadFileLoading: true,
@@ -16,7 +16,7 @@ const mediaReducer = (state = INITIAL_STATE, action) => {
         uploadedFileUrl: null,
       };
     }
-    case mediaTypes.UPLOAD_FILE_FINISHED: {
+    case mediaTypes.UPLOAD_FILE_SUCCESS: {
       return {
         ...state,
         uploadFileLoading: false,
