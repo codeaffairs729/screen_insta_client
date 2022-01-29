@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { connect } from "react-redux";
 import { useParams } from "react-router";
 import "./ChatPanel.css";
@@ -12,6 +12,7 @@ import {
   fetchConversations,
   fetchFollowers,
   fetchMessages,
+  startNewConversationSuccess,
   sendMessageStart,
   sendMessageSuccess,
   receiveMessageStart,
@@ -25,17 +26,16 @@ import { selectCurrentUser } from "../../../redux/user/userSelectors";
 import {
   selectConversation,
   selectConversationMessages,
-  selectConversationLastSentAt,
-  selectConversationFirstSentAt
+  selectConversationLastMessage,
+  selectConversationFirstMessage
 } from "../../../redux/chat/chatSelectors"
 
-import {
-  getConversationRecipient,
-} from "./../ChatUtils";
+
 const ChatPanel = ({
   currentUser,
   conversations,
   conversationsFetching,
+  startNewConversationSuccessDispatch,
   fetchConversationsError,
   fetchConversationsDispatch,
   fetchFollowersDispatch,
@@ -43,8 +43,9 @@ const ChatPanel = ({
   messagesFetching,
   fetchMessagesError,
   fetchMessagesDispatch,
+  conversationSelector,
   conversationMessagesSelector,
-  conversationFirstSentAtSelector,
+  conversationFirstMessageSelector,
   sendMessageStartDispatch,
   sendMessageSuccessDispatch,
   receiveMessageStartDispatch,
@@ -53,7 +54,6 @@ const ChatPanel = ({
   readMessageSuccessDispatch
 }) => {
   const { conversation_id } = useParams();
-  const [recipient, setRecipient] = useState(null);
   const syncLock = useRef(false);
   const history = useHistory();
   const socket = useSocket();
@@ -64,7 +64,7 @@ const ChatPanel = ({
       fetchConversationsDispatch(0);
     }
   }, []);
-  useEffect(() => { //fetch all the conversations 
+  useEffect(() => { //fetch all the followers  
     if (!conversationsFetching && !fetchConversationsError) {
       fetchFollowersDispatch(0);
     }
@@ -94,14 +94,26 @@ const ChatPanel = ({
 
   ////////////////////////////////////////////////// REAL TIME SOCKET ////////////////////////////////////////
   useEffect(() => {// listening on upcoming events // real time chat
-    const log = false;
+    const log = true;
     if (socket && currentUser._id && conversation_id) {
       socket.off('send-message-start');
       socket.off('send-message-success');
       socket.off('send-message-error');
       socket.off('receive-message-success');
       socket.off('read-message-success');
+      socket.off('start-new-conversation-success');
 
+      //////////////////////////////////////// conversations events /////////////////////////////////////////
+
+      socket.on('start-new-conversation-success', conversation => {
+        if (log) console.log('on start-new-conversation-success', conversation);
+        startNewConversationSuccessDispatch(conversation);
+
+        socket.emit('join-conversation-room', conversation._id);
+        if (log) console.log('on join-conversation-room', conversation._id);
+      });
+
+      ///////////////////////////////////////// messages events ///////////////////////////////////////////
       socket.on('send-message-start', message => {// know when the same user is sending a message from another device (session)
         if (log) console.log('on send-message-start', message);
         sendMessageStartDispatch(message)
@@ -178,6 +190,9 @@ const ChatPanel = ({
   if (!conversations || !conversationMessagesSelector(conversation_id)) {
     return <p>Loading...</p>;
   }
+  const firstMessage = conversationFirstMessageSelector(conversation_id);
+  const conversationMessages = conversationMessagesSelector(conversation_id);
+  const conversationParticipants = conversationSelector(conversation_id)?.participants.filter(part => part._id !== currentUser._id);
   return (
     <div id="panel">
       <div id="frame">
@@ -193,21 +208,23 @@ const ChatPanel = ({
             <input id="search-contact" type="text" placeholder="Search contacts..." />
           </div>
 
-          <ConversationsList conversations={conversations} />
+          <ConversationsList
+            currentUser={currentUser}
+            conversations={conversations}
+          />
         </div>
         <div className="content">
           <RecipientInfo
-            avatar={currentUser.avatar}
-            fullName={currentUser.fullName}
-            username={currentUser.username}
+            avatar={conversationParticipants && conversationParticipants[0].avatar}
+            fullName={conversationParticipants && conversationParticipants[0].fullName}
+            username={conversationParticipants && conversationParticipants[0].username}
           />
           <Messages
             conversation_id={conversation_id}
-            messages={conversationMessagesSelector(conversation_id)}
-            firstSentAt={conversationFirstSentAtSelector(conversation_id)}
+            messages={conversationMessages}
+            firstSentAt={firstMessage ? new Date(firstMessage.sentAt) : null}
             userId={currentUser._id}
             messagesFetching={messagesFetching}
-            recipient={recipient}
           />
           <div className="message-input">
             <div className="wrap"></div>
@@ -229,8 +246,8 @@ const mapStateToProps = state => {
     fetchMessagesError: state.chat.fetchMessagesError,
     conversationSelector: (conversation_id) => selectConversation(state, conversation_id),
     conversationMessagesSelector: (conversation_id) => selectConversationMessages(state, conversation_id),
-    conversationLastSentAtSelector: (conversation_id) => selectConversationLastSentAt(state, conversation_id),
-    conversationFirstSentAtSelector: (conversation_id) => selectConversationFirstSentAt(state, conversation_id)
+    conversationLastMessageSelector: (conversation_id) => selectConversationLastMessage(state, conversation_id),
+    conversationFirstMessageSelector: (conversation_id) => selectConversationFirstMessage(state, conversation_id)
 
   };
 };
@@ -239,6 +256,7 @@ const mapDistpachToProps = (dispatch) => ({
   fetchConversationsDispatch: (offset) => dispatch(fetchConversations(offset)),
   fetchFollowersDispatch: (offset) => dispatch(fetchFollowers(offset)),
   fetchMessagesDispatch: (conversation_id, offset) => dispatch(fetchMessages(conversation_id, offset)),
+  startNewConversationSuccessDispatch: (conversation) => dispatch(startNewConversationSuccess(conversation)),
   sendMessageStartDispatch: (message) => dispatch(sendMessageStart(message)),
   sendMessageSuccessDispatch: (message) => dispatch(sendMessageSuccess(message)),
   receiveMessageStartDispatch: (payload) => dispatch(receiveMessageStart(payload)),

@@ -23,6 +23,23 @@ export const getConversations = async (offset = 0) => {
     throw new Error(err.response.data);
   }
 };
+export const postConversation = async (participants) => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.post(
+      `/api/chat/conversations`,
+      { participants },
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response.data);
+  }
+};
 export const getFollowers = async (params) => {
   try {
     const token = await firebase.auth().currentUser.getIdToken();

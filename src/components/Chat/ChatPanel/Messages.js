@@ -71,7 +71,7 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
       formData.append("medias", selectedFile);
 
       const message = { _id: new ObjectID().toHexString(), conversation: conversation_id, sender: userId, receivedBy: [], readBy: [], type: "photo", text: messageText, status: 'waiting', sentAt: new Date() }
-      addMessageDispatch(message);//
+      addMessageDispatch(message);
       uploadNewFileDispatch(formData, (uri) => {
         const newMessage = { ...message, data: { uri } };
         socket.emit('send-message-start', newMessage);
@@ -84,10 +84,7 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
   }, [selectedFile, uploadNewFileDispatch])
 
 
-  // useEffect(() => {
-  //   if (messagesBoxRef)
-  //     messagesBoxRef.current.scrollTop = messagesBoxRef.current.scrollHeight;
-  // }, [messages]);
+
 
   const onKeyPress = (e) => {
     if (e.key === "Enter") {

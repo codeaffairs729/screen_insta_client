@@ -1,19 +1,20 @@
 import chatTypes from "./chatTypes";
 
 export const INITIAL_STATE = {
-  conversations: null,
+  conversations: [],
   conversationsFetching: false,
   fetchConversationsError: null,
-  messages: null,
+  messages: [],
   messagesFetching: false,
   fetchMessagesError: null,
-  followers: null,
+  followers: [],
   followersFetching: false,
   fetchFollowersError: null
 };
 
 const chatReducer = (state = INITIAL_STATE, action) => {
-  switch (action.type) {
+  const { type, payload } = action;
+  switch (type) {
     case chatTypes.FETCH_FOLLOWERS_START: {
       return {
         ...state,
@@ -26,13 +27,13 @@ const chatReducer = (state = INITIAL_STATE, action) => {
         ...state,
         fetchFollowersError: null,
         followersFetching: false,
-        followers: action.payload.followers,
+        followers: payload.followers,
       };
     }
     case chatTypes.FETCH_FOLLOWERS_ERROR: {
       return {
         ...state,
-        fetchFollowersError: action.payload.error,
+        fetchFollowersError: payload.error,
         followersFetching: false,
       };
     }
@@ -48,14 +49,34 @@ const chatReducer = (state = INITIAL_STATE, action) => {
         ...state,
         fetchConversationsError: null,
         conversationsFetching: false,
-        conversations: action.payload.conversations,
+        conversations: payload.conversations,
       };
     }
     case chatTypes.FETCH_CONVERSATIONS_ERROR: {
       return {
         ...state,
-        fetchConversationsError: action.payload.error,
+        fetchConversationsError: payload.error,
         conversationsFetching: false,
+      };
+    }
+    ///////////////////////////////////////// socket.io conversations actions ////////////////////////////////
+    case chatTypes.START_NEW_CONVERSATION_START: {
+      return {
+        ...state,
+      };
+    }
+    case chatTypes.START_NEW_CONVERSATION_SUCCESS: {
+      return {
+        ...state,
+        conversations: [payload, ...state.conversations],
+        // followers: payload.followerToDelete_id ? state.followers.filter(follower => follower._id !== payload.followerToDelete_id) : state.followers
+      };
+    }
+    case chatTypes.START_NEW_CONVERSATION_ERROR: {
+      return {
+        ...state,
+        // fetchConversationsError: payload.error,
+        // conversationsFetching: false,
       };
     }
     case chatTypes.FETCH_MESSAGES_START: {
@@ -71,16 +92,18 @@ const chatReducer = (state = INITIAL_STATE, action) => {
         ...state,
         fetchMessagesError: null,
         messagesFetching: false,
-        messages: [...action.payload.messages, ...state.messages ? state.messages : [],]
+        messages: [...payload.messages, ...state.messages ? state.messages : [],]
       };
     }
     case chatTypes.FETCH_MESSAGES_ERROR: {
       return {
         ...state,
-        fetchMessagesError: action.payload.error,
+        fetchMessagesError: payload.error,
         messagesFetching: false,
       };
     }
+
+    /////////////////////////////////////// upload media actions ///////////////////////////////////
     case chatTypes.ADD_MESSAGE: {
       const { payload: message } = action;
 
@@ -89,6 +112,8 @@ const chatReducer = (state = INITIAL_STATE, action) => {
         messages: [...state.messages, message],
       };
     }
+    ///////////////////////////////////////// socket.io conversations actions ////////////////////////////////
+
     case chatTypes.SEND_MESSAGE_START: {
       const { payload: message } = action;
 

@@ -4,7 +4,8 @@ import {
   getConversations,
   getMessages,
   getRecipients,
-  getFollowers
+  getFollowers,
+  postConversation
 } from "../../services/chatServices";
 
 export const fetchConversations = (offset = 0) =>
@@ -22,6 +23,29 @@ export const fetchConversations = (offset = 0) =>
       console.error("Error while retrieving conversations");
       dispatch({
         type: chatTypes.FETCH_CONVERSATIONS_ERROR,
+        payload: {
+          error: "Error while retrieving conversations",
+        },
+      });
+    }
+
+  };
+export const startNewConversation = (participants, onStartNewConversationSuccess) =>
+  async (dispatch) => {
+    dispatch({ type: chatTypes.START_NEW_CONVERSATION_START });
+    try {
+      let conversation = await postConversation(participants);
+      dispatch({
+        type: chatTypes.START_NEW_CONVERSATION_SUCCESS,
+        payload: {
+          conversation,
+        },
+      });
+      onStartNewConversationSuccess(conversation)
+    } catch (err) {
+      console.error("Error while retrieving conversations");
+      dispatch({
+        type: chatTypes.START_NEW_CONVERSATION_ERROR,
         payload: {
           error: "Error while retrieving conversations",
         },
@@ -103,7 +127,21 @@ export const addMessage = (message) => ({
   payload: message,
 })
 
-//socket.io out
+//socket.io out messages actions
+export const startNewConversationStart = (payload) => ({
+  type: chatTypes.START_NEW_CONVERSATION_START,
+  payload,
+})
+export const startNewConversationSuccess = (message) => ({
+  type: chatTypes.START_NEW_CONVERSATION_SUCCESS,
+  payload: message,
+})
+export const startNewConversationError = (error) => ({
+  type: chatTypes.START_NEW_CONVERSATION_ERROR,
+  payload: error,
+})
+
+//socket.io out messages actions
 export const sendMessageStart = (message) => ({
   type: chatTypes.SEND_MESSAGE_START,
   payload: message,
