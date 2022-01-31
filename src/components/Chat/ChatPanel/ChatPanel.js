@@ -24,6 +24,7 @@ import {
 import { useHistory } from "react-router-dom";
 import { selectCurrentUser } from "../../../redux/user/userSelectors";
 import {
+  selectConversations,
   selectConversation,
   selectConversationMessages,
   selectConversationLastMessage,
@@ -33,7 +34,6 @@ import {
 
 const ChatPanel = ({
   currentUser,
-  conversations,
   conversationsFetching,
   startNewConversationSuccessDispatch,
   fetchConversationsError,
@@ -43,6 +43,7 @@ const ChatPanel = ({
   messagesFetching,
   fetchMessagesError,
   fetchMessagesDispatch,
+  conversationsSelector,
   conversationSelector,
   conversationMessagesSelector,
   conversationFirstMessageSelector,
@@ -58,6 +59,8 @@ const ChatPanel = ({
   const history = useHistory();
   const socket = useSocket();
 
+  const conversations = conversationsSelector();
+
   ///////////////////////////////////// INIT /////////////////////////////////////////////////////////////
   useEffect(() => { //fetch all the conversations 
     if (!conversationsFetching && !fetchConversationsError) {
@@ -71,7 +74,7 @@ const ChatPanel = ({
   }, []);
 
   useEffect(() => { //fetch all the messages 
-    if (!conversationsFetching && conversations) {
+    if (!conversationsFetching) {
       conversations.map(conv => {
         fetchMessagesDispatch(conv._id);
         return '';
@@ -84,12 +87,10 @@ const ChatPanel = ({
   ///////////////////////////////////////// NAVIGATION //////////////////////////////////////////////////////
   useEffect(() => {
 
-    if (conversation_id === "all") {
-      if (conversations && conversations.length > 0) {
-        history.push("/messages/" + conversations[0]._id);
-      }
-    }
-  }, [conversations, conversation_id, history]);
+    if (conversation_id !== 'all' && conversation_id !== 'new' && !conversationsFetching && conversations.length > 0 && !conversationSelector(conversation_id))
+      history.push("/messages/all");
+
+  }, [conversationsFetching, conversationSelector, conversation_id, history]);
 
 
   ////////////////////////////////////////////////// REAL TIME SOCKET ////////////////////////////////////////
@@ -105,13 +106,18 @@ const ChatPanel = ({
 
       //////////////////////////////////////// conversations events /////////////////////////////////////////
 
-      socket.on('start-new-conversation-success', conversation => {
+      socket.on('start-new-conversation-success', ({ conversation, message }) => {
         if (log) console.log('on start-new-conversation-success', conversation);
         startNewConversationSuccessDispatch(conversation);
+        sendMessageSuccessDispatch(message); /// need to be renamed to StartUpMessageDispatch in order to not create confusation;
+        if (currentUser._id === conversation.participants[0]._id)
+          history.push('/messages/' + conversation._id);
 
         socket.emit('join-conversation-room', conversation._id);
         if (log) console.log('on join-conversation-room', conversation._id);
       });
+
+
 
       ///////////////////////////////////////// messages events ///////////////////////////////////////////
       socket.on('send-message-start', message => {// know when the same user is sending a message from another device (session)
@@ -158,7 +164,7 @@ const ChatPanel = ({
       })
     }
 
-  }, [socket, currentUser, conversation_id]);
+  }, [socket, currentUser, conversation_id, history]);
 
 
   ////////////////////////////////////////////////////////// EVENT SYNC ////////////////////////////////////////////////
@@ -238,7 +244,7 @@ const ChatPanel = ({
 const mapStateToProps = state => {
   return {
     currentUser: selectCurrentUser(state),
-    conversations: state.chat.conversations,
+    conversationsSelector: () => selectConversations(state),
     conversationsFetching: state.chat.conversationsFetching,
     fetchConversationsError: state.chat.fetchConversationsError,
     messages: state.chat.messages,

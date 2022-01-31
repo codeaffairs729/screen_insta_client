@@ -2,8 +2,9 @@ import { createSelector } from "reselect";
 
 
 export const selectConversations = createSelector(
-  (state) => state.chat,
-  (chat) => chat.conversations
+  (state) => state.chat.conversations,
+  (conversations) => conversations.slice().sort((a, b) => new Date(b.lastMessageSentAt) - new Date(a.lastMessageSentAt))
+
 );
 
 
@@ -50,9 +51,14 @@ export const selectNotParticipantsFollowers = createSelector(
   ],
   (followers, conversations) => {
     const participants = conversations.map(conversation => conversation.participants).flat();
-    console.log(participants)
     // if a follower is already in a conversation it should be removed
-    return followers.filter(follower => !participants.find(participant => participant._id === follower._id));
+    //don't include users already in conversation (only in two participant conversation )
+    const notParticipantsfollowers = followers.filter(follower => !participants.find(participant => participant._id === follower._id));
+    //avoid repeated followers/followees
+    const notParticipantsfollowersUniqueIds = [...new Set(notParticipantsfollowers.map(f => f._id))];
+
+    return notParticipantsfollowersUniqueIds.map(npfu_Id => notParticipantsfollowers.find(npf => npf._id === npfu_Id));
+
 
   }
 

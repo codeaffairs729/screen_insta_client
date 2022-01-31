@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { connect } from "react-redux";
+import { useLocation } from 'react-router-dom'
 import "./ChatPanel.css";
 import { Input, MessageBox } from "react-chat-elements";
 import Icon from "../../Icon/Icon";
@@ -7,11 +8,12 @@ import { sendMessageStart, addMessage } from "../../../redux/chat/chatActions"
 import { uploadNewFile } from "../../../redux/media/mediaActions"
 import { useSocket } from "../../../providers/SocketProvider"
 import { ObjectID } from 'bson';
-import { fetchMessages } from '../../../redux/chat/chatActions'
+import { fetchMessages, startNewConversationStart } from '../../../redux/chat/chatActions'
+
 
 const minScrollTop = 1;
 let timer;
-const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSentAt, addMessageDispatch, sendMessageStartDispatch, fetchMessagesDispatch, uploadNewFileDispatch, onReadConversation }) => {
+const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSentAt, addMessageDispatch, sendMessageStartDispatch, fetchMessagesDispatch, uploadNewFileDispatch, startNewConversationStartDispatch }) => {
   const [messageText, setMessageText] = useState("");
   const fileInputRef = useRef();
   const inputRef = useRef();
@@ -19,40 +21,43 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
   const [selectedFile, setSelectedFile] = useState(null);
   const socket = useSocket();
 
+  function useQuery() {
+    const { search } = useLocation();
 
-  const scrollDown = () => {
+    return useMemo(() => new URLSearchParams(search), [search]);
+  }
+  const query = useQuery();
+
+  const scrollDown = (i = 100) => {
     const scrollHeight = messagesBoxRef.current.scrollHeight
     setTimeout(() => {
       messagesBoxRef.current.scrollTop = scrollHeight;
-    }, 200)
+    }, i)
   };
-  const scrollDownAlitttleBit = () => {
+  const scrollDownAlitttleBit = (i = 100) => {
     const scrollHeight = messagesBoxRef.current.scrollHeight
 
     setTimeout(() => {
       messagesBoxRef.current.scrollTop = scrollHeight * 0.02
-    }, 200)
+    }, i)
   };
 
-  ////////////////////////////////////////////// SCROLL DOWN  WHEN VISITING A CONVERSATION ///////////////////////////////////////////////////////
+  ////////////////////////////////////////////// SCROLL DOWN  WHEN VISITING (clicking on a conversation) A CONVERSATION ///////////////////////////////////////////////////////
   useEffect(() => {
-    if (conversation_id !== 'all') scrollDown();
+    if (conversation_id !== 'all' && conversation_id !== 'new') scrollDown(200);
   }, [conversation_id]);
-
-
 
   ///////////////////////////////////////// FETCH MESSAGE WHEN SCROLL UP /////////////////////////////////////////
   useEffect(() => {
     const msgref = messagesBoxRef.current;
     const scrollListener = (e) => {
-      if (msgref.scrollTop < minScrollTop && !messagesFetching && conversation_id !== 'all') {
+      if (msgref.scrollTop < minScrollTop && !messagesFetching && conversation_id !== 'all' && conversation_id !== 'new') {
         console.log(msgref.scrollTop)
         clearTimeout(timer);
         timer = setTimeout(() => {
           fetchMessagesDispatch(conversation_id, firstSentAt);
         }, 1000);
-
-        scrollDownAlitttleBit();
+        scrollDownAlitttleBit(200);
       }
     }
     msgref.addEventListener('scroll', scrollListener);
@@ -61,11 +66,10 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
     };
   }, [messagesBoxRef, firstSentAt, messagesFetching, conversation_id]);
 
-
-
   ///////////////////////////////////////////////////////// UPLOAD MEDIA ///////////////////////////////////////////////////////
   useEffect(() => {
     if (selectedFile && uploadNewFileDispatch) {
+      const participants = query.get('participants');
       console.log('selectedFile', selectedFile);
       let formData = new FormData();
       formData.append("medias", selectedFile);
@@ -74,34 +78,51 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
       addMessageDispatch(message);
       uploadNewFileDispatch(formData, (uri) => {
         const newMessage = { ...message, data: { uri } };
-        socket.emit('send-message-start', newMessage);
-        sendMessageStartDispatch(newMessage);
+
+        if (conversation_id !== 'new') {
+          socket.emit('send-message-start', newMessage);// TODO : use thunk instead , remove it to a parent component
+          sendMessageStartDispatch(newMessage);
+        } else {
+          console.log('here', newMessage);
+          socket.emit('start-new-conversation-start', { participants: [userId, participants], message: newMessage });
+          startNewConversationStartDispatch(participants);
+          sendMessageStartDispatch(newMessage);
+        }
       });
       fileInputRef.current.value = "";
-      scrollDown()
+      scrollDown(200)
     }
 
   }, [selectedFile, uploadNewFileDispatch])
 
 
-
-
-  const onKeyPress = (e) => {
+  const onKeyDown = (e) => {
     if (e.key === "Enter") {
+      inputRef.current.input.value = (inputRef.current.input.value + "").replace(/\n|\r/g, "")
       handleSendMessage();
-
     }
   };
   const handleSendMessage = () => {
     const text = inputRef.current.input.value;
-    if (!text && text.length > 0);
-    const message = { _id: new ObjectID().toHexString(), conversation: conversation_id, sender: userId, receivedBy: [], readBy: [], type: "text", text, status: 'waiting', sentAt: new Date() }
-    socket.emit('send-message-start', message);// TODO : use thunk instead , remove it to a parent component
-    sendMessageStartDispatch(message);
-    inputRef.current.input.value = '';
-    setTimeout(() => {
-      messagesBoxRef.current.scrollTop = messagesBoxRef.current.scrollHeight
-    }, 100)
+    if (text && text.length > 0) {
+      const participants = query.get('participants');
+
+      const message = { _id: new ObjectID().toHexString(), conversation: conversation_id, sender: userId, receivedBy: [], readBy: [], type: "text", text, status: 'waiting', sentAt: new Date() }
+
+      if (conversation_id !== 'new') {
+        socket.emit('send-message-start', message);// TODO : use thunk instead , remove it to a parent component
+        sendMessageStartDispatch(message);
+      } else {
+        socket.emit('start-new-conversation-start', { participants: [userId, participants], message });
+        startNewConversationStartDispatch(participants);
+        sendMessageStartDispatch(message);
+      }
+      inputRef.current.input.value = '';
+      scrollDown(100)
+      // setTimeout(() => {
+      //   messagesBoxRef.current.scrollTop = messagesBoxRef.current.scrollHeight
+      // }, 100)
+    }
   }
   const onMessageTextChanged = (e) => {
     setMessageText(e.target.value);
@@ -169,14 +190,14 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
         return renderMessageBox(message);
       })}
 
-      <div className="message-input">
+      {conversation_id !== 'all' && (<div className="message-input">
         <div className="wrap">
           {/* {renderPaidMessagePanel()} */}
           <Input
             ref={inputRef}
-            placeholder="Type here..."
+            placeholder=" Type here..."
             multiline={true}
-            onKeyPress={onKeyPress}
+            onKeyDown={onKeyDown}
             // defaultValue={messageText}
             // value={messageText}
             onChange={onMessageTextChanged}
@@ -206,7 +227,7 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
           ref={fileInputRef}
           type="file"
         />
-      </div>
+      </div>)}
     </div>
   );
 };
@@ -218,7 +239,9 @@ const mapDispatchToProps = (dispatch) => ({
   sendMessageStartDispatch: (message) => dispatch(sendMessageStart(message)),
   uploadNewFileDispatch: (formData, onUploadDone) => dispatch(uploadNewFile(formData, onUploadDone)),
   fetchMessagesDispatch: (conversation_id, firstSentAt) => dispatch(fetchMessages(conversation_id, firstSentAt)),
+  startNewConversationStartDispatch: (participants) => dispatch(startNewConversationStart(participants)),
 
 
 });
+
 export default connect(null, mapDispatchToProps)(Messages);

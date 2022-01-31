@@ -69,14 +69,11 @@ const chatReducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         conversations: [payload, ...state.conversations],
-        // followers: payload.followerToDelete_id ? state.followers.filter(follower => follower._id !== payload.followerToDelete_id) : state.followers
       };
     }
     case chatTypes.START_NEW_CONVERSATION_ERROR: {
       return {
         ...state,
-        // fetchConversationsError: payload.error,
-        // conversationsFetching: false,
       };
     }
     case chatTypes.FETCH_MESSAGES_START: {
@@ -110,6 +107,7 @@ const chatReducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         messages: [...state.messages, message],
+        conversations: state.conversations.map(conv => conv._id === message.conversation ? { ...conv, lastMessageSentAt: message.sentAt } : conv)
       };
     }
     ///////////////////////////////////////// socket.io conversations actions ////////////////////////////////
@@ -121,14 +119,18 @@ const chatReducer = (state = INITIAL_STATE, action) => {
         return m._id === message._id
       });
       let newMessages;
+      let newConversation;
       if (messageToUpdate) {
         newMessages = state.messages.map(m => m._id === message._id ? message : m)
       } else {
         newMessages = [...state.messages, message];
+        newConversation = state.conversations.map(conv => conv._id === message.conversation ? { ...conv, lastMessageSentAt: message.sentAt } : conv)
+
       }
       return {
         ...state,
-        messages: newMessages
+        messages: newMessages,
+        conversations: newConversation ? newConversation : state.conversations
       };
     }
     case chatTypes.SEND_MESSAGE_SUCCESS: {
@@ -138,14 +140,18 @@ const chatReducer = (state = INITIAL_STATE, action) => {
         return m._id === message._id
       });
       let newMessages;
+      let newConversation;
       if (messageToUpdate) {
         newMessages = state.messages.map(m => m._id === message._id ? message : m)
       } else {
         newMessages = [...state.messages, message];
+        newConversation = state.conversations.map(conv => conv._id === message.conversation ? { ...conv, lastMessageSentAt: message.sentAt } : conv)
       }
       return {
         ...state,
-        messages: newMessages
+        messages: newMessages,
+        conversations: newConversation ? newConversation : state.conversations
+
       };
     }
     case chatTypes.RECEIVE_MESSAGE_SUCCESS: {
@@ -155,14 +161,18 @@ const chatReducer = (state = INITIAL_STATE, action) => {
         return m._id === message._id
       });
       let newMessages;
+      let newConversation;
       if (messageToUpdate) {
         newMessages = state.messages.map(m => m._id === message._id ? message : m)
       } else {
         newMessages = [...state.messages, message];
+        newConversation = state.conversations.map(conv => conv._id === message.conversation ? { ...conv, lastMessageSentAt: message.sentAt } : conv)
       }
       return {
         ...state,
-        messages: newMessages
+        messages: newMessages,
+        conversations: newConversation ? newConversation : state.conversations
+
       };
     }
     case chatTypes.READ_MESSAGE_SUCCESS: {
@@ -172,14 +182,18 @@ const chatReducer = (state = INITIAL_STATE, action) => {
         return m._id === message._id
       });
       let newMessages;
+      let newConversation;
       if (messageToUpdate) {
         newMessages = state.messages.map(m => m._id === message._id ? message : m)
       } else {
         newMessages = [...state.messages, message];
+        newConversation = state.conversations.map(conv => conv._id === message.conversation ? { ...conv, lastMessageSentAt: message.sentAt } : conv)
+
       }
       return {
         ...state,
-        messages: newMessages
+        messages: newMessages,
+        conversations: newConversation ? newConversation : state.conversations
       };
     }
 
