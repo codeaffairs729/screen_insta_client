@@ -7,7 +7,6 @@ export const selectConversations = createSelector(
 
 );
 
-
 export const selectConversation = createSelector(
   [
     state => state.chat.conversations,

@@ -151,7 +151,6 @@ const chatReducer = (state = INITIAL_STATE, action) => {
         ...state,
         messages: newMessages,
         conversations: newConversation ? newConversation : state.conversations
-
       };
     }
     case chatTypes.RECEIVE_MESSAGE_SUCCESS: {
@@ -188,7 +187,6 @@ const chatReducer = (state = INITIAL_STATE, action) => {
       } else {
         newMessages = [...state.messages, message];
         newConversation = state.conversations.map(conv => conv._id === message.conversation ? { ...conv, lastMessageSentAt: message.sentAt } : conv)
-
       }
       return {
         ...state,

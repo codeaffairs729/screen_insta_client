@@ -129,15 +129,15 @@ const ChatPanel = ({
         sendMessageSuccessDispatch(message);
 
         if (message.sender !== currentUser._id) {
-          if (message.conversation === conversation_id) {// we skip the receive event;
-            if (log) console.log('emit read-message-start', message);
-            socket.emit('read-message-start', { _id: message._id, readBy: currentUser._id });
-            readMessageStartDispatch(message);
-          } else {
-            if (log) console.log('emit receive-message-start', message);
-            socket.emit('receive-message-start', { _id: message._id, receivedBy: currentUser._id });
-            receiveMessageStartDispatch(message);
-          }
+          // if (message.conversation === conversation_id) {// we skip the receive event;
+          // if (log) console.log('emit read-message-start', message);
+          // socket.emit('read-message-start', { _id: message._id, readBy: currentUser._id });
+          // readMessageStartDispatch(message);
+          // } else {
+          if (log) console.log('emit receive-message-start', message);
+          socket.emit('receive-message-start', { _id: message._id, receivedBy: currentUser._id });
+          receiveMessageStartDispatch(message);
+          // }
 
         }
 
@@ -149,13 +149,13 @@ const ChatPanel = ({
       socket.on('receive-message-success', message => {
         if (log) console.log('on receive-message-success', message);
         receiveMessageSuccessDispatch(message);
-        if (message.sender !== currentUser._id) {
-          if (message.conversation === conversation_id) {
-            if (log) console.log('emit read-message-start', message);
-            socket.emit('read-message-start', { _id: message._id, readBy: currentUser._id });
-            readMessageStartDispatch(message);
-          }
-        }
+        // if (message.sender !== currentUser._id) {
+        //   if (message.conversation === conversation_id) {
+        //     if (log) console.log('emit read-message-start', message);
+        //     socket.emit('read-message-start', { _id: message._id, readBy: currentUser._id });
+        //     readMessageStartDispatch(message);
+        //   }
+        // }
       })
 
       socket.on('read-message-success', message => {
@@ -167,7 +167,7 @@ const ChatPanel = ({
   }, [socket, currentUser, conversation_id, history]);
 
 
-  ////////////////////////////////////////////////////////// EVENT SYNC ////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////// RECEIVE EVENT SYNC ////////////////////////////////////////////////
 
   useEffect(() => { //Sync Messages
 
@@ -177,9 +177,9 @@ const ChatPanel = ({
         .map(message => {
           // console.log(message);
           if (conversation_id === message.conversation) {
-            socket.emit('read-message-start', { _id: message._id, readBy: currentUser._id });
-            console.log('read-message-start', message)
-            readMessageStartDispatch(message);
+            // socket.emit('read-message-start', { _id: message._id, readBy: currentUser._id });
+            // console.log('read-message-start', message)
+            // readMessageStartDispatch(message);
           } else if (!message.receivedBy.find(rcb => rcb === currentUser._id)) {
             socket.emit('receive-message-start', { _id: message._id, receivedBy: currentUser._id });
             console.log('receive-message-start', message)
@@ -192,6 +192,14 @@ const ChatPanel = ({
 
   }, [socket, messages, conversation_id,])
 
+  const handleReadMessage = (message) => {
+    if (socket) {
+      socket.emit('read-message-start', { _id: message._id, readBy: currentUser._id });
+      console.log('read-message-start', message);
+      readMessageStartDispatch(message);
+    }
+
+  }
   ///////////////////////////////////////////////////////////// RENDER ////////////////////////////////////////////////////////
   if (!conversations || !conversationMessagesSelector(conversation_id)) {
     return <p>Loading...</p>;
@@ -231,6 +239,7 @@ const ChatPanel = ({
             firstSentAt={firstMessage ? new Date(firstMessage.sentAt) : null}
             userId={currentUser._id}
             messagesFetching={messagesFetching}
+            onReadMessage={handleReadMessage}
           />
           <div className="message-input">
             <div className="wrap"></div>

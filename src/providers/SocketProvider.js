@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import io from 'socket.io-client';
+import constants from "../constants";
 
 const SocketContext = createContext();
 
@@ -10,11 +11,17 @@ export function useSocket() {
 export function SocketProvider({ id, children }) {
 
     const [socket, setSocket] = useState();
-    console.log("id", id)
+    let baseURL;
+    if (process.env.NODE_ENV === "development") {
+
+        baseURL = constants.API_URL;
+    } else {
+        baseURL = constants.API_URL;
+    }
     useEffect(() => {
 
         const newSocket = io(
-            'http://localhost:9000', {
+            baseURL, {
             query: {
                 id
             },

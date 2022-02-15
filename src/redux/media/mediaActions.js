@@ -13,7 +13,7 @@ export const uploadNewFile = (file, onUploadDone) => async (dispatch) => {
           secure_url: response.secure_url,
         },
       });
-      onUploadDone(response.secure_url);
+      await onUploadDone(response.secure_url);
     }
 
   } catch (err) {
