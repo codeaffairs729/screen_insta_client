@@ -52,13 +52,18 @@ const LoginCard = ({
       style={
         modal
           ? {
-              padding: "2rem",
-            }
+            padding: "2rem",
+          }
           : {}
       }
     >
       <Card className="form-card">
-        <h1 className="heading-logo text-center">BetweenUs</h1>
+        {/* <h1 className="heading-logo text-center">BetweenUs</h1> */}
+        <div className="text-center">
+          <img height="200px" src="main-logo.png" alt="main-logo.png" />
+        </div>
+        <h3 className="heading-3 color-blue font-thin text-center">CONNECT WITH YOUR FANS AND MONETIZE YOUR CONTENT</h3>
+
         <form
           onSubmit={(event) => handleSubmit(event)}
           className="form-card__form"

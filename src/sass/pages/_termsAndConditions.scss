@@ -1,0 +1,71 @@
+.terms-page {
+  // margin: auto;
+  // width: 90%;
+  overflow-x: hidden;
+  padding-top: 9rem;
+  padding-bottom: 20rem;
+  display: flex;
+  flex-direction: column;
+  // background-color: red;
+  background-image: url(https://images.prismic.io/www-static/b597c0ee-3cc9-4d5f-b5db-4591e1cad315_bg-kubernetes.svg?auto=compress);
+}
+
+.terms-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  // background: yellow;
+}
+
+.terms-head-title {
+  color: white;
+  font-size: 3em;
+}
+
+.terms-infos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.terms-card {
+  width: 380px;
+  margin: 24px;
+  background-color: #fff;
+  border: 1px solid #dbdbdb;
+  border-radius: 3px;
+}
+.terms-card-header {
+  display: flex;
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center;
+  color: #363636;
+  text-align: center;
+  font-weight: 700;
+  padding: 0.75rem;
+  background-color: #f3f5f9;
+  line-height: 30px;
+}
+
+.list {
+  background-color: white;
+  line-height: 26px;
+  padding: 16px 42px;
+  font-size: 1.32rem;
+}
+
+.list-item {
+  list-style: none;
+}
+
+// .terms-header {
+//   grid-column: center-start / center-end;
+//   display: flex;
+//   flex-direction: column;
+//   grid-template-columns: min-content 1fr;
+//   grid-column-gap: 10rem;
+//   justify-items: start;
+
+//   padding: 0px 10rem 4rem 10rem;
+//   border-bottom: 1px solid $color-grey-2;
+// }

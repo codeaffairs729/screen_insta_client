@@ -8,6 +8,7 @@ export const uploadFile = async (formData) => {
       headers: {
         authorization: token,
       },
+      onUploadProgress: progressEvent => console.log("progress", progressEvent.loaded)
     });
     return response.data;
   } catch (err) {

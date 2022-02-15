@@ -7,11 +7,79 @@ import firebase from "../firebase";
  * @param {number} offset The offset of posts to retrieve
  * @returns {array} Array of posts
  */
-export const retrieveConversations = async (offset = 0) => {
+export const getConversations = async (offset = 0) => {
   try {
     const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.get(
       `/api/chat/conversations?offset=${offset}`,
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response.data);
+  }
+};
+export const postConversation = async (participants) => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.post(
+      `/api/chat/conversations`,
+      { participants },
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response.data);
+  }
+};
+export const getFollowers = async (params) => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.get(
+      `/api/chat/followers`,
+      {
+        headers: {
+          authorization: token,
+        },
+        params
+      }
+    );
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response.data);
+  }
+};
+export const getMessages = async (conversation, firstSentAt) => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.get(
+      `/api/chat/messages`,
+      {
+        headers: {
+          authorization: token,
+        },
+        params: { conversation, firstSentAt }
+      }
+    );
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response.data);
+  }
+};
+
+export const getRecipients = async (offset = 0) => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.get(
+      `/api/chat/recipients?offset=${offset}`,
       {
         headers: {
           authorization: token,

@@ -1,7 +1,8 @@
-import React, { useEffect, Fragment, Suspense, lazy, useState } from "react";
-import { Switch, Route, useHistory, useLocation } from "react-router-dom";
+import React, { useEffect, Suspense, lazy, useState } from "react";
+import { Switch, Route, useLocation } from "react-router-dom";
 import { connect } from "react-redux";
 import { useTransition } from "react-spring";
+import SocketProvider from "../../providers/SocketProvider"
 
 import { selectCurrentUser } from "../../redux/user/userSelectors";
 import {
@@ -24,6 +25,7 @@ import LoadingPage from "../../pages/LoadingPage/LoadingPage";
 import { login } from "../../services/authenticationServices";
 import BookmarkPage from "../../pages/Bookmark/BookmarkPage";
 import ChatPage from "../Chat/ChatPage";
+const TermsAndConditions = lazy(() => import("../../pages/TermsAndConditions/TermsAndConditions"));
 const ProfilePage = lazy(() => import("../../pages/ProfilePage/ProfilePage"));
 const PostPage = lazy(() => import("../../pages/PostPage/PostPage"));
 const ConfirmationPage = lazy(() =>
@@ -47,7 +49,7 @@ const ForgotPasswordPage = lazy(() =>
   import("../../pages/ForgotPasswordPage/ForgotPasswordPage")
 );
 
-const defaultUser = { authState: "loading", email: "", loading: true };
+// const defaultUser = { authState: "loading", email: "", loading: true };
 
 function onAuthStateChange(callback, signInSuccess, signInFailure) {
   return firebase.auth().onAuthStateChanged(async (user) => {
@@ -108,7 +110,7 @@ export function UnconnectedApp({
   useEffect(() => {
     if (user.token) {
       //signInStart(null, null, user.token);
-      fetchNotificationsStart(user.token);
+      // fetchNotificationsStart(user.token);
     }
   }, [signInStart, fetchNotificationsStart, user]);
 
@@ -195,7 +197,7 @@ export function UnconnectedApp({
   const renderApp = () => {
     // Wait for authentication
     console.log("current user is : " + JSON.stringify(currentUser));
-    if (user.authState == "loading") {
+    if (user.authState === "loading") {
       console.log(
         "Loading page " + user.authState + " loading: " + userLoading
       );
@@ -204,14 +206,14 @@ export function UnconnectedApp({
 
     console.log(
       "rendering view " +
-        pathname +
-        " with authstate " +
-        user.authState +
-        " and isUserLoading ? " +
-        userLoading
+      pathname +
+      " with authstate " +
+      user.authState +
+      " and isUserLoading ? " +
+      userLoading
     );
     return (
-      <Fragment>
+      <SocketProvider id={currentUser?._id}>
         {pathname !== "/login" &&
           pathname !== "/signup" &&
           pathname !== "/forgotPassword" && <Header />}
@@ -225,12 +227,14 @@ export function UnconnectedApp({
             )
         )}
         <Switch>
+
           <Route path="/login" component={LoginPage} />
           <Route path="/signup" component={SignUpPage} />
           <Route path="/forgotPassword" component={ForgotPasswordPage} />
+          <Route path="/termsandconditions" component={TermsAndConditions} />
           <ProtectedRoute exact path="/" component={HomePage} />
           <ProtectedRoute
-            path="/messages/:conversationId"
+            path="/messages/:conversation_id"
             component={ChatPage}
           />
           <ProtectedRoute path="/settings" component={SettingsPage} />
@@ -248,7 +252,7 @@ export function UnconnectedApp({
           pathname !== "/signup" &&
           pathname !== "/new" &&
           currentUser && <MobileNav currentUser={currentUser} />}
-      </Fragment>
+      </SocketProvider>
     );
   };
 

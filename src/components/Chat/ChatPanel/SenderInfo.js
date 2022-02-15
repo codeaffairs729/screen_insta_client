@@ -1,17 +1,16 @@
-import React, { useEffect, useCallback, useState } from "react";
-import { connect } from "react-redux";
+import React from "react";
 import "./ChatPanel.css";
 
 const SenderInfo = ({ fullName, avatar }) => {
   return (
     <div id="profile">
-      <div class="wrap">
-        <img id="profile-img" src={avatar} class="online" alt="" />
+      <div className="wrap">
+        <img id="profile-img" src={avatar} className="online" alt="" />
         <p>{fullName}</p>
-        <i class="fa fa-chevron-down expand-button" aria-hidden="true"></i>
+        <i className="fa fa-chevron-down expand-button" aria-hidden="true"></i>
       </div>
     </div>
   );
 };
 
-export default connect(null, null)(SenderInfo);
+export default SenderInfo;

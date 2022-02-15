@@ -1,38 +1,12 @@
-export function getConversationMessages(conversations, conversationId) {
-  console.debug("getting conversation " + conversationId + " messages ");
-  let messages = [];
-  if (conversations) {
-    for (let i = 0; i < conversations.length; i++) {
-      const conversation = conversations[i];
-      if (conversation.conversationId === conversationId) {
-        return conversation.messages;
-      }
-    }
-  }
-  return messages;
-}
+import isAudio from 'is-audio';
+import isVideo from 'is-video';
+import isFile from 'is-file';
+import isImage from 'is-image';
 
-export function getConversationRecipient(conversations, conversationId) {
-  console.debug("getting conversation " + conversationId + " recipient ");
-  if (conversations) {
-    for (let i = 0; i < conversations.length; i++) {
-      const conversation = conversations[i];
-      if (conversation.conversationId === conversationId) {
-        return {
-          fullName: conversation.fullName,
-          username: conversation.username,
-          avatar: conversation.avatar,
-          lastMessage: conversation.lastMessage ?? "-",
-          unread: conversation.unread ?? 0,
-        };
-      }
-    }
-  }
-  return {
-    fullName: "",
-    avatar: "",
-    username: "",
-    lastMessage: "-",
-    unread: 0,
-  };
+export function getFileType(fileName) {
+  if (isVideo(fileName)) return 'video';
+  if (isAudio(fileName)) return 'audio';
+  if (isImage(fileName)) return 'photo'; // adatped to react-chat-elements MessageBox 
+  if (isFile(fileName)) return 'file';
+  return 'unknown';
 }
