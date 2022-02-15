@@ -39,10 +39,9 @@ const ChatPanel = ({
   fetchConversationsError,
   fetchConversationsDispatch,
   fetchFollowersDispatch,
+  fetchMessagesDispatch,
   messages,
   messagesFetching,
-  fetchMessagesError,
-  fetchMessagesDispatch,
   conversationsSelector,
   conversationSelector,
   conversationMessagesSelector,
@@ -63,26 +62,21 @@ const ChatPanel = ({
 
   ///////////////////////////////////// INIT /////////////////////////////////////////////////////////////
   useEffect(() => { //fetch all the conversations 
-    if (!conversationsFetching && !fetchConversationsError) {
-      fetchConversationsDispatch(0);
-    }
-  }, []);
-  useEffect(() => { //fetch all the followers  
-    if (!conversationsFetching && !fetchConversationsError) {
-      fetchFollowersDispatch(0);
-    }
+    // if (!conversationsFetching && !fetchConversationsError) {
+    fetchConversationsDispatch(0);
+    fetchFollowersDispatch(0);
+    // }
   }, []);
 
+
   useEffect(() => { //fetch all the messages 
-    if (!conversationsFetching) {
+    if (messages.length === 0) { // set to [] by fetchConversationSuccess Action;
       conversations.map(conv => {
         fetchMessagesDispatch(conv._id);
         return '';
       })
     }
-
-  }, [conversationsFetching]);
-
+  }, [conversations]);
 
   ///////////////////////////////////////// NAVIGATION //////////////////////////////////////////////////////
   useEffect(() => {
@@ -201,12 +195,14 @@ const ChatPanel = ({
 
   }
   ///////////////////////////////////////////////////////////// RENDER ////////////////////////////////////////////////////////
-  if (!conversations || !conversationMessagesSelector(conversation_id)) {
-    return <p>Loading...</p>;
-  }
+
   const firstMessage = conversationFirstMessageSelector(conversation_id);
   const conversationMessages = conversationMessagesSelector(conversation_id);
   const conversationParticipants = conversationSelector(conversation_id)?.participants.filter(part => part._id !== currentUser._id);
+
+  if (!conversations || !conversationMessages) {
+    return <p>Loading...</p>;
+  }
   return (
     <div id="panel">
       <div id="frame">
@@ -270,7 +266,7 @@ const mapStateToProps = state => {
 const mapDistpachToProps = (dispatch) => ({
   fetchConversationsDispatch: (offset) => dispatch(fetchConversations(offset)),
   fetchFollowersDispatch: (offset) => dispatch(fetchFollowers(offset)),
-  fetchMessagesDispatch: (conversation_id, offset) => dispatch(fetchMessages(conversation_id, offset)),
+  fetchMessagesDispatch: (conversation_id) => dispatch(fetchMessages(conversation_id)),
   startNewConversationSuccessDispatch: (conversation) => dispatch(startNewConversationSuccess(conversation)),
   sendMessageStartDispatch: (message) => dispatch(sendMessageStart(message)),
   sendMessageSuccessDispatch: (message) => dispatch(sendMessageSuccess(message)),

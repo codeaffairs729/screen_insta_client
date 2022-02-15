@@ -115,19 +115,19 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
   ///////////////////////////////////////////////////////// UPLOAD MEDIA ///////////////////////////////////////////////////////
   useEffect(() => {
     const call = async () => {
+      const text = inputRef.current.input.value;
       const participants = query.get('participants');
       console.log('selectedFile', selectedFile);
       const type = getFileType(selectedFile.name);
-      // return alert(type)
       let formData = new FormData();
       let duration; // only for audio and video
       if (type === 'audio' || type === 'video')
         duration = 1000 * await getBlobDuration(selectedFile);    // seconds we need to converted to milliseconds
 
-      const message = { _id: new ObjectID().toHexString(), conversation: conversation_id, sender: userId, receivedBy: [], readBy: [], type, text: messageText, status: 'waiting', sentAt: new Date(), data: { duration } }
+      const message = { _id: new ObjectID().toHexString(), conversation: conversation_id, sender: userId, receivedBy: [], readBy: [], type, text, status: 'waiting', sentAt: new Date(), data: { duration } }
       addMessageDispatch(message);
-
-      // fixing WebM missing metadata
+      scrollDown(200);
+      fileInputRef.current.value = "";
       if (selectedFile.name.split('.')[1].toLowerCase() === 'webm') {
 
         ysFixWebmDuration(selectedFile, 1000 * duration, function (fixedBlob) {
@@ -158,9 +158,6 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
           }
         });
       }
-
-      fileInputRef.current.value = "";
-      scrollDown(200)
 
     }
     if (selectedFile && uploadNewFileDispatch) call();

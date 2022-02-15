@@ -50,6 +50,7 @@ const chatReducer = (state = INITIAL_STATE, action) => {
         fetchConversationsError: null,
         conversationsFetching: false,
         conversations: payload.conversations,
+        messages: [],
       };
     }
     case chatTypes.FETCH_CONVERSATIONS_ERROR: {
