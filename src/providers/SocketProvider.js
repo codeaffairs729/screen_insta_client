@@ -14,7 +14,7 @@ export function SocketProvider({ id, children }) {
     let baseURL;
     if (process.env.NODE_ENV === "development") {
 
-        baseURL = constants.API_URL;
+        baseURL = constants.DEV_API_URL;
     } else {
         baseURL = constants.API_URL;
     }
