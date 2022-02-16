@@ -18,7 +18,7 @@ import { selectConversation } from '../../../redux/chat/chatSelectors'
 import { getFileType } from '../ChatUtils';
 import getBlobDuration from 'get-blob-duration';
 import ysFixWebmDuration from 'fix-webm-duration';
-
+import FileType from 'file-type/browser';
 TimeAgo.addDefaultLocale(en)
 const timeAgo = new TimeAgo('en-US');
 
@@ -115,9 +115,10 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
   ///////////////////////////////////////////////////////// UPLOAD MEDIA ///////////////////////////////////////////////////////
   useEffect(() => {
     const call = async () => {
-      const text = inputRef.current.input.value;
+      const text = inputRef.current?.input.value;// not inputRef when recording audio/video
       const participants = query.get('participants');
       console.log('selectedFile', selectedFile);
+      const realExt = await FileType.fromBlob(selectedFile);
       const type = getFileType(selectedFile.name);
       let formData = new FormData();
       let duration; // only for audio and video
@@ -128,9 +129,9 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
       addMessageDispatch(message);
       scrollDown(200);
       fileInputRef.current.value = "";
-      if (selectedFile.name.split('.')[1].toLowerCase() === 'webm') {
-
-        ysFixWebmDuration(selectedFile, 1000 * duration, function (fixedBlob) {
+      if (realExt.ext === 'webm') {
+        console.log(selectedFile.name.split('.')[1].toLowerCase())
+        ysFixWebmDuration(selectedFile, duration, function (fixedBlob) {
           formData.append("medias", fixedBlob);
           uploadNewFileDispatch(formData, async (uri) => {
             const newMessage = { ...message, data: { uri, duration } };

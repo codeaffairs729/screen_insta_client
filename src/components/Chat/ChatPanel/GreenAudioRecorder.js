@@ -295,8 +295,12 @@ export default function GreenAudioRecorder({ position = 'right', showVolumeBtn =
             // });
             // const duration = await getBlobDuration(mediaBlobUrl);// seconds we need to converted to milliseconds
             const mediaBlob = await fetch(mediaBlobUrl).then(response => response.blob());
+            console.log(mediaBlob)
             // ysFixWebmDuration(mediaBlob, 1000 * duration, function (fixedBlob) {
-            const wavefilefromblob = new File([mediaBlob], 'filename.wav', { type: 'audio/wav' });
+            const wavefilefromblob = new File([mediaBlob], 'audiorecorded.wav',
+                { type: 'audio/wav' }
+            );
+            console.log(wavefilefromblob)
             onSend(wavefilefromblob);
             onDelete();
             // });

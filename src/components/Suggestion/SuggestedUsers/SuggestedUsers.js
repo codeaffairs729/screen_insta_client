@@ -27,13 +27,18 @@ const SuggestedUsers = ({ token, showAlert, card, style, max }) => {
     })();
   }, [token, showAlert]);
 
-  const onFollowPressed = async () => {
-    try {
-      const response = await getSuggestedUsers(token, max);
-      setUsers(response);
-    } catch (err) {
-      showAlert(err.message);
-    }
+  const onFollowPressed = () => {
+
+    setTimeout(async () => {
+      try {
+        const response = await getSuggestedUsers(token, max);
+        setUsers(response);
+      } catch (err) {
+        showAlert(err.message);
+      }
+
+    }, 10000)
+
   };
 
   const renderUsers = () => {
