@@ -233,9 +233,6 @@ const ChatPanel = ({
             messagesFetching={messagesFetching}
             onReadMessage={handleReadMessage}
           />
-          <div className="message-input">
-            <div className="wrap"></div>
-          </div>
         </div>
       </div>
     </div>

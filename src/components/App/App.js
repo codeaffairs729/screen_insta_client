@@ -3,6 +3,8 @@ import { Switch, Route, useLocation, useHistory, useParams } from "react-router-
 import { connect } from "react-redux";
 import { useTransition } from "react-spring";
 import { useSocket } from "../../providers/SocketProvider"
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   fetchConversations,
   fetchFollowers,
@@ -144,7 +146,17 @@ export function UnconnectedApp({
 
       //////////////////////////////////////// conversations events /////////////////////////////////////////
       socket.on('connect', async () => {
-        alert('connect : ' + socket.id)
+        // alert('connect : ' + socket.id)
+
+        toast.success('You Are Online!', {
+          position: "bottom-left",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
         fetchFollowersDispatch(0);
         const conversations = await fetchConversationsDispatch(0);
         conversations.map(conv => {
@@ -158,8 +170,16 @@ export function UnconnectedApp({
 
       })
       socket.on('disconnect', () => {
-        alert('disconnect : ')
-        // inform the current user that they are disconnected and cannot send any messages
+        // alert('disconnect : ')
+        toast.error('You Are Offline!', {
+          position: "bottom-left",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
       })
 
       ///////////////////////////////////////// messages events ///////////////////////////////////////////
@@ -379,6 +399,7 @@ export function UnconnectedApp({
           pathname !== "/signup" &&
           pathname !== "/new" &&
           currentUser && <MobileNav currentUser={currentUser} />}
+        <ToastContainer theme="colored" />
       </>
     );
   };
@@ -418,21 +439,7 @@ const mapDispatchToProps = (dispatch) => ({
   readMessageSuccessDispatch: (payload) => dispatch(readMessageSuccess(payload)),
 });
 
-// const mapStateToProps = state => {
-//   return {
-//     currentUser: selectCurrentUser(state),
-//     conversationsSelector: () => selectConversations(state),
-//     conversationsFetching: state.chat.conversationsFetching,
-//     fetchConversationsError: state.chat.fetchConversationsError,
-//     messages: state.chat.messages,
-//     messagesFetching: state.chat.messagesFetching,
-//     fetchMessagesError: state.chat.fetchMessagesError,
-//     conversationSelector: (conversation_id) => selectConversation(state, conversation_id),
-//     conversationMessagesSelector: (conversation_id) => selectConversationMessages(state, conversation_id),
-//     conversationFirstMessageSelector: (conversation_id) => selectConversationFirstMessage(state, conversation_id)
 
-//   };
-// };
 
 
 export default connect(mapStateToProps, mapDispatchToProps)(UnconnectedApp);

@@ -175,8 +175,9 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
     }
   };
   const handleSendMessage = () => {
-    const text = inputRef.current.input.value;
-    if (text && text.length > 0) {
+    const text = inputRef.current.input.value.replace(/\s+/g, ' ')
+
+    if (text && text.length > 0 && text !== ' ') {
       const participants = query.get('participants');
 
       const message = { _id: new ObjectID().toHexString(), conversation: conversation_id, sender: userId, receivedBy: [], readBy: [], type: "text", text, status: 'waiting', sentAt: new Date() }
@@ -212,7 +213,7 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
           text={message.text}
           status={message.sender === userId ? message.status : ""}// TO DO correct this one
           date={new Date(message.sentAt)}
-          onMessageFocused={() => alert()}
+          // onMessageFocused={() => alert()}
           onVisible={() => message.sender !== userId && !message.readBy.find(rb => rb === userId) && onReadMessage(message)}
 
         />
@@ -279,67 +280,69 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
   };
 
   return (
-    <div className="messages"
-      style={{ height: "100%", minHeight: "calc(100% - 128px)", maxHeight: "calc(100% - 128px)", overflow: "auto", scrollBehavior: "smooth" }}
-      ref={messagesBoxRef}>
+    <div
+      className="messages-board"
+    >
+      <div className="messages" ref={messagesBoxRef}  >
+        {messages.map((message) => {
+          return renderMessageBox(message);
+        })}
+      </div>
+      {
+        conversation_id !== 'all' && (
+          <div className="message-input" style={{ background: ' #fff' }}>
+            {inputType === 'text' && (<div className="wrap">
+              {/* {renderPaidMessagePanel()} */}
+              <Input
+                ref={inputRef}
+                placeholder=" Type here..."
+                multiline={true}
+                onKeyDown={onKeyDown}
+                // defaultValue={messageText}
+                // value={messageText}
+                onChange={onMessageTextChanged}
 
-      {messages.map((message) => {
-        return renderMessageBox(message);
-      })}
+                rightButtons={
+                  <div>
+                    <button
+                      // onClick={onMessageReady}
+                      onClick={handleSendMessage}
+                      disabled={!(inputRef.current?.input.value)}
+                    >
+                      <Icon icon={"paper-plane-outline"} />
+                    </button>
+                    <button
+                      onClick={() => fileInputRef.current.click()}
+                    >
+                      <Icon icon={"images-outline"} />
+                    </button>
+                    <button
+                      onClick={() => setInputType('audio')}
+                    >
+                      <Icon icon={"mic-outline"} />
+                    </button>
 
-      {conversation_id !== 'all' && (
-        <div className="message-input" style={{ background: ' #fff' }}>
-          {inputType === 'text' && (<div className="wrap">
-            {/* {renderPaidMessagePanel()} */}
-            <Input
-              ref={inputRef}
-              placeholder=" Type here..."
-              multiline={true}
-              onKeyDown={onKeyDown}
-              // defaultValue={messageText}
-              // value={messageText}
-              onChange={onMessageTextChanged}
+                    {/* <audio src={mediaBlobUrl} controls autoPlay loop /> */}
 
-              rightButtons={
-                <div>
-                  <button
-                    // onClick={onMessageReady}
-                    onClick={handleSendMessage}
-                    disabled={!(inputRef.current?.input.value)}
-                  >
-                    <Icon icon={"paper-plane-outline"} />
-                  </button>
-                  <button
-                    onClick={() => fileInputRef.current.click()}
-                  >
-                    <Icon icon={"images-outline"} />
-                  </button>
-                  <button
-                    onClick={() => setInputType('audio')}
-                  >
-                    <Icon icon={"mic-outline"} />
-                  </button>
-
-                  {/* <audio src={mediaBlobUrl} controls autoPlay loop /> */}
-
-                </div>
-              }
+                  </div>
+                }
+              />
+            </div>)}
+            {inputType === 'audio' && (<div className="wrap" >
+              <GreenAudioRecorder
+                onDelete={() => setInputType('text')}
+                onSend={(file) => setSelectedFile(file)}
+              />
+            </div>)}
+            <input
+              style={{ display: "none" }}
+              onChange={(e) => setSelectedFile(e.target.files[0])}
+              ref={fileInputRef}
+              type="file"
             />
-          </div>)}
-          {inputType === 'audio' && (<div className="wrap" >
-            <GreenAudioRecorder
-              onDelete={() => setInputType('text')}
-              onSend={(file) => setSelectedFile(file)}
-            />
-          </div>)}
-          <input
-            style={{ display: "none" }}
-            onChange={(e) => setSelectedFile(e.target.files[0])}
-            ref={fileInputRef}
-            type="file"
-          />
-        </div>)}
-    </div>
+          </div>)
+      }
+    </div >
   );
 };
 
