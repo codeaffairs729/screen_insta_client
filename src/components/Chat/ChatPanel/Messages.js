@@ -93,23 +93,26 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
 
   ///////////////////////////////////////// FETCH MESSAGE WHEN SCROLL UP /////////////////////////////////////////
   useEffect(() => {
-    const msgref = messagesBoxRef.current;
-    const scrollListener = (e) => {
-      if (msgref.scrollTop < minScrollTop && !messagesFetching && conversation_id !== 'all' && conversation_id !== 'new') {
+    if (firstSentAt) {
+      const msgref = messagesBoxRef.current;
+      const scrollListener = (e) => {
+        if (msgref.scrollTop < minScrollTop && !messagesFetching && conversation_id !== 'all' && conversation_id !== 'new') {
 
-        const { createdAt } = conversationSelector(conversation_id);
-        if (firstSentAt.getTime() === new Date(createdAt).getTime()) return;
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-          fetchMessagesDispatch(conversation_id, firstSentAt);
-        }, 1000);
-        scrollDownAlitttleBit(200);
+          const { createdAt } = conversationSelector(conversation_id);
+          if (firstSentAt.getTime() === new Date(createdAt).getTime()) return;
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            fetchMessagesDispatch(conversation_id, firstSentAt);
+          }, 1000);
+          scrollDownAlitttleBit(200);
+        }
       }
+      msgref.addEventListener('scroll', scrollListener);
+      return () => {
+        msgref.removeEventListener('scroll', scrollListener);
+      };
     }
-    msgref.addEventListener('scroll', scrollListener);
-    return () => {
-      msgref.removeEventListener('scroll', scrollListener);
-    };
+
   }, [messagesBoxRef, firstSentAt, messagesFetching, conversation_id]);
 
   ///////////////////////////////////////////////////////// UPLOAD MEDIA ///////////////////////////////////////////////////////

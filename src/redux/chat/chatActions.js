@@ -3,6 +3,7 @@ import chatTypes from "./chatTypes";
 import {
   getConversations,
   getMessages,
+  getSyncMessages,
   getRecipients,
   getFollowers,
   postConversation
@@ -19,6 +20,7 @@ export const fetchConversations = (offset = 0) =>
           conversations,
         },
       });
+      return (conversations);
     } catch (err) {
       console.error("Error while retrieving conversations");
       dispatch({
@@ -83,6 +85,7 @@ export const fetchMessages = (conversation_id, firstSentAt) =>
       dispatch({
         type: chatTypes.FETCH_MESSAGES_SUCCESS,
         payload: {
+          conversation_id,
           messages,
         },
       });
@@ -91,6 +94,34 @@ export const fetchMessages = (conversation_id, firstSentAt) =>
       console.error(err);
       dispatch({
         type: chatTypes.FETCH_MESSAGES_ERROR,
+        payload: {
+          error: "Error while retrieving messages",
+        },
+      });
+    }
+
+  };
+export const fetchSyncMessages = (conversation_id) =>
+  async (dispatch, getState) => {
+    const messages = getState().chat.messages.filter(message => message.conversation === conversation_id);
+    if (messages.length === 0) return console.error('could not start sync on empty messages');
+    const firstSentAt = messages[0].sentAt;
+
+    dispatch({ type: chatTypes.FETCH_SYNC_MESSAGES_START });
+    try {
+      let messages = await getSyncMessages(conversation_id, firstSentAt);
+      dispatch({
+        type: chatTypes.FETCH_SYNC_MESSAGES_SUCCESS,
+        payload: {
+          conversation_id,
+          messages,
+        },
+      });
+    } catch (err) {
+      console.error("Error while retrieving messages");
+      console.error(err);
+      dispatch({
+        type: chatTypes.FETCH_SYNC_MESSAGES_ERROR,
         payload: {
           error: "Error while retrieving messages",
         },

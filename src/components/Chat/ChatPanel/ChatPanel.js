@@ -12,6 +12,7 @@ import {
   fetchConversations,
   fetchFollowers,
   fetchMessages,
+  fetchSyncMessages,
   startNewConversationSuccess,
   sendMessageStart,
   sendMessageSuccess,
@@ -27,7 +28,6 @@ import {
   selectConversations,
   selectConversation,
   selectConversationMessages,
-  selectConversationLastMessage,
   selectConversationFirstMessage
 } from "../../../redux/chat/chatSelectors"
 
@@ -40,6 +40,7 @@ const ChatPanel = ({
   fetchConversationsDispatch,
   fetchFollowersDispatch,
   fetchMessagesDispatch,
+  fetchSyncMessagesDispatch,
   messages,
   messagesFetching,
   conversationsSelector,
@@ -62,21 +63,12 @@ const ChatPanel = ({
 
   ///////////////////////////////////// INIT /////////////////////////////////////////////////////////////
   useEffect(() => { //fetch all the conversations 
-    // if (!conversationsFetching && !fetchConversationsError) {
-    fetchConversationsDispatch(0);
-    fetchFollowersDispatch(0);
-    // }
+    const call = async () => {
+
+    }
+    call();
   }, []);
 
-
-  useEffect(() => { //fetch all the messages 
-    if (messages.length === 0) { // set to [] by fetchConversationSuccess Action;
-      conversations.map(conv => {
-        fetchMessagesDispatch(conv._id);
-        return '';
-      })
-    }
-  }, [conversations]);
 
   ///////////////////////////////////////// NAVIGATION //////////////////////////////////////////////////////
   useEffect(() => {
@@ -90,7 +82,9 @@ const ChatPanel = ({
   ////////////////////////////////////////////////// REAL TIME SOCKET ////////////////////////////////////////
   useEffect(() => {// listening on upcoming events // real time chat
     const log = true;
-    if (socket && currentUser._id && conversation_id) {
+    if (socket && currentUser._id) {
+      socket.off('connect');
+      socket.off('disconnect');
       socket.off('send-message-start');
       socket.off('send-message-success');
       socket.off('send-message-error');
@@ -99,21 +93,38 @@ const ChatPanel = ({
       socket.off('start-new-conversation-success');
 
       //////////////////////////////////////// conversations events /////////////////////////////////////////
+      socket.on('connect', async () => {
+        // alert('connect : ' + socket.id)
+        fetchFollowersDispatch(0);
+        const conversations = await fetchConversationsDispatch(0);
+        conversations.map(conv => {
+          if (messages.length === 0)
+            fetchMessagesDispatch(conv._id);
+          else
+            fetchSyncMessagesDispatch(conv._id);
 
+          return '';
+        })
+
+      })
+      socket.on('disconnect', () => {
+        alert('disconnect : ')
+        // inform the current user that they are disconnected and cannot send any messages
+      })
+
+      ///////////////////////////////////////// messages events ///////////////////////////////////////////
       socket.on('start-new-conversation-success', ({ conversation, message }) => {
         if (log) console.log('on start-new-conversation-success', conversation);
         startNewConversationSuccessDispatch(conversation);
         sendMessageSuccessDispatch(message); /// need to be renamed to StartUpMessageDispatch in order to not create confusation;
-        if (currentUser._id === conversation.participants[0]._id)
-          history.push('/messages/' + conversation._id);
 
         socket.emit('join-conversation-room', conversation._id);
-        if (log) console.log('on join-conversation-room', conversation._id);
+        if (log) console.log('emit join-conversation-room', conversation._id);
+
+        if (currentUser._id === conversation.participants[0]._id)
+          history.push('/messages/' + conversation._id);
       });
 
-
-
-      ///////////////////////////////////////// messages events ///////////////////////////////////////////
       socket.on('send-message-start', message => {// know when the same user is sending a message from another device (session)
         if (log) console.log('on send-message-start', message);
         sendMessageStartDispatch(message)
@@ -123,16 +134,9 @@ const ChatPanel = ({
         sendMessageSuccessDispatch(message);
 
         if (message.sender !== currentUser._id) {
-          // if (message.conversation === conversation_id) {// we skip the receive event;
-          // if (log) console.log('emit read-message-start', message);
-          // socket.emit('read-message-start', { _id: message._id, readBy: currentUser._id });
-          // readMessageStartDispatch(message);
-          // } else {
           if (log) console.log('emit receive-message-start', message);
           socket.emit('receive-message-start', { _id: message._id, receivedBy: currentUser._id });
           receiveMessageStartDispatch(message);
-          // }
-
         }
 
       });
@@ -143,13 +147,6 @@ const ChatPanel = ({
       socket.on('receive-message-success', message => {
         if (log) console.log('on receive-message-success', message);
         receiveMessageSuccessDispatch(message);
-        // if (message.sender !== currentUser._id) {
-        //   if (message.conversation === conversation_id) {
-        //     if (log) console.log('emit read-message-start', message);
-        //     socket.emit('read-message-start', { _id: message._id, readBy: currentUser._id });
-        //     readMessageStartDispatch(message);
-        //   }
-        // }
       })
 
       socket.on('read-message-success', message => {
@@ -157,8 +154,7 @@ const ChatPanel = ({
         readMessageSuccessDispatch(message);
       })
     }
-
-  }, [socket, currentUser, conversation_id, history]);
+  }, [socket, currentUser, history, conversations, messages]);
 
 
   ////////////////////////////////////////////////////////// RECEIVE EVENT SYNC ////////////////////////////////////////////////
@@ -257,16 +253,16 @@ const mapStateToProps = state => {
     fetchMessagesError: state.chat.fetchMessagesError,
     conversationSelector: (conversation_id) => selectConversation(state, conversation_id),
     conversationMessagesSelector: (conversation_id) => selectConversationMessages(state, conversation_id),
-    conversationLastMessageSelector: (conversation_id) => selectConversationLastMessage(state, conversation_id),
     conversationFirstMessageSelector: (conversation_id) => selectConversationFirstMessage(state, conversation_id)
 
   };
 };
 
 const mapDistpachToProps = (dispatch) => ({
-  fetchConversationsDispatch: (offset) => dispatch(fetchConversations(offset)),
+  fetchConversationsDispatch: async (offset) => await dispatch(fetchConversations(offset)),
   fetchFollowersDispatch: (offset) => dispatch(fetchFollowers(offset)),
   fetchMessagesDispatch: (conversation_id) => dispatch(fetchMessages(conversation_id)),
+  fetchSyncMessagesDispatch: (conversation_id) => dispatch(fetchSyncMessages(conversation_id)),
   startNewConversationSuccessDispatch: (conversation) => dispatch(startNewConversationSuccess(conversation)),
   sendMessageStartDispatch: (message) => dispatch(sendMessageStart(message)),
   sendMessageSuccessDispatch: (message) => dispatch(sendMessageSuccess(message)),

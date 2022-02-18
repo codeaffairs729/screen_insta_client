@@ -7,6 +7,8 @@ export const INITIAL_STATE = {
   messages: [],
   messagesFetching: false,
   fetchMessagesError: null,
+  syncMessagesFetching: false,
+  fetchSyncMessagesError: null,
   followers: [],
   followersFetching: false,
   fetchFollowersError: null
@@ -50,7 +52,7 @@ const chatReducer = (state = INITIAL_STATE, action) => {
         fetchConversationsError: null,
         conversationsFetching: false,
         conversations: payload.conversations,
-        messages: [],
+        // messages: [],
       };
     }
     case chatTypes.FETCH_CONVERSATIONS_ERROR: {
@@ -90,7 +92,7 @@ const chatReducer = (state = INITIAL_STATE, action) => {
         ...state,
         fetchMessagesError: null,
         messagesFetching: false,
-        messages: [...payload.messages, ...state.messages ? state.messages : [],]
+        messages: [...payload.messages, ...state.messages ? state.messages : []]
       };
     }
     case chatTypes.FETCH_MESSAGES_ERROR: {
@@ -98,6 +100,31 @@ const chatReducer = (state = INITIAL_STATE, action) => {
         ...state,
         fetchMessagesError: payload.error,
         messagesFetching: false,
+      };
+    }
+    //////////////////////////////////////////////////////////////////////// SYNC MESSAGES ( when user disconnect and reconnect while styaing on same page (ex : loosing internet connection))
+
+    case chatTypes.FETCH_SYNC_MESSAGES_START: {
+      return {
+        ...state,
+        fetchSyncMessagesError: false,
+        syncMessagesFetching: true,
+      };
+    }
+
+    case chatTypes.FETCH_SYNC_MESSAGES_SUCCESS: {
+      return {
+        ...state,
+        fetchSyncMessagesError: null,
+        syncMessagesFetching: false,
+        messages: [...payload.messages, ...state.messages.filter(message => message.conversation !== payload.conversation_id)]
+      };
+    }
+    case chatTypes.FETCH_SYNC_MESSAGES_ERROR: {
+      return {
+        ...state,
+        fetchSyncMessagesError: payload.error,
+        syncMessagesFetching: false,
       };
     }
 
