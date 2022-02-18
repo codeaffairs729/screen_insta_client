@@ -149,8 +149,8 @@ const PostDialog = ({
         </div>
       );
     }
-    console.log("rendering");
-    
+    // console.log("rendering");
+
     return (
       <AwesomeSlider
         bullets={false}
@@ -343,18 +343,18 @@ const PostDialog = ({
                   {
                     options:
                       currentUser &&
-                      currentUser.username === state.data.author.username
+                        currentUser.username === state.data.author.username
                         ? [
-                            ...options,
-                            {
-                              text: "Delete post",
-                              warning: true,
-                              onClick: () => {
-                                handleDeletePost();
-                                history.push("/" + currentUser.username);
-                              },
+                          ...options,
+                          {
+                            text: "Delete post",
+                            warning: true,
+                            onClick: () => {
+                              handleDeletePost();
+                              history.push("/" + currentUser.username);
                             },
-                          ]
+                          },
+                        ]
                         : options,
                   },
                   "OptionsDialog/OptionsDialog"
@@ -411,7 +411,7 @@ const PostDialog = ({
               ))}
             {!postData &&
               state.data.comments.length - state.localStateComments.size <
-                state.data.commentCount - state.localStateComments.size && (
+              state.data.commentCount - state.localStateComments.size && (
                 <div
                   style={{ padding: "2rem", cursor: "pointer" }}
                   onClick={() => fetchAdditionalComments()}

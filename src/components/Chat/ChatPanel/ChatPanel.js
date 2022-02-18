@@ -35,39 +35,39 @@ import {
 const ChatPanel = ({
   currentUser,
   conversationsFetching,
-  startNewConversationSuccessDispatch,
-  fetchConversationsError,
-  fetchConversationsDispatch,
-  fetchFollowersDispatch,
-  fetchMessagesDispatch,
-  fetchSyncMessagesDispatch,
-  messages,
+  // startNewConversationSuccessDispatch,
+  // fetchConversationsError,
+  // fetchConversationsDispatch,
+  // fetchFollowersDispatch,
+  // fetchMessagesDispatch,
+  // fetchSyncMessagesDispatch,
+  // messages,
   messagesFetching,
   conversationsSelector,
   conversationSelector,
   conversationMessagesSelector,
   conversationFirstMessageSelector,
-  sendMessageStartDispatch,
-  sendMessageSuccessDispatch,
-  receiveMessageStartDispatch,
-  receiveMessageSuccessDispatch,
+  // sendMessageStartDispatch,
+  // sendMessageSuccessDispatch,
+  // receiveMessageStartDispatch,
+  // receiveMessageSuccessDispatch,
   readMessageStartDispatch,
-  readMessageSuccessDispatch
+  // readMessageSuccessDispatch
 }) => {
   const { conversation_id } = useParams();
-  const syncLock = useRef(false);
+  // const syncLock = useRef(false);
   const history = useHistory();
   const socket = useSocket();
 
   const conversations = conversationsSelector();
 
   ///////////////////////////////////// INIT /////////////////////////////////////////////////////////////
-  useEffect(() => { //fetch all the conversations 
-    const call = async () => {
+  // useEffect(() => { //fetch all the conversations 
+  //   const call = async () => {
 
-    }
-    call();
-  }, []);
+  //   }
+  //   call();
+  // }, []);
 
 
   ///////////////////////////////////////// NAVIGATION //////////////////////////////////////////////////////
@@ -80,107 +80,107 @@ const ChatPanel = ({
 
 
   ////////////////////////////////////////////////// REAL TIME SOCKET ////////////////////////////////////////
-  useEffect(() => {// listening on upcoming events // real time chat
-    const log = true;
-    if (socket && currentUser._id) {
-      socket.off('connect');
-      socket.off('disconnect');
-      socket.off('send-message-start');
-      socket.off('send-message-success');
-      socket.off('send-message-error');
-      socket.off('receive-message-success');
-      socket.off('read-message-success');
-      socket.off('start-new-conversation-success');
+  // useEffect(() => {// listening on upcoming events // real time chat
+  //   const log = true;
+  //   if (socket && currentUser._id) {
+  //     socket.off('connect');
+  //     socket.off('disconnect');
+  //     socket.off('send-message-start');
+  //     socket.off('send-message-success');
+  //     socket.off('send-message-error');
+  //     socket.off('receive-message-success');
+  //     socket.off('read-message-success');
+  //     socket.off('start-new-conversation-success');
 
-      //////////////////////////////////////// conversations events /////////////////////////////////////////
-      socket.on('connect', async () => {
-        // alert('connect : ' + socket.id)
-        fetchFollowersDispatch(0);
-        const conversations = await fetchConversationsDispatch(0);
-        conversations.map(conv => {
-          if (messages.length === 0)
-            fetchMessagesDispatch(conv._id);
-          else
-            fetchSyncMessagesDispatch(conv._id);
+  //     //////////////////////////////////////// conversations events /////////////////////////////////////////
+  //     socket.on('connect', async () => {
+  //       // alert('connect : ' + socket.id)
+  //       fetchFollowersDispatch(0);
+  //       const conversations = await fetchConversationsDispatch(0);
+  //       conversations.map(conv => {
+  //         if (messages.length === 0)
+  //           fetchMessagesDispatch(conv._id);
+  //         else
+  //           fetchSyncMessagesDispatch(conv._id);
 
-          return '';
-        })
+  //         return '';
+  //       })
 
-      })
-      socket.on('disconnect', () => {
-        alert('disconnect : ')
-        // inform the current user that they are disconnected and cannot send any messages
-      })
+  //     })
+  //     socket.on('disconnect', () => {
+  //       alert('disconnect : ')
+  //       // inform the current user that they are disconnected and cannot send any messages
+  //     })
 
-      ///////////////////////////////////////// messages events ///////////////////////////////////////////
-      socket.on('start-new-conversation-success', ({ conversation, message }) => {
-        if (log) console.log('on start-new-conversation-success', conversation);
-        startNewConversationSuccessDispatch(conversation);
-        sendMessageSuccessDispatch(message); /// need to be renamed to StartUpMessageDispatch in order to not create confusation;
+  //     ///////////////////////////////////////// messages events ///////////////////////////////////////////
+  //     socket.on('start-new-conversation-success', ({ conversation, message }) => {
+  //       if (log) console.log('on start-new-conversation-success', conversation);
+  //       startNewConversationSuccessDispatch(conversation);
+  //       sendMessageSuccessDispatch(message); /// need to be renamed to StartUpMessageDispatch in order to not create confusation;
 
-        socket.emit('join-conversation-room', conversation._id);
-        if (log) console.log('emit join-conversation-room', conversation._id);
+  //       socket.emit('join-conversation-room', conversation._id);
+  //       if (log) console.log('emit join-conversation-room', conversation._id);
 
-        if (currentUser._id === conversation.participants[0]._id)
-          history.push('/messages/' + conversation._id);
-      });
+  //       if (currentUser._id === conversation.participants[0]._id)
+  //         history.push('/messages/' + conversation._id);
+  //     });
 
-      socket.on('send-message-start', message => {// know when the same user is sending a message from another device (session)
-        if (log) console.log('on send-message-start', message);
-        sendMessageStartDispatch(message)
-      });
-      socket.on('send-message-success', message => {
-        if (log) console.log('on send-message-success', message);
-        sendMessageSuccessDispatch(message);
+  //     socket.on('send-message-start', message => {// know when the same user is sending a message from another device (session)
+  //       if (log) console.log('on send-message-start', message);
+  //       sendMessageStartDispatch(message)
+  //     });
+  //     socket.on('send-message-success', message => {
+  //       if (log) console.log('on send-message-success', message);
+  //       sendMessageSuccessDispatch(message);
 
-        if (message.sender !== currentUser._id) {
-          if (log) console.log('emit receive-message-start', message);
-          socket.emit('receive-message-start', { _id: message._id, receivedBy: currentUser._id });
-          receiveMessageStartDispatch(message);
-        }
+  //       if (message.sender !== currentUser._id) {
+  //         if (log) console.log('emit receive-message-start', message);
+  //         socket.emit('receive-message-start', { _id: message._id, receivedBy: currentUser._id });
+  //         receiveMessageStartDispatch(message);
+  //       }
 
-      });
-      socket.on('send-message-error', error => {
-        if (log) console.log('on send-message-error', error)
-      });
+  //     });
+  //     socket.on('send-message-error', error => {
+  //       if (log) console.log('on send-message-error', error)
+  //     });
 
-      socket.on('receive-message-success', message => {
-        if (log) console.log('on receive-message-success', message);
-        receiveMessageSuccessDispatch(message);
-      })
+  //     socket.on('receive-message-success', message => {
+  //       if (log) console.log('on receive-message-success', message);
+  //       receiveMessageSuccessDispatch(message);
+  //     })
 
-      socket.on('read-message-success', message => {
-        if (log) console.log('on read-message-success', message);
-        readMessageSuccessDispatch(message);
-      })
-    }
-  }, [socket, currentUser, history, conversations, messages]);
+  //     socket.on('read-message-success', message => {
+  //       if (log) console.log('on read-message-success', message);
+  //       readMessageSuccessDispatch(message);
+  //     })
+  //   }
+  // }, [socket, currentUser, history, conversations, messages]);
 
 
   ////////////////////////////////////////////////////////// RECEIVE EVENT SYNC ////////////////////////////////////////////////
 
-  useEffect(() => { //Sync Messages
+  // useEffect(() => { //Sync Messages
 
-    if (socket && messages && !syncLock.current) {
-      messages
-        .filter(message => message.sender !== currentUser._id && message.status !== 'read')// only received messages
-        .map(message => {
-          // console.log(message);
-          if (conversation_id === message.conversation) {
-            // socket.emit('read-message-start', { _id: message._id, readBy: currentUser._id });
-            // console.log('read-message-start', message)
-            // readMessageStartDispatch(message);
-          } else if (!message.receivedBy.find(rcb => rcb === currentUser._id)) {
-            socket.emit('receive-message-start', { _id: message._id, receivedBy: currentUser._id });
-            console.log('receive-message-start', message)
-            receiveMessageStartDispatch(message);
-          }
+  //   if (socket && messages && !syncLock.current) {
+  //     messages
+  //       .filter(message => message.sender !== currentUser._id && message.status !== 'read')// only received messages
+  //       .map(message => {
+  //         // console.log(message);
+  //         if (conversation_id === message.conversation) {
+  //           // socket.emit('read-message-start', { _id: message._id, readBy: currentUser._id });
+  //           // console.log('read-message-start', message)
+  //           // readMessageStartDispatch(message);
+  //         } else if (!message.receivedBy.find(rcb => rcb === currentUser._id)) {
+  //           socket.emit('receive-message-start', { _id: message._id, receivedBy: currentUser._id });
+  //           console.log('receive-message-start', message)
+  //           receiveMessageStartDispatch(message);
+  //         }
 
-          return '';
-        })
-    }
+  //         return '';
+  //       })
+  //   }
 
-  }, [socket, messages, conversation_id,])
+  // }, [socket, messages, conversation_id,])
 
   const handleReadMessage = (message) => {
     if (socket) {

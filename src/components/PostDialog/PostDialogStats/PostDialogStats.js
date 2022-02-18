@@ -30,8 +30,8 @@ const PostDialogStats = ({
   sendTip,
 }) => {
   const ref = useRef();
-  console.log("POST");
-  console.log(post);
+  // console.log("POST");
+  // console.log(post);
   const handleClick = async () => {
     if (!currentUser) {
       return showModal(
@@ -67,9 +67,9 @@ const PostDialogStats = ({
   const startSendTip = (amount, tipMessage) => {
     console.log(
       "send tip called with amount " +
-        amount +
-        " and user id : " +
-        post.author._id
+      amount +
+      " and user id : " +
+      post.author._id
     );
     sendTip(amount, post.author._id, tipMessage);
   };
@@ -143,8 +143,8 @@ const PostDialogStats = ({
           icon={
             currentUser && currentUser.bookmarks
               ? !!currentUser.bookmarks.find(
-                  (bookmark) => bookmark.post === post._id
-                )
+                (bookmark) => bookmark.post === post._id
+              )
                 ? "bookmark"
                 : "bookmark-outline"
               : "bookmark-outline"

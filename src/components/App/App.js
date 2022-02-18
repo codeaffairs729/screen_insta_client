@@ -1,8 +1,23 @@
-import React, { useEffect, Suspense, lazy, useState } from "react";
-import { Switch, Route, useLocation } from "react-router-dom";
+import React, { useEffect, Suspense, lazy, useState, useRef } from "react";
+import { Switch, Route, useLocation, useHistory, useParams } from "react-router-dom";
 import { connect } from "react-redux";
 import { useTransition } from "react-spring";
-import SocketProvider from "../../providers/SocketProvider"
+import { useSocket } from "../../providers/SocketProvider"
+import {
+  fetchConversations,
+  fetchFollowers,
+  fetchMessages,
+  fetchSyncMessages,
+  startNewConversationSuccess,
+  sendMessageStart,
+  sendMessageSuccess,
+  receiveMessageStart,
+  receiveMessageSuccess,
+  readMessageStart,
+  readMessageSuccess,
+
+} from "../../redux/chat/chatActions";
+
 
 import { selectCurrentUser } from "../../redux/user/userSelectors";
 import {
@@ -54,7 +69,7 @@ const ForgotPasswordPage = lazy(() =>
 function onAuthStateChange(callback, signInSuccess, signInFailure) {
   return firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
-      console.log("authstate changed APP.js" + JSON.stringify(user));
+      // console.log("authstate changed APP.js" + JSON.stringify(user));
       const token = await user.getIdToken();
       const mdbUser = await login(token);
       let authState = "logged";
@@ -86,17 +101,138 @@ export function UnconnectedApp({
   signInFailure,
   signInSuccess,
   modal,
-  alert,
+  stateAlert,
   currentUser,
   fetchNotificationsStart,
   userLoading,
+  conversations,
+  messages,
+  startNewConversationSuccessDispatch,
+  fetchConversationsDispatch,
+  fetchFollowersDispatch,
+  fetchMessagesDispatch,
+  fetchSyncMessagesDispatch,
+  sendMessageStartDispatch,
+  sendMessageSuccessDispatch,
+  receiveMessageStartDispatch,
+  receiveMessageSuccessDispatch,
+  readMessageStartDispatch,
+  readMessageSuccessDispatch
+
 }) {
   const location = useLocation();
+  const history = useHistory();
+  const { conversation_id } = useParams();
   const pathname = location.pathname;
   const [user, setUser] = useState({ authState: "loading" });
+  const socket = useSocket();
+  const syncLock = useRef(false);
+
+  ////////////////////////////////////////////////// REAL TIME CHAT SOCKET ////////////////////////////////////////
+
+  useEffect(() => {// listening on upcoming events // real time chat
+    const log = true;
+    if (socket && currentUser?._id) {
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.off('send-message-start');
+      socket.off('send-message-success');
+      socket.off('send-message-error');
+      socket.off('receive-message-success');
+      socket.off('read-message-success');
+      socket.off('start-new-conversation-success');
+
+      //////////////////////////////////////// conversations events /////////////////////////////////////////
+      socket.on('connect', async () => {
+        alert('connect : ' + socket.id)
+        fetchFollowersDispatch(0);
+        const conversations = await fetchConversationsDispatch(0);
+        conversations.map(conv => {
+          if (messages.length === 0)
+            fetchMessagesDispatch(conv._id);
+          else
+            fetchSyncMessagesDispatch(conv._id);
+
+          return '';
+        })
+
+      })
+      socket.on('disconnect', () => {
+        alert('disconnect : ')
+        // inform the current user that they are disconnected and cannot send any messages
+      })
+
+      ///////////////////////////////////////// messages events ///////////////////////////////////////////
+      socket.on('start-new-conversation-success', ({ conversation, message }) => {
+        if (log) console.log('on start-new-conversation-success', conversation);
+        startNewConversationSuccessDispatch(conversation);
+        sendMessageSuccessDispatch(message); /// need to be renamed to StartUpMessageDispatch in order to not create confusation;
+
+        socket.emit('join-conversation-room', conversation._id);
+        if (log) console.log('emit join-conversation-room', conversation._id);
+
+        if (currentUser._id === conversation.participants[0]._id)
+          history.push('/messages/' + conversation._id);
+      });
+
+      socket.on('send-message-start', message => {// know when the same user is sending a message from another device (session)
+        if (log) console.log('on send-message-start', message);
+        sendMessageStartDispatch(message)
+      });
+      socket.on('send-message-success', message => {
+        if (log) console.log('on send-message-success', message);
+        sendMessageSuccessDispatch(message);
+
+        if (message.sender !== currentUser._id) {
+          if (log) console.log('emit receive-message-start', message);
+          socket.emit('receive-message-start', { _id: message._id, receivedBy: currentUser._id });
+          receiveMessageStartDispatch(message);
+        }
+
+      });
+      socket.on('send-message-error', error => {
+        if (log) console.log('on send-message-error', error)
+      });
+
+      socket.on('receive-message-success', message => {
+        if (log) console.log('on receive-message-success', message);
+        receiveMessageSuccessDispatch(message);
+      })
+
+      socket.on('read-message-success', message => {
+        if (log) console.log('on read-message-success', message);
+        readMessageSuccessDispatch(message);
+      })
+    }
+  }, [socket, currentUser, history, conversations, messages]);
+
+  ////////////////////////////////////////////////////////// RECEIVE EVENT SYNC ////////////////////////////////////////////////
+
+  useEffect(() => { //Sync Messages
+
+    if (socket && messages && !syncLock.current) {
+      messages
+        .filter(message => message.sender !== currentUser._id && message.status !== 'read')// only received messages
+        .map(message => {
+          // console.log(message);
+          if (conversation_id === message.conversation) {
+            // socket.emit('read-message-start', { _id: message._id, readBy: currentUser._id });
+            // console.log('read-message-start', message)
+            // readMessageStartDispatch(message);
+          } else if (!message.receivedBy.find(rcb => rcb === currentUser._id)) {
+            socket.emit('receive-message-start', { _id: message._id, receivedBy: currentUser._id });
+            console.log('receive-message-start', message)
+            receiveMessageStartDispatch(message);
+          }
+
+          return '';
+        })
+    }
+
+  }, [socket, messages, conversation_id,])
 
   useEffect(() => {
-    console.log("app useEffect");
+    // console.log("app useEffect");
     const unsubscribe = onAuthStateChange(
       setUser,
       signInSuccess,
@@ -126,7 +262,7 @@ export function UnconnectedApp({
     }
   };
 
-  const transitions = useTransition(alert.showAlert, null, {
+  const transitions = useTransition(stateAlert.showAlert, null, {
     from: {
       transform: "translateY(4rem)",
     },
@@ -141,79 +277,70 @@ export function UnconnectedApp({
       friction: 50,
     },
   });
-  function useVideoAutoplay({ threshold = 0.8 } = {}) {
-    function checkScroll() {
-      const videos = document.getElementsByTagName("video");
+  // function useVideoAutoplay({ threshold = 0.8 } = {}) {
+  //   function checkScroll() {
+  //     const videos = document.getElementsByTagName("video");
 
-      for (let i = 0; i < videos.length; i++) {
-        const video = videos[i];
+  //     for (let i = 0; i < videos.length; i++) {
+  //       const video = videos[i];
 
-        const x = video.offsetLeft;
-        const y = video.offsetTop;
-        const w = video.offsetWidth;
-        const h = video.offsetHeight;
-        const r = x + w; // right
-        const b = y + h; // bottom
+  //       const x = video.offsetLeft;
+  //       const y = video.offsetTop;
+  //       const w = video.offsetWidth;
+  //       const h = video.offsetHeight;
+  //       const r = x + w; // right
+  //       const b = y + h; // bottom
 
-        const visibleX = Math.max(
-          0,
-          Math.min(
-            w,
-            window.pageXOffset + window.innerWidth - x,
-            r - window.pageXOffset
-          )
-        );
-        const visibleY = Math.max(
-          0,
-          Math.min(
-            h,
-            window.pageYOffset + window.innerHeight - y,
-            b - window.pageYOffset
-          )
-        );
+  //       const visibleX = Math.max(
+  //         0,
+  //         Math.min(
+  //           w,
+  //           window.pageXOffset + window.innerWidth - x,
+  //           r - window.pageXOffset
+  //         )
+  //       );
+  //       const visibleY = Math.max(
+  //         0,
+  //         Math.min(
+  //           h,
+  //           window.pageYOffset + window.innerHeight - y,
+  //           b - window.pageYOffset
+  //         )
+  //       );
 
-        const visible = (visibleX * visibleY) / (w * h);
+  //       const visible = (visibleX * visibleY) / (w * h);
 
-        if (visible > threshold) {
-          video.play();
-        } else {
-          video.pause();
-        }
-      }
-    }
+  //       if (visible > threshold) {
+  //         video.play();
+  //       } else {
+  //         video.pause();
+  //       }
+  //     }
+  //   }
 
-    useEffect(() => {
-      window.addEventListener("scroll", checkScroll, false);
-      window.addEventListener("resize", checkScroll, false);
-      return () => {
-        window.removeEventListener("scroll", checkScroll);
-        window.removeEventListener("resize", checkScroll);
-      };
-    }, []);
-  }
+  //   useEffect(() => {
+  //     window.addEventListener("scroll", checkScroll, false);
+  //     window.addEventListener("resize", checkScroll, false);
+  //     return () => {
+  //       window.removeEventListener("scroll", checkScroll);
+  //       window.removeEventListener("resize", checkScroll);
+  //     };
+  //   }, []);
+  // }
 
   //useVideoAutoplay();
 
   const renderApp = () => {
     // Wait for authentication
-    console.log("current user is : " + JSON.stringify(currentUser));
+    // console.log("current user is : " + JSON.stringify(currentUser));
     if (user.authState === "loading") {
-      console.log(
-        "Loading page " + user.authState + " loading: " + userLoading
-      );
+      // console.log("Loading page " + user.authState + " loading: " + userLoading);
       return <LoadingPage />;
     }
 
-    console.log(
-      "rendering view " +
-      pathname +
-      " with authstate " +
-      user.authState +
-      " and isUserLoading ? " +
-      userLoading
-    );
+    // console.log("rendering view " + pathname + " with authstate " + user.authState + " and isUserLoading ? " + userLoading);
     return (
-      <SocketProvider id={currentUser?._id}>
+      <>
         {pathname !== "/login" &&
           pathname !== "/signup" &&
           pathname !== "/forgotPassword" && <Header />}
@@ -221,8 +348,8 @@ export function UnconnectedApp({
         {transitions.map(
           ({ item, props, key }) =>
             item && (
-              <Alert key={key} style={props} onClick={alert.onClick}>
-                {alert.text}
+              <Alert key={key} style={props} onClick={stateAlert.onClick}>
+                {stateAlert.text}
               </Alert>
             )
         )}
@@ -252,7 +379,7 @@ export function UnconnectedApp({
           pathname !== "/signup" &&
           pathname !== "/new" &&
           currentUser && <MobileNav currentUser={currentUser} />}
-      </SocketProvider>
+      </>
     );
   };
 
@@ -265,17 +392,47 @@ export function UnconnectedApp({
 
 const mapStateToProps = (state) => ({
   modal: state.modal,
-  alert: state.alert,
+  stateAlert: state.alert,
   currentUser: selectCurrentUser(state),
   userLoading: state.user.fetching,
+  messages: state.chat.messages,
+  conversations: state.chat.conversations
+  //     fetchConversationsError: state.chat.fetchConversationsError,
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  signInStart: (usernameOrEmail, password, token) =>
-    dispatch(signInStart(usernameOrEmail, password, token)),
-  fetchNotificationsStart: (authToken) =>
-    dispatch(fetchNotificationsStart(authToken)),
+  signInStart: (usernameOrEmail, password, token) => dispatch(signInStart(usernameOrEmail, password, token)),
+  fetchNotificationsStart: (authToken) => dispatch(fetchNotificationsStart(authToken)),
   signInFailure: (error) => dispatch(signInFailure(error)),
   signInSuccess: (user, token) => dispatch(signInSuccess(user, token)),
+  fetchConversationsDispatch: async (offset) => await dispatch(fetchConversations(offset)),
+  startNewConversationSuccessDispatch: (conversation) => dispatch(startNewConversationSuccess(conversation)),
+  fetchFollowersDispatch: (offset) => dispatch(fetchFollowers(offset)),
+  fetchMessagesDispatch: (conversation_id) => dispatch(fetchMessages(conversation_id)),
+  fetchSyncMessagesDispatch: (conversation_id) => dispatch(fetchSyncMessages(conversation_id)),
+  sendMessageStartDispatch: (message) => dispatch(sendMessageStart(message)),
+  sendMessageSuccessDispatch: (message) => dispatch(sendMessageSuccess(message)),
+  receiveMessageStartDispatch: (payload) => dispatch(receiveMessageStart(payload)),
+  receiveMessageSuccessDispatch: (payload) => dispatch(receiveMessageSuccess(payload)),
+  readMessageStartDispatch: (payload) => dispatch(readMessageStart(payload)),
+  readMessageSuccessDispatch: (payload) => dispatch(readMessageSuccess(payload)),
 });
+
+// const mapStateToProps = state => {
+//   return {
+//     currentUser: selectCurrentUser(state),
+//     conversationsSelector: () => selectConversations(state),
+//     conversationsFetching: state.chat.conversationsFetching,
+//     fetchConversationsError: state.chat.fetchConversationsError,
+//     messages: state.chat.messages,
+//     messagesFetching: state.chat.messagesFetching,
+//     fetchMessagesError: state.chat.fetchMessagesError,
+//     conversationSelector: (conversation_id) => selectConversation(state, conversation_id),
+//     conversationMessagesSelector: (conversation_id) => selectConversationMessages(state, conversation_id),
+//     conversationFirstMessageSelector: (conversation_id) => selectConversationFirstMessage(state, conversation_id)
+
+//   };
+// };
+
+
 export default connect(mapStateToProps, mapDispatchToProps)(UnconnectedApp);

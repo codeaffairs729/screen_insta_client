@@ -9,10 +9,10 @@ const ProtectedRoute = ({ currentUser, children, ...props }) => {
   const uid = localStorage.getItem("uid");
   const acceptedTerms = localStorage.getItem("acceptedTerms");
   const currentFirebaseUser = firebase.auth().currentUser;
-  console.log("protected route " + location.pathname);
-  console.log("uid is : " + uid + " and terms is : " + acceptedTerms);
+  // console.log("protected route " + location.pathname);
+  // console.log("uid is : " + uid + " and terms is : " + acceptedTerms);
 
-  if (uid && acceptedTerms != "true" && location.pathname != "/settings/edit") {
+  if (uid && acceptedTerms !== "true" && location.pathname !== "/settings/edit") {
     console.log("redirecting to settings edit");
     return <Route {...props}>{<Redirect to="/settings/edit" />}</Route>;
   }
