@@ -1,6 +1,6 @@
 import React, { useReducer, useEffect, Fragment, useState } from "react";
 import { connect } from "react-redux";
-import { createStructuredSelector } from "reselect";
+// import { createStructuredSelector } from "reselect";
 import { useParams, useHistory } from "react-router-dom";
 
 import { selectCurrentUser, selectToken } from "../../redux/user/userSelectors";
@@ -23,13 +23,14 @@ import LoginCard from "../../components/LoginCard/LoginCard";
 import NotFoundPage from "../../pages/NotFoundPage/NotFoundPage";
 import ProfileHeader from "./ProfileHeader";
 import EmptyProfile from "./EmptyProfile";
-import CreatePostButton from "../../components/CreatePost/CreatePostButton";
+// import CreatePostButton from "../../components/CreatePost/CreatePostButton";
 
-const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
+const ProfilePage = ({ currentUser, token, showModal, hideModal, }) => {
   const { username } = useParams();
   const history = useHistory();
   const [state, dispatch] = useReducer(profileReducer, INITIAL_STATE);
-  const [isPostCreationAllowed, setIsPostCreationAllowed] = useState(false);
+
+  // const [isPostCreationAllowed, setIsPostCreationAllowed] = useState(false);
 
   const follow = async () => {
     if (!currentUser) {
@@ -65,7 +66,7 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
   useScrollPositionThrottled(async () => {
     if (
       window.innerHeight + document.documentElement.scrollTop ===
-        document.documentElement.offsetHeight &&
+      document.documentElement.offsetHeight &&
       state.data.posts.length < state.data.postCount &&
       !state.fetchingAdditionalPosts
     ) {
@@ -86,11 +87,12 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
       try {
         dispatch({ type: "FETCH_PROFILE_START" });
         const profile = await getUserProfile(username);
+        console.log(profile);
         if (profile && profile.user && profile.user.uid) {
           const uid = firebase.auth().currentUser.uid;
           console.log(`User UID ${uid} and prfileUID: ${profile.user.uid}`);
           if (profile.user.uid.toLowerCase() === uid.toLowerCase()) {
-            setIsPostCreationAllowed(true);
+            // setIsPostCreationAllowed(true);
           }
         }
         dispatch({ type: "FETCH_PROFILE_SUCCESS", payload: profile });
@@ -118,6 +120,7 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
             token={token}
             follow={follow}
             loading={state.following}
+
           />
           <ProfileCategory category="POSTS" icon="apps-outline" />
           {state.data.posts && state.data.posts.length > 0 ? (
@@ -184,8 +187,14 @@ const ProfilePage = ({ currentUser, token, showModal, hideModal }) => {
   );
 };
 
-const mapStateToProps = createStructuredSelector({
-  currentUser: selectCurrentUser,
+// const mapStateToProps = createStructuredSelector({
+//   currentUser: selectCurrentUser,
+//   token: selectToken,
+//   participantConversationSelector:(participant_id)=>selectParticipantConversation()
+// });
+
+const mapStateToProps = (state) => ({
+  currentUser: selectCurrentUser(state),
   token: selectToken,
 });
 

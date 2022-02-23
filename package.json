@@ -18,6 +18,7 @@
     "bson": "^4.6.1",
     "classnames": "^2.2.6",
     "date-fns": "^2.11.0",
+    "dateformat": "^5.0.3",
     "file-type": "^16.5.3",
     "firebase": "^8.2.0",
     "fix-webm-duration": "^1.0.4",

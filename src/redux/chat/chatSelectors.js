@@ -1,6 +1,5 @@
 import { createSelector } from "reselect";
 
-
 export const selectConversations = createSelector(
   (state) => state.chat.conversations,
   (conversations) => conversations.slice().sort((a, b) => new Date(b.lastMessageSentAt) - new Date(a.lastMessageSentAt))
@@ -35,14 +34,26 @@ export const selectConversationFirstMessage = createSelector(
   ],
   messages => messages.length > 0 ? messages[0] : null
 )
-export const selectConversationUnreadMessages = createSelector(
-  [
-    selectConversationMessages,
-    (state, conversation_id, user_id) => user_id,
-  ],
-  (messages, user_id) => messages.filter(message => message.sender !== user_id && message.status === 'received')
-
+export const selectAllUnreadMessagesCount = createSelector(
+  [selectConversations],
+  conversations => conversations.reduce((pv, cv) => pv + cv.unreadMessagesCount, 0)
 )
+
+export const selectConversationParticipants = createSelector(
+  [selectConversation,
+    (state, conversation_id, user_id) => user_id
+  ],
+  /// TO-DO remake when normalizing conversations 
+  (conversation, user_id) => conversation?.participants.filter(part => part._id !== user_id)
+)
+export const selectParticipantConversation = createSelector(
+  [selectConversations,
+    (state, participant_id) => participant_id
+  ],
+  // only two participants conversation (not group conversations) 
+  (conversations, participant_id) => conversations.filter(conv => conv.participants.length === 2).find(conv => conv.participants.find(part => part._id === participant_id))
+)
+
 export const selectNotParticipantsFollowers = createSelector(
   [
     state => state.chat.followers,

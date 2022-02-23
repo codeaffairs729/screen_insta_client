@@ -14,6 +14,9 @@ import { connect } from "react-redux";
 import { sendTip } from "../../redux/user/userActions";
 import { useHistory } from "react-router-dom";
 
+import { selectParticipantConversation } from '../../redux/chat/chatSelectors';
+
+
 const ProfileHeader = ({
   currentUser,
   data,
@@ -22,10 +25,12 @@ const ProfileHeader = ({
   follow,
   loading,
   sendTip,
+  participantConversationSelector
 }) => {
-  const { avatar, username, bio, website, fullName, coverPicture } = data.user;
+  const { avatar, username, bio, website, fullName, coverPicture, _id } = data.user;
   const { following, followers, postCount } = data;
   const history = useHistory();
+  const conversation = participantConversationSelector(_id);
   const showUsersModal = (followers, following) => {
     showModal(
       {
@@ -105,10 +110,11 @@ const ProfileHeader = ({
               }}
             />
             <Icon
-              icon="paper-plane-outline"
-              style={{ cursor: "pointer", marginLeft: 8 }}
+              icon={"paper-plane-outline"}
+              badge={conversation && conversation.unreadMessagesCount}
+              style={{ cursor: "pointer", marginLeft: 8, position: "relative" }}
               onClick={() => {
-                history.push("/messages/all");
+                conversation ? history.push("/messages/" + conversation._id) : history.push("/messages/new?participants=" + _id)
               }}
             />
           </div>
@@ -127,7 +133,7 @@ const ProfileHeader = ({
       </Button>
     );
   };
-  const defaultCover = require("../../assets/img/default-cover.jpg");
+  // const defaultCover = require("../../assets/img/default-cover.jpg");
   return (
     <header className="profile-header">
       <div className="profile-header__cover">
@@ -157,7 +163,7 @@ const ProfileHeader = ({
 
       <div className="profile-header__info">
         <div className="profile-buttons">
-          <h1 className="heading-1 font-thin">{username}</h1>
+          <h1 className="heading-1 font-thin">{username} ({fullName})</h1>
           {renderButton()}
         </div>
 
@@ -250,9 +256,12 @@ const ProfileHeader = ({
   );
 };
 
+const mapStateToProps = (state) => ({
+  participantConversationSelector: (participant_id) => selectParticipantConversation(state, participant_id)
+});
 const mapDispatchToProps = (dispatch) => ({
   sendTip: (tipAmount, userId, tipMessage) =>
     dispatch(sendTip(tipAmount, userId, tipMessage)),
 });
 
-export default connect(null, mapDispatchToProps)(ProfileHeader);
+export default connect(mapStateToProps, mapDispatchToProps)(ProfileHeader);

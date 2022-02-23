@@ -197,3 +197,21 @@ export const readMessageSuccess = (message) => ({
   type: chatTypes.READ_MESSAGE_SUCCESS,
   payload: message,
 })
+export const updateConversationUnreadMessages = ({ conversation_id, unreadMessagesCount }) => ({
+  type: chatTypes.UPDATE_CONVERSATION_UNREAD_MESSAGES,
+  payload: { conversation_id, unreadMessagesCount },
+})
+
+export const updateParticipantLastTimeOnlineSuccess = ({ participant_id, lastTimeOnline }) => ({
+  type: chatTypes.UPDATE_PARTICIPANT_LAST_TIME_ONLINE_SUCCESS,
+  payload: { participant_id, lastTimeOnline },
+})
+
+export const updateConversationParticipantIsTypingStart = (payload) => ({
+  type: chatTypes.UPDATE_CONVERSATION_PARTICIPANT_IS_TYPING_START,
+  payload
+})
+export const updateConversationParticipantIsTypingSuccess = ({ conversation_id, participant_id, isTyping }) => ({
+  type: chatTypes.UPDATE_CONVERSATION_PARTICIPANT_IS_TYPING_SUCCESS,
+  payload: { conversation_id, participant_id, isTyping },
+})

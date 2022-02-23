@@ -9,11 +9,20 @@ import GreenAudioRecorder from './GreenAudioRecorder';
 import "./ChatPanel.css";
 import { Input, MessageBox } from "react-chat-elements";
 import Icon from "../../Icon/Icon";
-import { sendMessageStart, addMessage } from "../../../redux/chat/chatActions"
+
+import {
+  sendMessageStart,
+  addMessage,
+  fetchMessages,
+  startNewConversationStart,
+  updateConversationParticipantIsTypingStart,
+
+} from "../../../redux/chat/chatActions"
+
 import { uploadNewFile } from "../../../redux/media/mediaActions"
 import { useSocket } from "../../../providers/SocketProvider"
 import { ObjectID } from 'bson';
-import { fetchMessages, startNewConversationStart } from '../../../redux/chat/chatActions'
+import { } from '../../../redux/chat/chatActions'
 import { selectConversation } from '../../../redux/chat/chatSelectors'
 import { getFileType } from '../ChatUtils';
 import getBlobDuration from 'get-blob-duration';
@@ -24,8 +33,21 @@ const timeAgo = new TimeAgo('en-US');
 
 const minScrollTop = 1;
 let timer;
+const conversationsTyping = {}
 
-const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSentAt, addMessageDispatch, sendMessageStartDispatch, fetchMessagesDispatch, uploadNewFileDispatch, startNewConversationStartDispatch, onReadMessage, conversationSelector }) => {
+const Messages = ({ conversation_id,
+  messages,
+  messagesFetching,
+  userId,
+  firstSentAt,
+  addMessageDispatch,
+  sendMessageStartDispatch,
+  fetchMessagesDispatch, uploadNewFileDispatch,
+  startNewConversationStartDispatch,
+  updateConversationParticipantIsTypingStartDispatch,
+  onReadMessage,
+  conversationSelector
+}) => {
   const [messageText, setMessageText] = useState("");
   const [inputType, setInputType] = useState("text"); // values : 'text', 'audio', 'video';
   const fileInputRef = useRef();
@@ -175,6 +197,7 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
     }
   };
   const handleSendMessage = () => {
+
     const text = inputRef.current.input.value.replace(/\s+/g, ' ')
 
     if (text && text.length > 0 && text !== ' ') {
@@ -197,15 +220,37 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
       // }, 100)
     }
   }
+
+  /////////////////////////////////////////////////TYPING EVENT ///////////////////////////////////////////////////////////////////////
   const onMessageTextChanged = (e) => {
-    setMessageText(e.target.value);
+    setMessageText(inputRef.current?.input.value)
+    if (!conversation_id || conversation_id === "new") return;
+
+    if (!conversationsTyping[conversation_id]) {
+      conversationsTyping[conversation_id] = { isTyping: true }
+      socket.emit('conversation-participant-is-typing-start', { conversation_id, isTyping: true });
+      updateConversationParticipantIsTypingStartDispatch({ conversation_id, isTyping: true });
+    } else if (conversationsTyping[conversation_id] && !conversationsTyping[conversation_id].isTyping) {
+      conversationsTyping[conversation_id].isTyping = true
+      socket.emit('conversation-participant-is-typing-start', { conversation_id, isTyping: true });
+      updateConversationParticipantIsTypingStartDispatch({ conversation_id, isTyping: true });
+    }
+
+    clearTimeout(conversationsTyping[conversation_id].Timer);
+    conversationsTyping[conversation_id].Timer = setTimeout(() => {
+      conversationsTyping[conversation_id].isTyping = false;
+      socket.emit('conversation-participant-is-typing-start', { conversation_id, isTyping: false });
+      updateConversationParticipantIsTypingStartDispatch({ conversation_id, isTyping: false });
+    }, 1000)
   };
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   const renderMessageBox = (message) => {
     messageTextRefs.current = [];
     if (message.type === "text") {
       return (
         <MessageBox
+          style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
           ref={ref => ref && messageTextRefs.current.push(ref)}
           key={message._id}
           position={message.sender === userId ? "right" : "left"}
@@ -221,6 +266,7 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
     } else if (message.type === "photo") {
       return (
         <MessageBox
+          style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
           ref={ref => ref && messageTextRefs.current.push(ref)}
           key={message._id}
           position={message.sender === userId ? "right" : "left"}
@@ -243,6 +289,7 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
     } else if (message.type === "audio") {
       return (
         <GreenAudioPlayer
+          style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
           key={message._id}
           src={message?.data?.uri}
           sentAt={new Date(message.sentAt)}
@@ -255,7 +302,7 @@ const Messages = ({ conversation_id, messages, messagesFetching, userId, firstSe
       );
     } else if (message.type === "video") {
       return (
-        <div className="rce-container-mbox" key={message._id}>
+        <div className="rce-container-mbox" key={message._id} style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}>
           <div className={`rce-mbox rce-mbox-${message.sender === userId ? "right" : "left"}`}>
             <div className="rce-mbox-body">
               <div style={{ 'paddingBottom': '16px' }} className="rce-mbox-video padding-time">
@@ -352,6 +399,7 @@ const mapDispatchToProps = (dispatch) => ({
   uploadNewFileDispatch: (formData, onUploadDone) => dispatch(uploadNewFile(formData, onUploadDone)),
   fetchMessagesDispatch: (conversation_id, firstSentAt) => dispatch(fetchMessages(conversation_id, firstSentAt)),
   startNewConversationStartDispatch: (participants) => dispatch(startNewConversationStart(participants)),
+  updateConversationParticipantIsTypingStartDispatch: (payload) => dispatch(updateConversationParticipantIsTypingStart(payload)),
 });
 
 const mapStateToProps = (state) => ({

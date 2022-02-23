@@ -575,17 +575,44 @@
 #frame .content .contact-profile {
   width: 100%;
   height: 60px;
-  line-height: 60px;
+  line-height: 0px;
   background: #f5f5f5;
+  display: flex;
+  justify-content: space-between;
 }
-#frame .content .contact-profile img {
+#frame .content .contact-profile .left-side {
+  display: flex;
+}
+#frame .content .contact-profile .left-side img {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   float: left;
   margin: 9px 12px 0 9px;
 }
-#frame .content .contact-profile p {
+#frame .content .contact-profile .left-side .participant-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+#frame
+  .content
+  .contact-profile
+  .left-side
+  .participant-info
+  .participant-name {
+  font-size: 12px;
+  font-weight: bold;
+}
+#frame
+  .content
+  .contact-profile
+  .left-side
+  .participant-info
+  .participant-state {
+  font-size: 10px;
+}
+/* #frame .content .contact-profile p {
   float: left;
 }
 #frame .content .contact-profile .social-media {
@@ -600,7 +627,7 @@
 }
 #frame .content .contact-profile .social-media i:hover {
   color: #435f7a;
-}
+} */
 #frame .content .messages-board {
   /* background-color: #fff4f4; */
   height: 100%;
@@ -622,7 +649,7 @@
 }
 @media screen and (max-width: 735px) {
   #frame .content .messages {
-    max-height: calc(100% - 105px);
+    /* max-height: calc(100% - 105px); */
   }
 }
 #frame .content .messages::-webkit-scrollbar {

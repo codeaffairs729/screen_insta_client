@@ -17,7 +17,9 @@ import {
   receiveMessageSuccess,
   readMessageStart,
   readMessageSuccess,
-
+  updateConversationUnreadMessages,
+  updateParticipantLastTimeOnlineSuccess,
+  updateConversationParticipantIsTypingSuccess
 } from "../../redux/chat/chatActions";
 
 
@@ -98,6 +100,8 @@ function onAuthStateChange(callback, signInSuccess, signInFailure) {
   });
 }
 
+let heartBeatTimer;
+const interval = 3000;
 export function UnconnectedApp({
   signInStart,
   signInFailure,
@@ -119,7 +123,10 @@ export function UnconnectedApp({
   receiveMessageStartDispatch,
   receiveMessageSuccessDispatch,
   readMessageStartDispatch,
-  readMessageSuccessDispatch
+  readMessageSuccessDispatch,
+  updateConversationUnreadMessagesDispatch,
+  updateParticipantLastTimeOnlineSuccessDispatch,
+  updateConversationParticipantIsTypingSuccessDispatch
 
 }) {
   const location = useLocation();
@@ -129,11 +136,12 @@ export function UnconnectedApp({
   const [user, setUser] = useState({ authState: "loading" });
   const socket = useSocket();
   const syncLock = useRef(false);
+  const messageNotificationRef = useRef();
 
   ////////////////////////////////////////////////// REAL TIME CHAT SOCKET ////////////////////////////////////////
 
   useEffect(() => {// listening on upcoming events // real time chat
-    const log = true;
+    const log = false;
     if (socket && currentUser?._id) {
       socket.off('connect');
       socket.off('disconnect');
@@ -143,6 +151,9 @@ export function UnconnectedApp({
       socket.off('receive-message-success');
       socket.off('read-message-success');
       socket.off('start-new-conversation-success');
+      socket.off('conversation-unread-messages-count');
+      socket.off('update-participant-last-time-online-success');
+      socket.off('update-conversation-participant-is-typing-success');
 
       //////////////////////////////////////// conversations events /////////////////////////////////////////
       socket.on('connect', async () => {
@@ -157,6 +168,8 @@ export function UnconnectedApp({
           draggable: true,
           progress: undefined,
         });
+
+        //init or re sync the app data (converstaion (participants),messages,followers etc ...)
         fetchFollowersDispatch(0);
         const conversations = await fetchConversationsDispatch(0);
         conversations.map(conv => {
@@ -168,9 +181,16 @@ export function UnconnectedApp({
           return '';
         })
 
+        clearInterval(heartBeatTimer)
+        heartBeatTimer = setInterval(() => {
+          socket.emit('update-participant-last-time-online-start')
+          if (log) console.log('update-participant-last-time-online-start')
+        }, interval);
+
       })
       socket.on('disconnect', () => {
         // alert('disconnect : ')
+        clearInterval(heartBeatTimer)
         toast.error('You Are Offline!', {
           position: "bottom-left",
           autoClose: 2000,
@@ -199,15 +219,21 @@ export function UnconnectedApp({
         if (log) console.log('on send-message-start', message);
         sendMessageStartDispatch(message)
       });
-      socket.on('send-message-success', message => {
+      socket.on('send-message-success', async (message) => {
         if (log) console.log('on send-message-success', message);
         sendMessageSuccessDispatch(message);
-
-        if (message.sender !== currentUser._id) {
-          if (log) console.log('emit receive-message-start', message);
-          socket.emit('receive-message-start', { _id: message._id, receivedBy: currentUser._id });
-          receiveMessageStartDispatch(message);
+        if (currentUser._id !== message.sender) {
+          await messageNotificationRef.current.pause()
+          messageNotificationRef.current.currentTime = 0;
+          await messageNotificationRef.current.play()
         }
+
+
+        // if (message.sender !== currentUser._id) {
+        //   if (log) console.log('emit receive-message-start', message);
+        //   socket.emit('receive-message-start', { _id: message._id, receivedBy: currentUser._id });
+        //   receiveMessageStartDispatch(message);
+        // }
 
       });
       socket.on('send-message-error', error => {
@@ -222,6 +248,18 @@ export function UnconnectedApp({
       socket.on('read-message-success', message => {
         if (log) console.log('on read-message-success', message);
         readMessageSuccessDispatch(message);
+      })
+      socket.on('conversation-unread-messages-count', ({ conversation_id, unreadMessagesCount }) => {
+        if (log) console.log('on conversation-unread-messages-count', { conversation_id, unreadMessagesCount });
+        updateConversationUnreadMessagesDispatch({ conversation_id, unreadMessagesCount });
+      })
+      socket.on('update-participant-last-time-online-success', ({ participant_id, lastTimeOnline }) => {
+        if (log) console.log('on update-participant-last-time-online-success', { participant_id, lastTimeOnline });
+        updateParticipantLastTimeOnlineSuccessDispatch({ participant_id, lastTimeOnline });
+      })
+      socket.on('update-conversation-participant-is-typing-success', ({ conversation_id, participant_id, isTyping }) => {
+        if (log) console.log('on update-conversation-participant-is-typing-success', { conversation_id, participant_id, isTyping });
+        updateConversationParticipantIsTypingSuccessDispatch({ conversation_id, participant_id, isTyping });
       })
     }
   }, [socket, currentUser, history, conversations, messages]);
@@ -400,6 +438,7 @@ export function UnconnectedApp({
           pathname !== "/new" &&
           currentUser && <MobileNav currentUser={currentUser} />}
         <ToastContainer theme="colored" />
+        <audio ref={messageNotificationRef} src="https://res.cloudinary.com/dmtgbbfs5/video/upload/v1645628412/rb1tem9stfx5ehlgveix.mp3" />
       </>
     );
   };
@@ -437,6 +476,10 @@ const mapDispatchToProps = (dispatch) => ({
   receiveMessageSuccessDispatch: (payload) => dispatch(receiveMessageSuccess(payload)),
   readMessageStartDispatch: (payload) => dispatch(readMessageStart(payload)),
   readMessageSuccessDispatch: (payload) => dispatch(readMessageSuccess(payload)),
+  updateConversationUnreadMessagesDispatch: (payload) => dispatch(updateConversationUnreadMessages(payload)),
+  updateParticipantLastTimeOnlineSuccessDispatch: (payload) => dispatch(updateParticipantLastTimeOnlineSuccess(payload)),
+  updateConversationParticipantIsTypingSuccessDispatch: (payload) => dispatch(updateConversationParticipantIsTypingSuccess(payload))
+
 });
 
 

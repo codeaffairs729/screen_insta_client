@@ -47,12 +47,17 @@ const chatReducer = (state = INITIAL_STATE, action) => {
       };
     }
     case chatTypes.FETCH_CONVERSATIONS_SUCCESS: {
+      /// TO-DO better make a separate call to fetch participants; 
+      /// And normilize participants on conversation (participants _ids instead of participants objects)
+      // const participants = payload.conversations.map(conv => conv.participants).flat();
+      // const participantsUniqueIds = [...new Set(participants.map(p => p._id))];
+      // const uniqueParticipants = participantsUniqueIds.map(pu_id => participants.find(p => p._id === pu_id));
       return {
         ...state,
         fetchConversationsError: null,
         conversationsFetching: false,
         conversations: payload.conversations,
-        // messages: [],
+        // participants: uniqueParticipants
       };
     }
     case chatTypes.FETCH_CONVERSATIONS_ERROR: {
@@ -69,9 +74,16 @@ const chatReducer = (state = INITIAL_STATE, action) => {
       };
     }
     case chatTypes.START_NEW_CONVERSATION_SUCCESS: {
+      /// TO-DO better make a separate call to fetch participants; 
+      /// And normilize participants on conversation (participants _ids instead of participants objects)
+      const newConversations = [payload, ...state.conversations];
+      // const participants = newConversations.map(conv => conv.participants).flat();
+      // const participantsUniqueIds = [...new Set(participants.map(p => p._id))];
+      // const uniqueParticipants = participantsUniqueIds.map(pu_id => participants.find(p => p._id === pu_id));
       return {
         ...state,
-        conversations: [payload, ...state.conversations],
+        conversations: newConversations,
+        // participants: uniqueParticipants
       };
     }
     case chatTypes.START_NEW_CONVERSATION_ERROR: {
@@ -223,6 +235,45 @@ const chatReducer = (state = INITIAL_STATE, action) => {
       };
     }
 
+    case chatTypes.UPDATE_CONVERSATION_UNREAD_MESSAGES: {
+      const { payload: { conversation_id, unreadMessagesCount } } = action;
+
+      const conversation = state.conversations.find(conv => conv._id === conversation_id);
+      if (!conversation) return state;
+
+      const newConversations = state.conversations.map(conv => conv._id !== conversation_id ? conv : { ...conversation, unreadMessagesCount })
+      return {
+        ...state,
+        conversations: newConversations,
+      }
+    }
+    case chatTypes.UPDATE_PARTICIPANT_LAST_TIME_ONLINE_SUCCESS: {
+      const { payload: { participant_id, lastTimeOnline } } = action;
+
+      const newConversations = state.conversations.map(conv => {
+        const newParticipants = conv.participants.map(part => part._id !== participant_id ? part : { ...part, lastTimeOnline })
+        return { ...conv, participants: newParticipants }
+      })
+
+      return {
+        ...state,
+        conversations: newConversations,
+      }
+    }
+    case chatTypes.UPDATE_CONVERSATION_PARTICIPANT_IS_TYPING_SUCCESS: {
+      const { payload: { conversation_id, participant_id, isTyping } } = action;
+
+      const newConversations = state.conversations.map(conv => {
+        if (conv._id !== conversation_id) return conv;
+        const newParticipants = conv.participants.map(part => part._id !== participant_id ? part : { ...part, isTyping })
+        return { ...conv, participants: newParticipants }
+      })
+
+      return {
+        ...state,
+        conversations: newConversations,
+      }
+    }
     default:
       return state;
   }

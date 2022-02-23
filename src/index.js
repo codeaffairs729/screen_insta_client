@@ -13,8 +13,8 @@ import axios from "axios";
 import constants from "./constants";
 
 if (process.env.NODE_ENV === "development") {
-  const whyDidYouRender = require("@welldone-software/why-did-you-render");
-  whyDidYouRender(React);
+  // const whyDidYouRender = require("@welldone-software/why-did-you-render");
+  // whyDidYouRender(React);
   // console.log("Node development");
   axios.defaults.baseURL = constants.DEV_API_URL;
 } else {

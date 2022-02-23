@@ -1,23 +1,23 @@
 import React, { useState, memo, Fragment } from "react";
 import { connect } from "react-redux";
-import { createStructuredSelector } from "reselect";
 import { Link } from "react-router-dom";
 import classNames from "classnames";
 import { useHistory } from "react-router-dom";
 
 import { selectCurrentUser } from "../../redux/user/userSelectors";
+import { selectAllUnreadMessagesCount } from '../../redux/chat/chatSelectors';
 
 import useScrollPositionThrottled from "../../hooks/useScrollPositionThrottled";
 import { showModal, hideModal } from "../../redux/modal/modalActions";
 
 import { ReactComponent as LogoCamera } from "../../assets/svg/logo-camera.svg";
 import SearchBox from "../SearchBox/SearchBox";
-import NewPostButton from "../NewPost/NewPostButton/NewPostButton";
+// import NewPostButton from "../NewPost/NewPostButton/NewPostButton";
 import NotificationButton from "../Notification/NotificationButton/NotificationButton";
 import Button from "../Button/Button";
 import Icon from "../Icon/Icon";
 
-const Header = memo(({ currentUser, showModal, hideModal }) => {
+const Header = memo(({ currentUser, showModal, hideModal, allUnreadMessagesCountSelector }) => {
   const [shouldMinimizeHeader, setShouldMinimizeHeader] = useState(false);
   const {
     location: { pathname },
@@ -30,18 +30,19 @@ const Header = memo(({ currentUser, showModal, hideModal }) => {
     }
   });
 
-  const OnClickAddPost = () => {
-    showModal(
-      { hide: () => hideModal("CreatePost/CreatePostModal") },
-      "CreatePost/CreatePostModal"
-    );
-  };
+  // const OnClickAddPost = () => {
+  //   showModal(
+  //     { hide: () => hideModal("CreatePost/CreatePostModal") },
+  //     "CreatePost/CreatePostModal"
+  //   );
+  // };
 
   const headerClassNames = classNames({
     header: true,
     "header--small": shouldMinimizeHeader,
   });
 
+  const allUnreadMessagesCount = allUnreadMessagesCountSelector()
   return (
     <header className={headerClassNames}>
       <div className="header__content">
@@ -62,6 +63,8 @@ const Header = memo(({ currentUser, showModal, hideModal }) => {
               </Link>
               <Link to="/messages/all">
                 <Icon
+                  badge={allUnreadMessagesCount}
+                  style={{ position: "relative" }}
                   icon={
                     pathname === "/messages/"
                       ? "paper-plane"
@@ -112,8 +115,9 @@ const Header = memo(({ currentUser, showModal, hideModal }) => {
 
 Header.whyDidYouRender = true;
 
-const mapStateToProps = createStructuredSelector({
-  currentUser: selectCurrentUser,
+const mapStateToProps = state => ({
+  currentUser: selectCurrentUser(state),
+  allUnreadMessagesCountSelector: () => selectAllUnreadMessagesCount(state)
 });
 
 const mapDispatchToProps = (dispatch) => ({

@@ -5,14 +5,14 @@ import { ChatItem } from "react-chat-elements";
 import "react-chat-elements/dist/main.css";
 import { useHistory } from "react-router";
 
-import { selectConversationLastMessage, selectConversationUnreadMessages, selectNotParticipantsFollowers } from '../../../redux/chat/chatSelectors'
+import { selectConversationLastMessage, selectNotParticipantsFollowers } from '../../../redux/chat/chatSelectors'
 
 function formatTime(time) { //time in seconds
   var min = Math.floor(time / 60);
   var sec = Math.floor(time % 60);
   return min + ':' + ((sec < 10) ? ('0' + sec) : sec);
 }
-const ConversationsList = ({ currentUser, conversations, notParticipantsFollowersSelector, conversationLastMessageSelector, conversationUnreadMessagesSelector }) => {
+const ConversationsList = ({ currentUser, conversations, notParticipantsFollowersSelector, conversationLastMessageSelector }) => {
   const history = useHistory();
   const notParticipantsFollowers = notParticipantsFollowersSelector();
 
@@ -21,15 +21,14 @@ const ConversationsList = ({ currentUser, conversations, notParticipantsFollower
       {conversations.map((conversation) => {
         const participants = conversation.participants.filter(part => part._id !== currentUser._id);// exclude current user
         const lastMessage = conversationLastMessageSelector(conversation._id);
-        const unreadMessages = conversationUnreadMessagesSelector(conversation._id, currentUser._id)
         return (
           <ChatItem
             key={conversation._id}
             onClick={() => history.push("/messages/" + conversation._id)}
             avatar={participants[0].avatar}
             alt={""}
-            title={'@' + participants[0].username}
-            // subtitle={lastMessage ? lastMessage.text : ''}
+            // title={'@' + participants[0].username}
+            title={participants[0].username}
             subtitle={lastMessage && (<>
               {lastMessage.type === 'text' ?
                 (<span className="rce-mbox-status">{lastMessage.text}</span>) :
@@ -52,7 +51,8 @@ const ConversationsList = ({ currentUser, conversations, notParticipantsFollower
             </>)}
             // date={lastMessage ? new Date(lastMessage.sentAt) : null}
             date={lastMessage ? new Date(lastMessage.sentAt) : null}
-            unread={unreadMessages ? unreadMessages.length : 0}
+            // unread={unreadMessages ? unreadMessages.length : 0}
+            unread={conversation.unreadMessagesCount}
           />
         );
       })}
@@ -67,7 +67,7 @@ const ConversationsList = ({ currentUser, conversations, notParticipantsFollower
               avatar={npFollower.avatar}
               alt={""}
               title={npFollower.fullName}
-              subtitle={npFollower.username}
+              subtitle="Start a new conversation"
               date={null}
             // unread={0}
             />
@@ -78,7 +78,6 @@ const ConversationsList = ({ currentUser, conversations, notParticipantsFollower
 };
 const mapStateToProps = state => ({
   conversationLastMessageSelector: (conversation_id) => selectConversationLastMessage(state, conversation_id),
-  conversationUnreadMessagesSelector: (conversation_id, user_id) => selectConversationUnreadMessages(state, conversation_id, user_id),
   notParticipantsFollowersSelector: () => selectNotParticipantsFollowers(state),
 
 })
