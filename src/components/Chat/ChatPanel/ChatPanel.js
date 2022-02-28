@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { useParams } from "react-router";
-import "./ChatPanel.sass";
+import "./ChatPanel.scss";
 import ConversationsList from "./ConversationsList";
 import Messages from "./Messages";
 import RecipientInfo from "./RecipientInfo";

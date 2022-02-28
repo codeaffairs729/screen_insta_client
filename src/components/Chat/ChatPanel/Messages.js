@@ -6,7 +6,6 @@ import en from 'javascript-time-ago/locale/en.json';
 import GreenAudioPlayer from './GreenAudioPlayer';
 import GreenAudioRecorder from './GreenAudioRecorder';
 
-import "./ChatPanel.css";
 import { Input, MessageBox } from "react-chat-elements";
 import Icon from "../../Icon/Icon";
 

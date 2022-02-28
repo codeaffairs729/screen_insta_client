@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import './GreenAudioRecorder.scss'
 import { useReactMediaRecorder } from "react-media-recorder";
 import getBlobDuration from 'get-blob-duration';
-import ysFixWebmDuration from 'fix-webm-duration';
 import Icon from "../../Icon/Icon";
 export default function GreenAudioRecorder({ position = 'right', showVolumeBtn = false, onPlay, alreadyPlayed = false, onDelete, onSend }) {
 
