@@ -163,7 +163,11 @@ const ProfileHeader = ({
 
       <div className="profile-header__info">
         <div className="profile-buttons">
-          <h1 className="heading-1 font-thin">{username} ({fullName})</h1>
+          <div className="profile-info">
+            <p className="profile-username heading-1">{username}</p>
+            <p className="profile-fullname heading-2 font-thin">{fullName}</p>
+          </div>
+
           {renderButton()}
         </div>
 
