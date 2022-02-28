@@ -603,6 +603,7 @@
   .participant-name {
   font-size: 12px;
   font-weight: bold;
+  margin-top: 4px;
 }
 #frame
   .content
@@ -611,6 +612,7 @@
   .participant-info
   .participant-state {
   font-size: 10px;
+  font-style: italic;
 }
 /* #frame .content .contact-profile p {
   float: left;
@@ -662,7 +664,7 @@
 #frame .content .messages ul li {
   display: inline-block;
   clear: both;
-  float: left;
+  /* float: left; */
   margin: 15px 15px 5px 15px;
   width: calc(100% - 25px);
   font-size: 0.9em;
