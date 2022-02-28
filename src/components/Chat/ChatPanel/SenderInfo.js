@@ -1,5 +1,5 @@
 import React from "react";
-import "./ChatPanel.css";
+// import "./ChatPanel.css";
 
 const SenderInfo = ({ fullName, avatar }) => {
   return (

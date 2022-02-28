@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import "./ChatPanel.css";
+// import "./ChatPanel.css";
 import { ChatItem } from "react-chat-elements";
 import "react-chat-elements/dist/main.css";
 import { useHistory } from "react-router";

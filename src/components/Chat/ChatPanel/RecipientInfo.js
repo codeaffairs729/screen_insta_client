@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
-import "./ChatPanel.css";
+// import "./ChatPanel.css";
 import { Link } from "react-router-dom";
 // import { Avatar, Navbar } from 'react-chat-elements'
 import dateFormat, { masks } from "dateformat";
