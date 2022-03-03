@@ -251,7 +251,7 @@ const Messages = ({ conversation_id,
     if (message.type === "text") {
       return (
         <MessageBox
-          style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
+          // style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
           ref={ref => ref && messageTextRefs.current.push(ref)}
           key={message._id}
           position={message.sender === userId ? "right" : "left"}
@@ -267,7 +267,7 @@ const Messages = ({ conversation_id,
     } else if (message.type === "photo") {
       return (
         <MessageBox
-          style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
+          // style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
           ref={ref => ref && messageTextRefs.current.push(ref)}
           key={message._id}
           position={message.sender === userId ? "right" : "left"}
@@ -290,7 +290,7 @@ const Messages = ({ conversation_id,
     } else if (message.type === "audio") {
       return (
         <GreenAudioPlayer
-          style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
+          // style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
           key={message._id}
           src={message?.data?.uri}
           sentAt={new Date(message.sentAt)}
@@ -303,7 +303,9 @@ const Messages = ({ conversation_id,
       );
     } else if (message.type === "video") {
       return (
-        <div className="rce-container-mbox" key={message._id} style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}>
+        <div className="rce-container-mbox" key={message._id}
+        // style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
+        >
           <div className={`rce-mbox rce-mbox-${message.sender === userId ? "right" : "left"}`}>
             <div className="rce-mbox-body">
               <div style={{ 'paddingBottom': '16px' }} className="rce-mbox-video padding-time">
