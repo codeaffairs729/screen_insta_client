@@ -35,6 +35,28 @@ const chatReducer = (state = INITIAL_STATE, action) => {
     case chatTypes.FETCH_FOLLOWERS_ERROR: {
       return {
         ...state,
+        fetchFollowingsError: payload.error,
+        followingsFetching: false,
+      };
+    }
+    case chatTypes.FETCH_FOLLOWINGS_START: {
+      return {
+        ...state,
+        fetchFollowingsError: false,
+        followingsFetching: true,
+      };
+    }
+    case chatTypes.FETCH_FOLLOWINGS_SUCCESS: {
+      return {
+        ...state,
+        fetchFollowingsError: null,
+        followingsFetching: false,
+        followings: payload.followings,
+      };
+    }
+    case chatTypes.FETCH_FOLLOWINGS_ERROR: {
+      return {
+        ...state,
         fetchFollowersError: payload.error,
         followersFetching: false,
       };
@@ -47,17 +69,12 @@ const chatReducer = (state = INITIAL_STATE, action) => {
       };
     }
     case chatTypes.FETCH_CONVERSATIONS_SUCCESS: {
-      /// TO-DO better make a separate call to fetch participants; 
-      /// And normilize participants on conversation (participants _ids instead of participants objects)
-      // const participants = payload.conversations.map(conv => conv.participants).flat();
-      // const participantsUniqueIds = [...new Set(participants.map(p => p._id))];
-      // const uniqueParticipants = participantsUniqueIds.map(pu_id => participants.find(p => p._id === pu_id));
+
       return {
         ...state,
         fetchConversationsError: null,
         conversationsFetching: false,
         conversations: payload.conversations,
-        // participants: uniqueParticipants
       };
     }
     case chatTypes.FETCH_CONVERSATIONS_ERROR: {
@@ -74,12 +91,7 @@ const chatReducer = (state = INITIAL_STATE, action) => {
       };
     }
     case chatTypes.START_NEW_CONVERSATION_SUCCESS: {
-      /// TO-DO better make a separate call to fetch participants; 
-      /// And normilize participants on conversation (participants _ids instead of participants objects)
       const newConversations = [payload, ...state.conversations];
-      // const participants = newConversations.map(conv => conv.participants).flat();
-      // const participantsUniqueIds = [...new Set(participants.map(p => p._id))];
-      // const uniqueParticipants = participantsUniqueIds.map(pu_id => participants.find(p => p._id === pu_id));
       return {
         ...state,
         conversations: newConversations,
@@ -151,6 +163,41 @@ const chatReducer = (state = INITIAL_STATE, action) => {
       };
     }
     ///////////////////////////////////////// socket.io conversations actions ////////////////////////////////
+
+    case chatTypes.FOLLOW_USER_SUCCESS: {
+      const { payload: following } = action;
+      const newFollowings = [...state.followings, following];
+      return {
+        ...state,
+        followings: newFollowings
+
+      };
+    }
+    case chatTypes.UNFOLLOW_USER_SUCCESS: {
+      const { payload: following } = action;
+      const newFollowings = state.followings.filter(fol => fol._id !== following._id);
+      return {
+        ...state,
+        followings: newFollowings
+      };
+    }
+    case chatTypes.ADD_FOLLOWER: {
+      const { payload: follower } = action;
+      const newFollowers = [...state.followers, follower];
+      return {
+        ...state,
+        followers: newFollowers
+
+      };
+    }
+    case chatTypes.REMOVE_FOLLOWER: {
+      const { payload: follower } = action;
+      const newFollowers = state.followers.filter(fol => fol._id !== follower._id);
+      return {
+        ...state,
+        followers: newFollowers
+      };
+    }
 
     case chatTypes.SEND_MESSAGE_START: {
       const { payload: message } = action;

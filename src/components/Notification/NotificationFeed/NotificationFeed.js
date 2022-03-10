@@ -1,8 +1,7 @@
-import React, { useEffect, Fragment } from "react";
+import React, { useRef, useEffect } from "react";
 import { connect } from "react-redux";
-import { createStructuredSelector } from "reselect";
 import { Link } from "react-router-dom";
-import VideoThumbnail from "react-video-thumbnail"; // use npm published version
+// import VideoThumbnail from "react-video-thumbnail"; // use npm published version
 
 import {
   selectNotifications,
@@ -10,11 +9,6 @@ import {
 } from "../../../redux/notification/notificationSelectors";
 import { selectToken } from "../../../redux/user/userSelectors";
 
-import {
-  fetchNotificationsStart,
-  readNotificationsStart,
-  clearNotifications,
-} from "../../../redux/notification/notificationActions";
 
 import UserCard from "../../UserCard/UserCard";
 import UsersListSkeleton from "../../UsersList/UsersListSkeleton/UsersListSkeleton";
@@ -27,44 +21,69 @@ import mention from "linkifyjs/plugins/mention";
 
 import { linkifyOptions } from "../../../utils/linkifyUtils";
 import { isAudio, isVideo } from "../../../validUploads";
+import { useSocket } from "../../../providers/SocketProvider"
+
 
 mention(linkify);
 
 const NotificationFeed = ({
   notifications,
-  fetchNotificationsStart,
-  readNotificationsStart,
   notificationState,
-  clearNotifications,
   setShowNotifications,
   token,
 }) => {
-  useEffect(() => {
-    (async function () {
-      await fetchNotificationsStart(token);
-      await readNotificationsStart(token);
-    })();
-
-    return () => {
-      clearNotifications();
-    };
-  }, [
-    fetchNotificationsStart,
-    readNotificationsStart,
-    clearNotifications,
-    token,
-  ]);
-
+  const socket = useSocket();
   const videoClicked = () => {
-    console.log("video clicked");
   };
+  const notificationFeedBox = useRef();
+  const followNotificationRefs = useRef([]);
+
+  useEffect(() => {
+    let timer;
+    const listener = (e) => {
+      clearTimeout(timer);
+      const notificationFeedBoxRect = notificationFeedBox.current.parentElement.getBoundingClientRect();
+      // console.dir(notificationFeedBox.current.parentElement)
+      timer = setTimeout(() => {
+        followNotificationRefs.current.map((current) => {
+          if (current) {
+            // console.dir(current);
+            const followNotificationRect = current.getBoundingClientRect()
+            // console.log (followNotificationRect && followNotificationRect.top >= notificationFeedBoxRect.top - 2 && followNotificationRect.bottom <= notificationFeedBoxRect.bottom + 2) {
+            // console.log(followNotificationRect.top, notificationFeedBoxRect.top, followNotificationRect.bottom, notificationFeedBoxRect.bottom)
+            if (followNotificationRect && followNotificationRect.top >= notificationFeedBoxRect.top - 2 && followNotificationRect.bottom <= notificationFeedBoxRect.bottom + 2) {
+              console.log(current.id)
+              if (socket) {
+                console.log('emit read-notification-start', current.id);
+                socket.emit('read-notification-start', current.id)
+              }
+            }
+          }
+          return '';
+        })
+      }, 100)
+    }
+    const element = notificationFeedBox.current
+    element.addEventListener('scroll', listener);
+    element.addEventListener('mousemove', listener);
+    return () => {
+      element.removeEventListener('scroll', listener);
+      element.removeEventListener('mousemove', listener);
+    }
+  }, [socket])
+
+  const onReadNotificationHandler = (notification_id) => {
+    console.log('emit read-notification-message');
+    socket.emit('read-notification-start', notification_id);
+  }
 
   return (
-    <Fragment>
+    <div ref={notificationFeedBox}>
       {notificationState.fetching ? (
         <UsersListSkeleton style={{ height: "7rem" }} />
       ) : notifications.length > 0 ? (
         notifications.map((notification, idx) => {
+          followNotificationRefs.current = [];
           const userCardProps = {
             username: notification.sender.username,
             avatar: notification.sender.avatar,
@@ -130,15 +149,12 @@ const NotificationFeed = ({
             }
           }
 
-          switch (notification.notificationType) {
+          switch (notification.type) {
             case "follow": {
               userCardProps.subText = "started following you.";
               userCardChild = (
                 <FollowButton
-                  username={notification.sender.username}
-                  avatar={notification.sender.avatar}
-                  following={notification.isFollowing}
-                  userId={notification.sender._id}
+                  profile={notification.sender}
                 />
               );
               break;
@@ -154,11 +170,10 @@ const NotificationFeed = ({
             }
             default: {
               userCardProps.subText = (
-                <Linkify options={linkifyOptions}>{`${
-                  notification.notificationType === "comment"
-                    ? "commented:"
-                    : "mentioned you in a comment:"
-                } ${notification.notificationData.message}`}</Linkify>
+                <Linkify options={linkifyOptions}>{`${notification.type === "comment"
+                  ? "commented:"
+                  : "mentioned you in a comment:"
+                  } ${notification.notificationData.message}`}</Linkify>
               );
               userCardChild = (
                 <Link to={`/post/${notification.notificationData.postId}`}>
@@ -169,8 +184,16 @@ const NotificationFeed = ({
           }
 
           return (
-            <li key={idx}>
-              <UserCard {...userCardProps}>
+            <li
+              key={notification._id}
+              id={notification._id}
+              ref={ref => ref && notification.type === "follow" && !notification.read && followNotificationRefs.current.push(ref)}
+            >
+              <UserCard
+
+                {...userCardProps}
+
+              >
                 {userCardChild && userCardChild}
               </UserCard>
               {notifications.length - 1 > idx && <Divider />}
@@ -186,22 +209,18 @@ const NotificationFeed = ({
           </h4>
         </div>
       )}
-    </Fragment>
+    </div>
   );
 };
 
-const mapStateToProps = createStructuredSelector({
-  notifications: selectNotifications,
-  notificationState: selectNotificationState,
-  token: selectToken,
+const mapStateToProps = (state) => ({
+  notifications: selectNotifications(state),
+  notificationState: selectNotificationState(state),
+  token: selectToken(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  fetchNotificationsStart: (authToken) =>
-    dispatch(fetchNotificationsStart(authToken)),
-  readNotificationsStart: (authToken) =>
-    dispatch(readNotificationsStart(authToken)),
-  clearNotifications: () => dispatch(clearNotifications()),
+
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(NotificationFeed);

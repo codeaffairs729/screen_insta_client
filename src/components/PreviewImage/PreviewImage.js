@@ -1,14 +1,12 @@
 import React from "react";
-import PropTypes from "prop-types";
-
 import Icon from "../Icon/Icon";
 import { isAudio, isVideo } from "../../validUploads";
 
-const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
-  if (!post) return null;
-  console.log("POST");
-  console.log(post);
-  if (!post.display) {
+const PreviewImage = ({ onClick, post }) => {
+
+  const { likes, comments, filter, postPrice, medias, display } = post;
+  const image = medias && medias[0];
+  if (!display) {
     return (
       <figure
         onClick={onClick}
@@ -23,7 +21,7 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
           <div style={{ paddingTop: 200 }}>
             <div className="center-div" style={{ textAlign: "center" }}>
               <Icon icon="lock-closed-outline" />
-              <span>Get access for {post.postPrice.toFixed(2)}$</span>
+              <span>Get access for {postPrice.toFixed(2)}$</span>
             </div>
           </div>
         </div>
@@ -46,9 +44,9 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
     );
   }
   let postContainVideo = false;
-  if (post && post.medias) {
-    for (let index = 0; index < post.medias.length; index++) {
-      const media = post.medias[index];
+  if (medias) {
+    for (let index = 0; index < medias.length; index++) {
+      const media = medias[index];
       if (isVideo(media)) {
         postContainVideo = true;
         break;
@@ -101,12 +99,12 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
         </icons>
         {postContainVideo && (
           <div className="preview-image__topRightContentTwoIcons">
-            {post && post.medias && post.medias.length > 0 && (
+            {medias && medias.length > 0 && (
               <div className="preview-image__icon">
                 <Icon icon="play" className="icon--white" />
               </div>
             )}
-            {post && post.medias && post.medias.length > 1 && (
+            {medias && medias.length > 1 && (
               <div className="preview-image__icon">
                 <Icon icon="documents-outline" className="icon--white" />
               </div>
@@ -115,7 +113,7 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
         )}
         {!postContainVideo && (
           <div className="preview-image__topRightContent">
-            {post && post.medias && post.medias.length > 1 && (
+            {medias && medias.length > 1 && (
               <div className="preview-image__icon">
                 <Icon icon="documents-outline" className="icon--white" />
               </div>
@@ -127,10 +125,5 @@ const PreviewImage = ({ onClick, image, likes, comments, filter, post }) => {
   );
 };
 
-PreviewImage.propTypes = {
-  onClick: PropTypes.func,
-  image: PropTypes.string.isRequired,
-  likes: PropTypes.number.isRequired,
-};
 
 export default PreviewImage;

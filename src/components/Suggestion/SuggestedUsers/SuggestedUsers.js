@@ -17,14 +17,15 @@ const SuggestedUsers = ({ token, showAlert, card, style, max }) => {
   const [users, setUsers] = useState(null);
 
   useEffect(() => {
-    (async function () {
+    const call = async () => {
       try {
         const response = await getSuggestedUsers(token, max);
         setUsers(response);
       } catch (err) {
         showAlert(err.message);
       }
-    })();
+    }
+    call();
   }, [token, showAlert]);
 
   const onFollowPressed = () => {
@@ -53,12 +54,7 @@ const SuggestedUsers = ({ token, showAlert, card, style, max }) => {
             key={idx}
           >
             <FollowButton
-              userId={user._id}
-              username={user.username}
-              following={false}
-              avatar={user.avatar}
-              followPrice={user.followPrice}
-              onFollowPressed={onFollowPressed}
+              profile={user}
             />
           </UserCard>
         ))
@@ -97,12 +93,9 @@ const SuggestedUsers = ({ token, showAlert, card, style, max }) => {
                   key={idx}
                 >
                   <FollowButton
-                    userId={user._id}
-                    username={user.username}
-                    following={false}
-                    avatar={user.avatar}
+                    profile={user}
                     style={{ width: "90%" }}
-                    followPrice={user.followPrice}
+
                   />
                 </SuggestionCard>
               ))}

@@ -51,6 +51,23 @@ export const getFollowers = async (params) => {
     throw new Error(err.response.data);
   }
 };
+export const getFollowings = async (params) => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.get(
+      `/api/chat/followings`,
+      {
+        headers: {
+          authorization: token,
+        },
+        params
+      }
+    );
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response.data);
+  }
+};
 export const getMessages = async (conversation, firstSentAt) => {
   try {
     const token = await firebase.auth().currentUser.getIdToken();

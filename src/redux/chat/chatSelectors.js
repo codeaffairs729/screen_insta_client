@@ -54,22 +54,32 @@ export const selectParticipantConversation = createSelector(
   (conversations, participant_id) => conversations.filter(conv => conv.participants.length === 2).find(conv => conv.participants.find(part => part._id === participant_id))
 )
 
-export const selectNotParticipantsFollowers = createSelector(
+export const selectNotParticipantsFollowersAndFollowings = createSelector(
   [
     state => state.chat.followers,
+    state => state.chat.followings,
     state => state.chat.conversations
   ],
-  (followers, conversations) => {
+  (followers, followings, conversations) => {
     const participants = conversations.map(conversation => conversation.participants).flat();
     // if a follower is already in a conversation it should be removed
     //don't include users already in conversation (only in two participant conversation )
     const notParticipantsfollowers = followers.filter(follower => !participants.find(participant => participant._id === follower._id));
+    const notParticipantsfollowings = followings.filter(following => !participants.find(participant => participant._id === following._id));
+
     //avoid repeated followers/followees
-    const notParticipantsfollowersUniqueIds = [...new Set(notParticipantsfollowers.map(f => f._id))];
+    const notParticipantsFollowersAndFollowingsUniqueIds = [...new Set([...notParticipantsfollowers.map(f => f._id), ...notParticipantsfollowings.map(f => f._id)])];
+    // console.log(notParticipantsFollowersAndFollowingsUniqueIds)
+    return notParticipantsFollowersAndFollowingsUniqueIds.map(npfu_Id => notParticipantsfollowers.find(npf => npf._id === npfu_Id) || notParticipantsfollowings.find(npf => npf._id === npfu_Id));
 
-    return notParticipantsfollowersUniqueIds.map(npfu_Id => notParticipantsfollowers.find(npf => npf._id === npfu_Id));
 
+  })
 
-  }
+export const selectIsFollowing = createSelector(
+  [
+    state => state.chat.followings,
+    (state, user_id) => user_id
+  ],
+  (followings, user_id) => !!followings.find(following => following._id === user_id)
 
 )

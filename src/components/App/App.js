@@ -1,5 +1,6 @@
 import React, { useEffect, Suspense, lazy, useState, useRef } from "react";
-import { Switch, Route, useLocation, useHistory, useParams } from "react-router-dom";
+import { Switch, Route, useLocation, useHistory, useParams, useRouteMatch } from "react-router-dom";
+
 import { connect } from "react-redux";
 import { useTransition } from "react-spring";
 import { useSocket } from "../../providers/SocketProvider"
@@ -8,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import {
   fetchConversations,
   fetchFollowers,
+  fetchFollowings,
   fetchMessages,
   fetchSyncMessages,
   startNewConversationSuccess,
@@ -19,17 +21,26 @@ import {
   readMessageSuccess,
   updateConversationUnreadMessages,
   updateParticipantLastTimeOnlineSuccess,
-  updateConversationParticipantIsTypingSuccess
+  updateConversationParticipantIsTypingSuccess,
+  followUserSuccess,
+  unfollowUserSuccess,
+  addFollower,
+  removeFollower,
 } from "../../redux/chat/chatActions";
 
-
+import { fetchProfile } from '../../redux/profile/profileActions'
 import { selectCurrentUser } from "../../redux/user/userSelectors";
 import {
   signInFailure,
   signInStart,
   signInSuccess,
 } from "../../redux/user/userActions";
-import { fetchNotificationsStart } from "../../redux/notification/notificationActions";
+import {
+  fetchNotificationsStart,
+  addNotification,
+  removeNotification,
+  readNotificationSuccess
+} from "../../redux/notification/notificationActions";
 
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 import Header from "../Header/Header";
@@ -116,17 +127,25 @@ export function UnconnectedApp({
   startNewConversationSuccessDispatch,
   fetchConversationsDispatch,
   fetchFollowersDispatch,
+  fetchFollowingsDispatch,
   fetchMessagesDispatch,
   fetchSyncMessagesDispatch,
   sendMessageStartDispatch,
   sendMessageSuccessDispatch,
   receiveMessageStartDispatch,
   receiveMessageSuccessDispatch,
-  readMessageStartDispatch,
   readMessageSuccessDispatch,
   updateConversationUnreadMessagesDispatch,
   updateParticipantLastTimeOnlineSuccessDispatch,
-  updateConversationParticipantIsTypingSuccessDispatch
+  updateConversationParticipantIsTypingSuccessDispatch,
+  followUserSuccessDispatch,
+  unfollowUserSuccessDispatch,
+  addFollowerDispatch,
+  removeFollowerDispatch,
+  addNotificationDispatch,
+  removeNotificationDispatch,
+  readNotificationSuccessDispatch,
+  fetchProfileDispatch
 
 }) {
   const location = useLocation();
@@ -137,6 +156,8 @@ export function UnconnectedApp({
   const socket = useSocket();
   const syncLock = useRef(false);
   const messageNotificationRef = useRef();
+  const matchProfilePage = useRouteMatch("/:username")
+
 
   ////////////////////////////////////////////////// REAL TIME CHAT SOCKET ////////////////////////////////////////
 
@@ -154,6 +175,13 @@ export function UnconnectedApp({
       socket.off('conversation-unread-messages-count');
       socket.off('update-participant-last-time-online-success');
       socket.off('update-conversation-participant-is-typing-success');
+      socket.off('follow-user-success');
+      socket.off('unfollow-user-success');
+      socket.off('add-follower');
+      socket.off('remove-follower');
+      socket.off('add-notification');
+      socket.off('remove-notification');
+      socket.off('read-notification-success');
 
       //////////////////////////////////////// conversations events /////////////////////////////////////////
       socket.on('connect', async () => {
@@ -171,6 +199,9 @@ export function UnconnectedApp({
 
         //init or re sync the app data (converstaion (participants),messages,followers etc ...)
         fetchFollowersDispatch(0);
+        fetchFollowingsDispatch(0);
+        fetchNotificationsStart(currentUser?._id);
+
         const conversations = await fetchConversationsDispatch(0);
         conversations.map(conv => {
           if (messages.length === 0)
@@ -180,7 +211,6 @@ export function UnconnectedApp({
 
           return '';
         })
-
         clearInterval(heartBeatTimer)
         heartBeatTimer = setInterval(() => {
           socket.emit('update-participant-last-time-online-start')
@@ -227,14 +257,6 @@ export function UnconnectedApp({
           messageNotificationRef.current.currentTime = 0;
           await messageNotificationRef.current.play()
         }
-
-
-        // if (message.sender !== currentUser._id) {
-        //   if (log) console.log('emit receive-message-start', message);
-        //   socket.emit('receive-message-start', { _id: message._id, receivedBy: currentUser._id });
-        //   receiveMessageStartDispatch(message);
-        // }
-
       });
       socket.on('send-message-error', error => {
         if (log) console.log('on send-message-error', error)
@@ -261,6 +283,37 @@ export function UnconnectedApp({
         if (log) console.log('on update-conversation-participant-is-typing-success', { conversation_id, participant_id, isTyping });
         updateConversationParticipantIsTypingSuccessDispatch({ conversation_id, participant_id, isTyping });
       })
+      ////////////////////////////// follow un follow success actions ///////////////////////////::
+      socket.on('follow-user-success', user_to_follow => {
+        followUserSuccessDispatch(user_to_follow);
+        if (matchProfilePage && matchProfilePage.params.username === user_to_follow.username)
+          fetchProfileDispatch(matchProfilePage.params.username)
+
+      })
+      socket.on('unfollow-user-success', user_to_follow => {
+        unfollowUserSuccessDispatch(user_to_follow)
+        if (matchProfilePage && matchProfilePage.params.username === user_to_follow.username)
+          fetchProfileDispatch(matchProfilePage.params.username)
+
+
+      })
+      socket.on('add-follower', follower => {
+        addFollowerDispatch(follower)
+      })
+      socket.on('remove-follower', follower => {
+        removeFollowerDispatch(follower)
+      })
+      socket.on('add-notification', notification => {
+        addNotificationDispatch(notification)
+      })
+      socket.on('remove-notification', notification => {
+        removeNotificationDispatch(notification)
+
+      })
+      socket.on('read-notification-success', notification_id => {
+        readNotificationSuccessDispatch(notification_id)
+      });
+
     }
   }, [socket, currentUser, history, conversations, messages]);
 
@@ -272,12 +325,8 @@ export function UnconnectedApp({
       messages
         .filter(message => message.sender !== currentUser._id && message.status !== 'read')// only received messages
         .map(message => {
-          // console.log(message);
-          if (conversation_id === message.conversation) {
-            // socket.emit('read-message-start', { _id: message._id, readBy: currentUser._id });
-            // console.log('read-message-start', message)
-            // readMessageStartDispatch(message);
-          } else if (!message.receivedBy.find(rcb => rcb === currentUser._id)) {
+
+          if (!message.receivedBy.find(rcb => rcb === currentUser._id)) {
             socket.emit('receive-message-start', { _id: message._id, receivedBy: currentUser._id });
             console.log('receive-message-start', message)
             receiveMessageStartDispatch(message);
@@ -287,7 +336,7 @@ export function UnconnectedApp({
         })
     }
 
-  }, [socket, messages, conversation_id,])
+  }, [socket, messages, conversation_id])
 
   useEffect(() => {
     // console.log("app useEffect");
@@ -301,12 +350,6 @@ export function UnconnectedApp({
     };
   }, []);
 
-  useEffect(() => {
-    if (user.token) {
-      //signInStart(null, null, user.token);
-      // fetchNotificationsStart(user.token);
-    }
-  }, [signInStart, fetchNotificationsStart, user]);
 
   const renderModals = () => {
     if (modal.modals.length > 0) {
@@ -389,14 +432,10 @@ export function UnconnectedApp({
   //useVideoAutoplay();
 
   const renderApp = () => {
-    // Wait for authentication
-    // console.log("current user is : " + JSON.stringify(currentUser));
     if (user.authState === "loading") {
-      // console.log("Loading page " + user.authState + " loading: " + userLoading);
       return <LoadingPage />;
     }
 
-    // console.log("rendering view " + pathname + " with authstate " + user.authState + " and isUserLoading ? " + userLoading);
     return (
       <>
         {pathname !== "/login" &&
@@ -457,17 +496,16 @@ const mapStateToProps = (state) => ({
   userLoading: state.user.fetching,
   messages: state.chat.messages,
   conversations: state.chat.conversations
-  //     fetchConversationsError: state.chat.fetchConversationsError,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   signInStart: (usernameOrEmail, password, token) => dispatch(signInStart(usernameOrEmail, password, token)),
-  fetchNotificationsStart: (authToken) => dispatch(fetchNotificationsStart(authToken)),
   signInFailure: (error) => dispatch(signInFailure(error)),
   signInSuccess: (user, token) => dispatch(signInSuccess(user, token)),
   fetchConversationsDispatch: async (offset) => await dispatch(fetchConversations(offset)),
   startNewConversationSuccessDispatch: (conversation) => dispatch(startNewConversationSuccess(conversation)),
   fetchFollowersDispatch: (offset) => dispatch(fetchFollowers(offset)),
+  fetchFollowingsDispatch: (offset) => dispatch(fetchFollowings(offset)),
   fetchMessagesDispatch: (conversation_id) => dispatch(fetchMessages(conversation_id)),
   fetchSyncMessagesDispatch: (conversation_id) => dispatch(fetchSyncMessages(conversation_id)),
   sendMessageStartDispatch: (message) => dispatch(sendMessageStart(message)),
@@ -478,8 +516,17 @@ const mapDispatchToProps = (dispatch) => ({
   readMessageSuccessDispatch: (payload) => dispatch(readMessageSuccess(payload)),
   updateConversationUnreadMessagesDispatch: (payload) => dispatch(updateConversationUnreadMessages(payload)),
   updateParticipantLastTimeOnlineSuccessDispatch: (payload) => dispatch(updateParticipantLastTimeOnlineSuccess(payload)),
-  updateConversationParticipantIsTypingSuccessDispatch: (payload) => dispatch(updateConversationParticipantIsTypingSuccess(payload))
+  updateConversationParticipantIsTypingSuccessDispatch: (payload) => dispatch(updateConversationParticipantIsTypingSuccess(payload)),
+  followUserSuccessDispatch: (user_to_follow_id) => dispatch(followUserSuccess(user_to_follow_id)),
+  unfollowUserSuccessDispatch: (user_to_unfollow_id) => dispatch(unfollowUserSuccess(user_to_unfollow_id)),
+  addFollowerDispatch: (follower) => dispatch(addFollower(follower)),
+  removeFollowerDispatch: (follower) => dispatch(removeFollower(follower)),
+  addNotificationDispatch: (notification) => dispatch(addNotification(notification)),
+  fetchNotificationsStart: () => dispatch(fetchNotificationsStart()),
 
+  removeNotificationDispatch: (deletedNotificationFilter) => dispatch(removeNotification(deletedNotificationFilter)),
+  readNotificationSuccessDispatch: (notification) => dispatch(readNotificationSuccess(notification)),
+  fetchProfileDispatch: (username) => dispatch(fetchProfile(username)),
 });
 
 

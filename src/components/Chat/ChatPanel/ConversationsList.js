@@ -5,17 +5,17 @@ import { ChatItem } from "react-chat-elements";
 import "react-chat-elements/dist/main.css";
 import { useHistory } from "react-router";
 
-import { selectConversationLastMessage, selectNotParticipantsFollowers } from '../../../redux/chat/chatSelectors'
+import { selectConversationLastMessage, selectNotParticipantsFollowersAndFollowings } from '../../../redux/chat/chatSelectors'
 
 function formatTime(time) { //time in seconds
   var min = Math.floor(time / 60);
   var sec = Math.floor(time % 60);
   return min + ':' + ((sec < 10) ? ('0' + sec) : sec);
 }
-const ConversationsList = ({ currentUser, conversations, notParticipantsFollowersSelector, conversationLastMessageSelector }) => {
+const ConversationsList = ({ currentUser, conversations, notParticipantsFollowersAndFollowingsSelector, conversationLastMessageSelector }) => {
   const history = useHistory();
-  const notParticipantsFollowers = notParticipantsFollowersSelector();
-
+  const notParticipantsFollowers = notParticipantsFollowersAndFollowingsSelector();
+  // console.log(notParticipantsFollowers)
   return (
     <div id="conversations-list">
       {conversations.map((conversation) => {
@@ -78,7 +78,7 @@ const ConversationsList = ({ currentUser, conversations, notParticipantsFollower
 };
 const mapStateToProps = state => ({
   conversationLastMessageSelector: (conversation_id) => selectConversationLastMessage(state, conversation_id),
-  notParticipantsFollowersSelector: () => selectNotParticipantsFollowers(state),
+  notParticipantsFollowersAndFollowingsSelector: () => selectNotParticipantsFollowersAndFollowings(state),
 
 })
 

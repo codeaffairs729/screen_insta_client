@@ -43,7 +43,7 @@ export const followUser = async (userId, authToken) => {
  * @param {number} offset The offset of how many users to skip for the next fetch
  * @param {string} authToken A user's auth token
  */
-export const retrieveUserFollowing = async (userId, offset, authToken) => {
+export const retrieveUserFollowing = async (userId, offset) => {
   try {
     const token = await firebase.auth().currentUser.getIdToken();
     const response = await axios.get(
