@@ -26,6 +26,8 @@ import {
   unfollowUserSuccess,
   addFollower,
   removeFollower,
+  payMessageSuccess,
+  payMessageError
 } from "../../redux/chat/chatActions";
 
 import { fetchProfile } from '../../redux/profile/profileActions'
@@ -34,6 +36,8 @@ import {
   signInFailure,
   signInStart,
   signInSuccess,
+  updateMessagePriceSuccess,
+  updateBalanceSuccess,
 } from "../../redux/user/userActions";
 import {
   fetchNotificationsStart,
@@ -145,9 +149,13 @@ export function UnconnectedApp({
   addNotificationDispatch,
   removeNotificationDispatch,
   readNotificationSuccessDispatch,
-  fetchProfileDispatch
-
+  fetchProfileDispatch,
+  updateMessagePriceSuccessDispatch,
+  payMessageSuccessDispatch,
+  updateBalanceSuccessDispatch,
+  payMessageErrorDispatch
 }) {
+
   const location = useLocation();
   const history = useHistory();
   const { conversation_id } = useParams();
@@ -157,12 +165,11 @@ export function UnconnectedApp({
   const syncLock = useRef(false);
   const messageNotificationRef = useRef();
   const matchProfilePage = useRouteMatch("/:username")
-
-
   ////////////////////////////////////////////////// REAL TIME CHAT SOCKET ////////////////////////////////////////
 
   useEffect(() => {// listening on upcoming events // real time chat
     const log = false;
+
     if (socket && currentUser?._id) {
       socket.off('connect');
       socket.off('disconnect');
@@ -182,6 +189,10 @@ export function UnconnectedApp({
       socket.off('add-notification');
       socket.off('remove-notification');
       socket.off('read-notification-success');
+      socket.off('update-message-price-success');
+      socket.off('pay-message-success');
+      socket.off('pay-message-error');
+      socket.off('update-balance-success');
 
       //////////////////////////////////////// conversations events /////////////////////////////////////////
       socket.on('connect', async () => {
@@ -203,7 +214,7 @@ export function UnconnectedApp({
         fetchNotificationsStart(currentUser?._id);
 
         const conversations = await fetchConversationsDispatch(0);
-        conversations.map(conv => {
+        conversations && conversations.map(conv => {
           if (messages.length === 0)
             fetchMessagesDispatch(conv._id);
           else
@@ -286,13 +297,13 @@ export function UnconnectedApp({
       ////////////////////////////// follow un follow success actions ///////////////////////////::
       socket.on('follow-user-success', user_to_follow => {
         followUserSuccessDispatch(user_to_follow);
-        if (matchProfilePage && matchProfilePage.params.username === user_to_follow.username)
+        if (matchProfilePage && (matchProfilePage.params.username === user_to_follow.username || matchProfilePage.params.username === currentUser.username))
           fetchProfileDispatch(matchProfilePage.params.username)
 
       })
       socket.on('unfollow-user-success', user_to_follow => {
         unfollowUserSuccessDispatch(user_to_follow)
-        if (matchProfilePage && matchProfilePage.params.username === user_to_follow.username)
+        if (matchProfilePage && (matchProfilePage.params.username === user_to_follow.username || matchProfilePage.params.username === currentUser.username))
           fetchProfileDispatch(matchProfilePage.params.username)
 
 
@@ -313,9 +324,43 @@ export function UnconnectedApp({
       socket.on('read-notification-success', notification_id => {
         readNotificationSuccessDispatch(notification_id)
       });
+      socket.on('update-message-price-success', price => {
+        updateMessagePriceSuccessDispatch(price)
+      });
+
+      socket.on('pay-message-success', message => {
+        payMessageSuccessDispatch(message);
+      });
+      socket.on('pay-message-error', error => {
+        payMessageErrorDispatch(error);
+        toast.error(error, {
+          position: "bottom-left",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      });
+
+      socket.on('update-balance-success', balance => {
+        toast.success('Your New Balance Is ' + balance + "$", {
+          position: "bottom-left",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        updateBalanceSuccessDispatch(balance)
+      });
+
+
 
     }
-  }, [socket, currentUser, history, conversations, messages]);
+  }, [socket, currentUser, history, conversations, messages, matchProfilePage]);
 
   ////////////////////////////////////////////////////////// RECEIVE EVENT SYNC ////////////////////////////////////////////////
 
@@ -432,7 +477,7 @@ export function UnconnectedApp({
   //useVideoAutoplay();
 
   const renderApp = () => {
-    if (user.authState === "loading") {
+    if (user.authState === "loading" || !currentUser) {
       return <LoadingPage />;
     }
 
@@ -527,6 +572,11 @@ const mapDispatchToProps = (dispatch) => ({
   removeNotificationDispatch: (deletedNotificationFilter) => dispatch(removeNotification(deletedNotificationFilter)),
   readNotificationSuccessDispatch: (notification) => dispatch(readNotificationSuccess(notification)),
   fetchProfileDispatch: (username) => dispatch(fetchProfile(username)),
+
+  updateMessagePriceSuccessDispatch: (price) => dispatch(updateMessagePriceSuccess(price)),
+  payMessageSuccessDispatch: (message) => dispatch(payMessageSuccess(message)),
+  payMessageErrorDispatch: (message) => dispatch(payMessageError(message)),
+  updateBalanceSuccessDispatch: (balance) => dispatch(updateBalanceSuccess(balance)),
 });
 
 

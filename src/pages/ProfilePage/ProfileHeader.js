@@ -22,7 +22,7 @@ const ProfileHeader = ({
   const { followingsCount, followersCount, postsCount } = data;
   const params = useParams();
   const history = useHistory();
-  const showUsersModal = (followersCount, followingsCount) => {
+  const showUsersModal = (followersCount, followingsCount, following) => {
     showModal(
       {
         options: [],
@@ -33,7 +33,7 @@ const ProfileHeader = ({
             userId={data.user._id}
             followersCount={followersCount}
             followingsCount={followingsCount}
-          // followingsCount={followingsCount}
+            following={following}
           />
         ),
       },
@@ -94,7 +94,7 @@ const ProfileHeader = ({
             <b>{postsCount}</b> {postsCount === 1 ? "post" : "posts"}
           </p>
           <p
-            onClick={() => showUsersModal(followersCount)}
+            onClick={() => showUsersModal(followersCount, null, false)}
             style={{ cursor: "pointer" }}
             className="heading-3"
           >
@@ -102,7 +102,7 @@ const ProfileHeader = ({
             {followersCount > 1 || followersCount === 0 ? "followers" : "follower"}
           </p>
           <p
-            onClick={() => showUsersModal(null, followingsCount)}
+            onClick={() => showUsersModal(null, followingsCount, true)}
             style={{ cursor: "pointer" }}
             className="heading-3"
           >
@@ -155,7 +155,7 @@ const ProfileHeader = ({
             </span>
           </h3>
           <h3
-            onClick={() => showUsersModal(followersCount)}
+            onClick={() => showUsersModal(followersCount, null, false)}
             style={{ cursor: "pointer" }}
             className="heading-3"
           >
@@ -165,12 +165,12 @@ const ProfileHeader = ({
             </span>
           </h3>
           <h3
-            onClick={() => showUsersModal(null, followingsCount)}
+            onClick={() => showUsersModal(null, followingsCount, true)}
             style={{ cursor: "pointer" }}
             className="heading-3"
           >
             <b>{followingsCount}</b>
-            <span className="font-medium color-grey">followings</span>
+            <span className="font-medium color-grey">following</span>
           </h3>
         </div>
       </div>

@@ -11,7 +11,11 @@ export const INITIAL_STATE = {
   fetchSyncMessagesError: null,
   followers: [],
   followersFetching: false,
-  fetchFollowersError: null
+  fetchFollowersError: null,
+  followings: [],
+  followingsFetching: false,
+  fetchFollowingsError: null,
+  isMessageFree: true,
 };
 
 const chatReducer = (state = INITIAL_STATE, action) => {
@@ -229,7 +233,7 @@ const chatReducer = (state = INITIAL_STATE, action) => {
       let newMessages;
       let newConversation;
       if (messageToUpdate) {
-        newMessages = state.messages.map(m => m._id === message._id ? message : m)
+        newMessages = state.messages.map(m => m._id !== message._id ? m : message)
       } else {
         newMessages = [...state.messages, message];
         newConversation = state.conversations.map(conv => conv._id === message.conversation ? { ...conv, lastMessageSentAt: message.sentAt } : conv)
@@ -241,44 +245,22 @@ const chatReducer = (state = INITIAL_STATE, action) => {
       };
     }
     case chatTypes.RECEIVE_MESSAGE_SUCCESS: {
-      const { payload: message } = action;
+      const { payload: { _id, status, receivedBy } } = action;
 
-      const messageToUpdate = state.messages.find(m => {
-        return m._id === message._id
-      });
-      let newMessages;
-      let newConversation;
-      if (messageToUpdate) {
-        newMessages = state.messages.map(m => m._id === message._id ? message : m)
-      } else {
-        newMessages = [...state.messages, message];
-        newConversation = state.conversations.map(conv => conv._id === message.conversation ? { ...conv, lastMessageSentAt: message.sentAt } : conv)
-      }
       return {
         ...state,
-        messages: newMessages,
-        conversations: newConversation ? newConversation : state.conversations
+        messages: state.messages.map(message => message._id !== _id ? message : { ...message, status, receivedBy }),
 
       };
     }
     case chatTypes.READ_MESSAGE_SUCCESS: {
-      const { payload: message } = action;
+      const { payload: { _id, status, readBy } } = action;
 
-      const messageToUpdate = state.messages.find(m => {
-        return m._id === message._id
-      });
-      let newMessages;
-      let newConversation;
-      if (messageToUpdate) {
-        newMessages = state.messages.map(m => m._id === message._id ? message : m)
-      } else {
-        newMessages = [...state.messages, message];
-        newConversation = state.conversations.map(conv => conv._id === message.conversation ? { ...conv, lastMessageSentAt: message.sentAt } : conv)
-      }
+
       return {
         ...state,
-        messages: newMessages,
-        conversations: newConversation ? newConversation : state.conversations
+        messages: state.messages.map(message => message._id !== _id ? message : { ...message, status, receivedBy: readBy, readBy }),
+        // conversations: newConversation ? newConversation : state.conversations
       };
     }
 
@@ -319,6 +301,20 @@ const chatReducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         conversations: newConversations,
+      }
+    }
+    case chatTypes.TOGGLE_IS_MESSAGE_FREE: {
+      return {
+        ...state,
+        isMessageFree: !state.isMessageFree
+      }
+    }
+    case chatTypes.PAY_MESSAGE_SUCCESS: {
+      const { payload: message } = action
+      return {
+        ...state,
+        messages: state.messages.map(m => m._id !== message._id ? m : message),
+
       }
     }
     default:

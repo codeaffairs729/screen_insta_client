@@ -275,3 +275,21 @@ export const updateConversationParticipantIsTypingSuccess = ({ conversation_id, 
   type: chatTypes.UPDATE_CONVERSATION_PARTICIPANT_IS_TYPING_SUCCESS,
   payload: { conversation_id, participant_id, isTyping },
 })
+
+export const toggleIsMessageFree = () => ({
+  type: chatTypes.TOGGLE_IS_MESSAGE_FREE
+})
+
+export const payMessageStart = (message_id) => ({
+  type: chatTypes.PAY_MESSAGE_START,
+  payload: message_id
+})
+export const payMessageSuccess = (message) => ({
+  type: chatTypes.PAY_MESSAGE_SUCCESS,
+  payload: message
+
+})
+export const payMessageError = (error) => ({
+  type: chatTypes.PAY_MESSAGE_ERROR,
+  payload: error
+})

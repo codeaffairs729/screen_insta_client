@@ -185,6 +185,25 @@ const userReducer = (state = INITIAL_STATE, action) => {
         tipSending: false,
       };
     }
+
+
+    case userTypes.UPDATE_MESSAGE_PRICE_SUCCESS: {
+      const { payload: messagePrice } = action;
+
+      return {
+        ...state,
+        currentUser: { ...state.currentUser, messagePrice }
+      };
+    }
+    case userTypes.UPDATE_BALANCE_SUCCESS: {
+      const { payload: balance } = action;
+
+      return {
+        ...state,
+        currentUser: { ...state.currentUser, balance }
+      };
+    }
+
     default:
       return state;
   }

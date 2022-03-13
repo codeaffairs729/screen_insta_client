@@ -25,6 +25,7 @@ const ConversationsList = ({ currentUser, conversations, notParticipantsFollower
           <ChatItem
             key={conversation._id}
             onClick={() => history.push("/messages/" + conversation._id)}
+            showVideoCall={true}
             avatar={participants[0].avatar}
             alt={""}
             // title={'@' + participants[0].username}

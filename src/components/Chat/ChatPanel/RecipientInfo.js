@@ -15,18 +15,22 @@ const RecipientInfo = ({ fullName, avatar, username, lastTimeOnline, isTyping })
     }, interval)
     return () => clearInterval(timer)
   }, [])
+
+  const isOnline = () => now.getTime() - new Date(lastTimeOnline).getTime() < 4000
+
+
   return (
 
     <div className="contact-profile">
       <div className="left-side" >
         <Link to={`/${username}`}>
-          <img src={avatar} alt="" />
+          <img src={avatar} alt="" className={isOnline() ? "online" : ""} />
         </Link>
         {/* <p>{isTyping}</p> */}
         <div className="participant-info">
           <p className="participant-name">{fullName}</p>
           <p className="participant-state">{isTyping ? 'Typing ...' : lastTimeOnline &&
-            (now.getTime() - new Date(lastTimeOnline).getTime() < 4000 ? 'Online' : dateFormat(lastTimeOnline, "dddd dd/mm,  HH:MM TT"))}</p>
+            (isOnline() ? 'Online' : dateFormat(lastTimeOnline, "dddd dd/mm,  HH:MM TT"))}</p>
         </div>
 
       </div >

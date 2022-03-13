@@ -80,6 +80,7 @@ const ChatPanel = ({
           <SenderInfo
             fullName={currentUser.fullName}
             avatar={currentUser.avatar}
+            balance={currentUser.balance}
           />
           <div id="search">
             <label htmlFor="search-contact">
@@ -107,7 +108,7 @@ const ChatPanel = ({
             conversation_id={conversation_id}
             messages={conversationMessages}
             firstSentAt={firstMessage ? new Date(firstMessage.sentAt) : null}
-            userId={currentUser._id}
+            currentUser={currentUser}
             messagesFetching={messagesFetching}
             onReadMessage={handleReadMessage}
           />

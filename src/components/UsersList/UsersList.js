@@ -18,8 +18,10 @@ const UsersList = ({
   userId,
   followingsCount,
   followersCount,
-  following,
+  following
 }) => {
+
+  console.log(following)
   const [state, dispatch] = useReducer(usersListReducer, INITIAL_STATE);
   const componentRef = useRef();
 
@@ -104,10 +106,7 @@ const UsersList = ({
             following={user.isFollowing}
           >
             <FollowButton
-              userId={user._id}
-              following={user.isFollowing}
-              username={user.username}
-              avatar={user.avatar}
+              profile={user}
             />
           </UserCard>
         ))
