@@ -16,16 +16,17 @@ import FollowButton from '../Button/FollowButton/FollowButton';
 
 const UsersList = ({
   userId,
-  token,
-  followingCount,
+  followingsCount,
   followersCount,
-  following,
+  following
 }) => {
+
+  console.log(following)
   const [state, dispatch] = useReducer(usersListReducer, INITIAL_STATE);
   const componentRef = useRef();
 
   useScrollPositionThrottled(async ({ atBottom }) => {
-    const count = followingCount ? followingCount : followersCount;
+    const count = followingsCount ? followingsCount : followersCount;
     if (
       atBottom &&
       state.data.length < count &&
@@ -35,8 +36,8 @@ const UsersList = ({
       try {
         dispatch({ type: 'FETCH_ADDITIONAL_START' });
         const response = following
-          ? await retrieveUserFollowing(userId, state.data.length, token)
-          : await retrieveUserFollowers(userId, state.data.length, token);
+          ? await retrieveUserFollowing(userId, state.data.length)
+          : await retrieveUserFollowers(userId, state.data.length);
         dispatch({ type: 'ADD_USERS', payload: response });
       } catch (err) {
         dispatch({ type: 'FETCH_FAILURE', payload: err });
@@ -53,21 +54,20 @@ const UsersList = ({
         dispatch({ type: 'FETCH_START' });
         const response = followingRef
           ? await retrieveUserFollowing(
-              userId,
-              stateRef ? stateRef.length : 0,
-              token
-            )
+            userId,
+            stateRef ? stateRef.length : 0,
+          )
           : await retrieveUserFollowers(
-              userId,
-              stateRef ? stateRef.length : 0,
-              token
-            );
+            userId,
+            stateRef ? stateRef.length : 0,
+
+          );
         dispatch({ type: 'FETCH_SUCCESS', payload: response });
       } catch (err) {
         dispatch({ type: 'FETCH_FAILURE', payload: err });
       }
     })();
-  }, [userId, token, stateRef, followingRef]);
+  }, [userId, stateRef, followingRef]);
 
   return (
     <section
@@ -75,7 +75,7 @@ const UsersList = ({
       ref={componentRef}
       style={{ overflowY: 'auto' }}
     >
-      {!followersCount && !followingCount ? (
+      {!followersCount && !followingsCount ? (
         <div style={{ padding: '2rem', textAlign: 'center' }}>
           <Icon
             style={{ margin: '0 auto' }}
@@ -106,10 +106,7 @@ const UsersList = ({
             following={user.isFollowing}
           >
             <FollowButton
-              userId={user._id}
-              following={user.isFollowing}
-              username={user.username}
-              avatar={user.avatar}
+              profile={user}
             />
           </UserCard>
         ))

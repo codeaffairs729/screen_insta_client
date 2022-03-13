@@ -1,6 +1,7 @@
 import { combineReducers } from "redux";
 
 import userReducer from "./user/userReducer.js";
+import profileReducer from "./profile/profileReducer.js";
 import modalReducer from "./modal/modalReducer";
 import alertReducer from "./alert/alertReducer";
 import notificationReducer from "./notification/notificationReducer";
@@ -10,6 +11,7 @@ import mediaReducer from "./media/mediaReducer";
 
 const rootReducer = combineReducers({
   user: userReducer,
+  profile: profileReducer,
   modal: modalReducer,
   alert: alertReducer,
   notifications: notificationReducer,

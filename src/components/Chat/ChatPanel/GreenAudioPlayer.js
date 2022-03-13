@@ -5,7 +5,7 @@ import en from 'javascript-time-ago/locale/en.json';
 TimeAgo.addDefaultLocale(en)
 const timeAgo = new TimeAgo('en-US');
 
-export default function GreenAudioPlayer({ src, sentAt, position = 'left', showVolumeBtn = false, status = 'waiting', onPlay, alreadyPlayed = false }) {
+export default function GreenAudioPlayer({ src, sentAt, position = 'left', showVolumeBtn = false, status = 'waiting', onPlay, alreadyPlayed = false, isLocked = true, messagePrice = 0, onPay }) {
 
     const audioPlayerRef = useRef();
     const playPauseRef = useRef();
@@ -238,6 +238,7 @@ export default function GreenAudioPlayer({ src, sentAt, position = 'left', showV
             return mouseDownHandlerFunc;
         }
         function togglePlay() {
+            if (isLocked && onPay) return onPay();
             if (player.paused) {
                 playPause.attributes.d.value = "M0 0h6v24H0zM12 0h6v24h-6z";
                 player.play();
@@ -283,23 +284,28 @@ export default function GreenAudioPlayer({ src, sentAt, position = 'left', showV
 
             document.removeEventListener('click', playersClickHandler);
         }
-    }, [])
+    }, [isLocked])
     return (
         <div className={"player-holder position-" + position} >
             <div className="audio green-audio-player" ref={audioPlayerRef}>
+
+                <div className="price" onClick={onPay}>
+                    <span >{messagePrice}$ </span>
+                </div>
+
                 <div className="loading" ref={loadingRef}>
                     <div className="spinner" />
                 </div>
                 <div className="play-pause-btn" ref={playpauseBtnRef}>
                     <svg xmlns="http://www.w3.org/2000/svg" width={18} height={24} viewBox="0 0 18 24">
-                        <path fill={(alreadyPlayed || played) ? "#566574" : "#44bfa3"} fillRule="evenodd" d="M18 12L0 24V0" className="play-pause-icon" id="playPause" ref={playPauseRef} />
+                        <path fill={isLocked ? "#ff1d49" : (alreadyPlayed || played) ? "#566574" : "#44bfa3"} fillRule="evenodd" d="M18 12L0 24V0" className="play-pause-icon" id="playPause" ref={playPauseRef} />
                     </svg>
                 </div>
                 <div className="controls">
                     <span className="current-time" ref={currentTimeRef}>0:00</span>
                     <div className="slider" data-direction="horizontal" ref={slidersRef1}>
                         <div className="progress" ref={progressRef}>
-                            <div className="pin" id="progress-pin" data-method="rewind" ref={pinRef1} />
+                            < div style={{ backgroundColor: (isLocked ? "#ff1d49" : "") }} className="pin" id="progress-pin" data-method="rewind" ref={pinRef1} />
                         </div>
                     </div>
                     <span className="total-time" ref={totalTimeRef}>0:00</span>

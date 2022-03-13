@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { createStructuredSelector } from 'reselect';
-
 import {
   selectCurrentUser,
   selectToken,
@@ -9,47 +7,46 @@ import {
 import { showModal } from '../../../redux/modal/modalActions';
 import { showAlert } from '../../../redux/alert/alertActions';
 
-import { followUser } from '../../../services/profileService';
-
 import Button from '../Button';
 import UnfollowPrompt from '../../UnfollowPrompt/UnfollowPrompt';
+import { useSocket } from "../../../providers/SocketProvider"
+import { followUserStart, unfollowUserStart } from '../../../redux/chat/chatActions'
+import { selectIsFollowing } from "../../../redux/chat/chatSelectors";
 
 const FollowButton = ({
-  userId,
-  token,
+
   currentUser,
+  profile,
   showModal,
-  following,
-  username,
-  avatar,
-  showAlert,
   style,
-  followPrice,
-  onFollowPressed,
+  isFollowingSelector,
+  followUserStartDispatch,
+  unfollowUserStartDispatch
 }) => {
-  const [isFollowing, setIsFollowing] = useState(following);
+  // const [ setIsFollowing] = useState(following);
   const [loading, setLoading] = useState(false);
+  const isFollowing = isFollowingSelector(profile._id)
+  const socket = useSocket();
 
-  const follow = async () => {
-    try {
-      setLoading(true);
-      await followUser(userId, token);
-      if (!isFollowing) {
-        setIsFollowing(true);
-      } else {
-        setIsFollowing(false);
-      }
-      setLoading(false);
-      if (onFollowPressed) {
-        onFollowPressed();;
-      }
-    } catch (err) {
-      setLoading(false);
-      showAlert("Could not follow the user.", () => follow());
+
+  useEffect(() => {
+    setLoading(false);
+
+  }, [isFollowing])
+
+  const followUnFollow = () => {
+    // alert(isFollowing)
+    setLoading(true)
+    if (!isFollowing) {
+      socket.emit('follow-user-start', profile._id);
+      followUserStartDispatch(profile._id);
+    } else {
+      socket.emit('unfollow-user-start', profile._id);
+      unfollowUserStartDispatch(profile._id);
     }
-  };
+  }
 
-  if (username === currentUser.username) {
+  if (profile.username === currentUser.username) {
     return <Button disabled>Follow</Button>;
   }
 
@@ -65,10 +62,10 @@ const FollowButton = ({
                 {
                   warning: true,
                   text: "Unfollow",
-                  onClick: () => follow(),
+                  onClick: () => followUnFollow(),
                 },
               ],
-              children: <UnfollowPrompt avatar={avatar} username={username} />,
+              children: <UnfollowPrompt avatar={profile.avatar} username={profile.username} />,
             },
             "OptionsDialog/OptionsDialog"
           )
@@ -80,18 +77,21 @@ const FollowButton = ({
     );
   }
   return (
-    <Button style={style} loading={loading} onClick={() => follow()}>
-      {followPrice ? `Follow (${followPrice.toFixed(2)} $)` : `Follow (Free)`}
+    <Button style={style} loading={loading} onClick={() => followUnFollow()}>
+      {profile.followPrice ? `Follow (${profile.followPrice.toFixed(2)} $)` : `Follow (Free)`}
     </Button>
   );
 };
 
-const mapStateToProps = createStructuredSelector({
-  currentUser: selectCurrentUser,
-  token: selectToken,
+const mapStateToProps = (state) => ({
+  isFollowingSelector: (user_id) => selectIsFollowing(state, user_id),
+  currentUser: selectCurrentUser(state),
+  token: selectToken(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({
+  followUserStartDispatch: (user_id) => dispatch(followUserStart(user_id)),
+  unfollowUserStartDispatch: (user_id) => dispatch(unfollowUserStart(user_id)),
   showModal: (props, component) => dispatch(showModal(props, component)),
   showAlert: (text, onClick) => dispatch(showAlert(text, onClick)),
 });

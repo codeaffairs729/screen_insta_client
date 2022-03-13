@@ -68,7 +68,7 @@ const HomePage = ({
                   style={{ padding: "0" }}
                   avatarMedium
                 />
-                <SuggestedUsers max={5} style={{ width: "100%" }} />
+                <SuggestedUsers max={10} style={{ width: "100%" }} />
                 <SmallFooter />
               </div>
             </aside>

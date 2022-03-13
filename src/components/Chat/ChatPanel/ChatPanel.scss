@@ -590,6 +590,9 @@
   float: left;
   margin: 9px 12px 0 9px;
 }
+#frame .content .contact-profile .left-side .online {
+  border: 2px solid #2ecc71;
+}
 #frame .content .contact-profile .left-side .participant-info {
   display: flex;
   flex-direction: column;
@@ -752,11 +755,24 @@
 #frame .content .message-input .wrap button {
   float: right;
   border: none;
-  width: 50px;
+  width: 36px;
   padding: 12px 0;
   cursor: pointer;
   background: transparent;
   color: #f5f5f5;
+}
+#frame .content .message-input .wrap button.message-price {
+  font-weight: bold;
+  font-size: 20px;
+  margin-right: 10px;
+  color: rebeccapurple;
+}
+#frame .content .message-input .wrap button.selected {
+  border-radius: 0px 4px 6px 0px;
+  background: #eeb6bf;
+}
+#frame .content .message-input .wrap button.selected:hover {
+  background: #dee4ad;
 }
 @media screen and (max-width: 735px) {
   #frame .content .message-input .wrap button {
@@ -768,4 +784,33 @@
 }
 #frame .content .message-input .wrap button:focus {
   outline: none;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.rce-mbox .video-bottom-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.rce-mbox .video-bottom-info .video-message-price {
+  font-size: 14px;
+  cursor: pointer;
+  margin-left: 6px;
+  font-weight: bold;
+  font-size: 14px;
+  color: #ff4c4c;
+}
+.rce-mbox .video-bottom-info .rce-mbox-time {
+  line-height: -3px;
 }

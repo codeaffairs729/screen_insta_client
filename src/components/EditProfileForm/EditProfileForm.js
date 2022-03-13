@@ -110,7 +110,7 @@ const EditProfileForm = ({
         />
       </SettingsFormGroup>
       <SettingsFormGroup>
-        <label className="heading-3 font-bold">Username (handle)</label>
+        <label className="heading-3 font-bold">Username </label>
         <FormInput
           name="username"
           fieldProps={formik.getFieldProps("username")}

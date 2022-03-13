@@ -11,7 +11,7 @@ export function useSocket() {
 }
 
 export function SocketProvider({ currentUser, children }) {
-
+    const userId = currentUser?._id
     const [socket, setSocket] = useState();
     let baseURL;
     if (process.env.NODE_ENV === "development") {
@@ -21,11 +21,11 @@ export function SocketProvider({ currentUser, children }) {
         baseURL = constants.API_URL;
     }
     useEffect(() => {
-        if (currentUser) {
+        if (userId) {
             const newSocket = io(
                 baseURL, {
                 query: {
-                    id: currentUser._id
+                    id: userId
                 },
                 // transports: ["websocket"],
                 // headers: { authorization: "1234" },
@@ -35,7 +35,7 @@ export function SocketProvider({ currentUser, children }) {
             return () => newSocket.close();
         }
 
-    }, [currentUser]);
+    }, [userId]);
 
     return (
         <SocketContext.Provider value={socket}>

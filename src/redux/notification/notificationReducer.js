@@ -2,7 +2,6 @@ import notificationTypes from './notificationTypes';
 
 const INITIAL_STATE = {
   notifications: [],
-  unreadCount: 0,
   fetching: false,
   error: false,
 };
@@ -13,7 +12,24 @@ const notificationReducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         notifications: [action.payload, ...state.notifications],
-        unreadCount: state.unreadCount + 1,
+      };
+    }
+    case notificationTypes.READ_NOTIFICATION_SUCCESS: {
+      const { payload: notification_id } = action
+
+      const newNotifications = state.notifications.map(not => not._id !== notification_id ? not : { ...not, read: true })
+      return {
+        ...state,
+        notifications: newNotifications,
+      };
+    }
+    case notificationTypes.REMOVE_NOTIFICATION: {
+      const { payload: notification } = action;
+      const newNotifications = state.notifications.filter(not => not._id !== notification._id);
+
+      return {
+        ...state,
+        notifications: newNotifications,
       };
     }
     case notificationTypes.FETCH_NOTIFICATIONS_START: {
@@ -47,14 +63,13 @@ const notificationReducer = (state = INITIAL_STATE, action) => {
       notifications.forEach((notification) => (notification.read = true));
       return {
         ...state,
-        unreadCount: 0,
+
         notifications,
       };
     }
     case notificationTypes.CLEAR_NOTIFICATIONS: {
       return {
         ...state,
-        unreadCount: 0,
         notifications: [],
       };
     }

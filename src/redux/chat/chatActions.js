@@ -6,6 +6,7 @@ import {
   getSyncMessages,
   getRecipients,
   getFollowers,
+  getFollowings,
   postConversation
 } from "../../services/chatServices";
 
@@ -72,6 +73,28 @@ export const fetchFollowers = (offset = 0) =>
         type: chatTypes.FETCH_FOLLOWERS_ERROR,
         payload: {
           error: "Error while retrieving followers",
+        },
+      });
+    }
+
+  };
+export const fetchFollowings = (offset = 0) =>
+  async (dispatch) => {
+    dispatch({ type: chatTypes.FETCH_FOLLOWINGS_START });
+    try {
+      let followings = await getFollowings(offset);
+      dispatch({
+        type: chatTypes.FETCH_FOLLOWINGS_SUCCESS,
+        payload: {
+          followings,
+        },
+      });
+    } catch (err) {
+      console.error("Error while retrieving followings");
+      dispatch({
+        type: chatTypes.FETCH_FOLLOWINGS_ERROR,
+        payload: {
+          error: "Error while retrieving followings",
         },
       });
     }
@@ -152,11 +175,48 @@ export const fetchRecipients = (offset = 0) =>
 
   };
 
-
 export const addMessage = (message) => ({
   type: chatTypes.ADD_MESSAGE,
   payload: message,
 })
+
+//socket.io follow User
+export const followUserStart = (user_to_follow_id) => ({
+  type: chatTypes.FOLLOW_USER_START,
+  payload: user_to_follow_id,
+})
+export const followUserSuccess = (following) => ({
+  type: chatTypes.FOLLOW_USER_SUCCESS,
+  payload: following,
+})
+export const followUserError = (error) => ({
+  type: chatTypes.FOLLOW_USER_ERROR,
+  payload: error,
+})
+//socket.io unfollow User
+export const unfollowUserStart = (user_to_unfollow_id) => ({
+  type: chatTypes.UNFOLLOW_USER_START,
+  payload: user_to_unfollow_id,
+})
+export const unfollowUserSuccess = (following) => ({
+  type: chatTypes.UNFOLLOW_USER_SUCCESS,
+  payload: following,
+})
+export const unfollowUserError = (error) => ({
+  type: chatTypes.UNFOLLOW_USER_ERROR,
+  payload: error,
+})
+
+
+export const addFollower = (follower) => ({
+  type: chatTypes.ADD_FOLLOWER,
+  payload: follower,
+})
+export const removeFollower = (follower) => ({
+  type: chatTypes.REMOVE_FOLLOWER,
+  payload: follower,
+})
+
 
 //socket.io out messages actions
 export const startNewConversationStart = (payload) => ({
@@ -214,4 +274,22 @@ export const updateConversationParticipantIsTypingStart = (payload) => ({
 export const updateConversationParticipantIsTypingSuccess = ({ conversation_id, participant_id, isTyping }) => ({
   type: chatTypes.UPDATE_CONVERSATION_PARTICIPANT_IS_TYPING_SUCCESS,
   payload: { conversation_id, participant_id, isTyping },
+})
+
+export const toggleIsMessageFree = () => ({
+  type: chatTypes.TOGGLE_IS_MESSAGE_FREE
+})
+
+export const payMessageStart = (message_id) => ({
+  type: chatTypes.PAY_MESSAGE_START,
+  payload: message_id
+})
+export const payMessageSuccess = (message) => ({
+  type: chatTypes.PAY_MESSAGE_SUCCESS,
+  payload: message
+
+})
+export const payMessageError = (error) => ({
+  type: chatTypes.PAY_MESSAGE_ERROR,
+  payload: error
 })

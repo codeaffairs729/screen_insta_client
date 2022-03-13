@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { createStructuredSelector } from 'reselect';
 import { useTransition } from 'react-spring';
 
 import {
   selectNotifications,
-  selectNotificationState,
+  selectUnreadNotificationsCount
 } from '../../../redux/notification/notificationSelectors';
 
 import Icon from '../../Icon/Icon';
@@ -15,7 +14,7 @@ import NotificationFeed from '../NotificationFeed/NotificationFeed';
 
 const NotificationButton = ({
   notifications,
-  notificationState,
+  unreadNotificationsCountSelector,
   mobile,
   icon,
 }) => {
@@ -24,18 +23,19 @@ const NotificationButton = ({
   const [notificationPopupTimeout, setShowNotificationPopupTimeout] = useState(
     null
   );
+  const unreadNotificationsCount = unreadNotificationsCountSelector();
 
   useEffect(() => {
     if (notificationPopupTimeout) {
       clearTimeout(notificationPopupTimeout);
     }
-    if (notificationState.unreadCount > 0) {
+    if (unreadNotificationsCount > 0) {
       !showNotificationPopup && setShowNotificationPopup(true);
       setShowNotificationPopupTimeout(
         setTimeout(() => setShowNotificationPopup(false), 10000)
       );
     }
-  }, [notificationState.unreadCount]);
+  }, [unreadNotificationsCount]);
 
   useEffect(() => {
     if (showNotifications) {
@@ -45,7 +45,7 @@ const NotificationButton = ({
   }, [showNotifications, notificationPopupTimeout]);
 
   const transitions = useTransition(
-    notificationState.unreadCount > 0 && showNotificationPopup
+    unreadNotificationsCount > 0 && showNotificationPopup
       ? { notifications }
       : false,
     null,
@@ -74,7 +74,7 @@ const NotificationButton = ({
       <button className="notification-button">
         <Icon
           icon={icon ? icon : showNotifications ? 'heart' : 'heart-outline'}
-          className={notificationState.unreadCount > 0 ? 'icon--unread' : ''}
+          className={unreadNotificationsCount > 0 ? 'icon--unread' : ''}
           onClick={() =>
             !mobile && setShowNotifications((previous) => !previous)
           }
@@ -100,9 +100,9 @@ const NotificationButton = ({
   );
 };
 
-const mapStateToProps = createStructuredSelector({
-  notifications: selectNotifications,
-  notificationState: selectNotificationState,
+const mapStateToProps = (state) => ({
+  notifications: selectNotifications(state),
+  unreadNotificationsCountSelector: () => selectUnreadNotificationsCount(state)
 });
 
 export default connect(mapStateToProps)(NotificationButton);

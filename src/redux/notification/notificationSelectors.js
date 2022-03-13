@@ -7,7 +7,13 @@ export const selectNotifications = createSelector(
   (notifications) => notifications.notifications
 );
 
+
 export const selectNotificationState = createSelector(
   [selectNotificationsObject],
   (notifications) => notifications
 );
+
+export const selectUnreadNotificationsCount = createSelector(
+  [selectNotifications],
+  notifications => notifications.filter(not => !not.read).length
+)

@@ -2,6 +2,7 @@ import userTypes from "./userTypes";
 import { hideAlert, showAlert } from "../alert/alertActions";
 import { bookmarkPost as bookmark } from "../../services/postService";
 
+
 import {
   login,
 } from "../../services/authenticationServices";
@@ -296,3 +297,21 @@ export const sendTip = (tipAmount, userId, tipMessage) => async (dispatch) => {
   }
 };
 
+
+// socket.io
+export const updateMessagePriceStart = (price) => ({
+  type: userTypes.UPDATE_MESSAGE_PRICE_START,
+  payload: price,
+})
+export const updateMessagePriceSuccess = (price) => ({
+  type: userTypes.UPDATE_MESSAGE_PRICE_SUCCESS,
+  payload: price,
+})
+export const updateMessagePriceError = (error) => ({
+  type: userTypes.UPDATE_MESSAGE_PRICE_ERROR,
+  payload: error,
+})
+export const updateBalanceSuccess = (balance) => ({
+  type: userTypes.UPDATE_BALANCE_SUCCESS,
+  payload: balance,
+})

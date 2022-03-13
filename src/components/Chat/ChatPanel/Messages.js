@@ -8,15 +8,23 @@ import GreenAudioRecorder from './GreenAudioRecorder';
 
 import { Input, MessageBox } from "react-chat-elements";
 import Icon from "../../Icon/Icon";
-
+import dollarImage from "../../../../src/assets/img/symbole-dollar-clavier.png";
+import dollarVideo from "../../../../src/assets/video/dollar.mp4";
 import {
   sendMessageStart,
   addMessage,
   fetchMessages,
   startNewConversationStart,
   updateConversationParticipantIsTypingStart,
-
+  toggleIsMessageFree,
+  payMessageStart
 } from "../../../redux/chat/chatActions"
+import {
+  updateMessagePriceStart,
+
+} from "../../../redux/user/userActions"
+
+import { showModal, hideModal } from "../../../redux/modal/modalActions";
 
 import { uploadNewFile } from "../../../redux/media/mediaActions"
 import { useSocket } from "../../../providers/SocketProvider"
@@ -37,7 +45,7 @@ const conversationsTyping = {}
 const Messages = ({ conversation_id,
   messages,
   messagesFetching,
-  userId,
+  currentUser,
   firstSentAt,
   addMessageDispatch,
   sendMessageStartDispatch,
@@ -45,9 +53,16 @@ const Messages = ({ conversation_id,
   startNewConversationStartDispatch,
   updateConversationParticipantIsTypingStartDispatch,
   onReadMessage,
-  conversationSelector
+  conversationSelector,
+  showModalDispatch,
+  hideModalDispatch,
+  updateMessagePriceStartDispatch,
+  isMessageFree,
+  toggleIsMessageFreeDispatch,
+  payMessageStartDispatch
 }) => {
-  // const [messageText, setMessageText] = useState("");
+  const { _id: userId } = currentUser;
+  const [messageText, setMessageText] = useState("");
   const [inputType, setInputType] = useState("text"); // values : 'text', 'audio', 'video';
   const fileInputRef = useRef();
   const inputRef = useRef();
@@ -55,6 +70,61 @@ const Messages = ({ conversation_id,
   const [selectedFile, setSelectedFile] = useState(null);
   const socket = useSocket();
   const messageTextRefs = useRef([]);
+  const inputMessagePrice = useRef();
+  const [messagePrice, setMessagePrice] = useState(currentUser.messagePrice);
+  console.log('render')
+  const showUpdateMessagePriceDialog = () => {
+    showModalDispatch(
+      {
+        options: [{
+          // warning: true,
+          text: "Update",
+          onClick: () => handleUpdateMessagePrice(),
+        },],
+        title: "Message Price",
+        cancelButton: false,
+        children: (
+          <input
+            ref={inputMessagePrice}
+            style={{ padding: "10px", outline: "none" }}
+            placeholder="Enter Message Price"
+            type="number"
+            defaultValue={currentUser.messagePrice}
+            // onKeyPress={preventNonNumericalInput}
+            onChange={(e) => { setMessagePrice(e.target.value) }}
+            autoComplete="off"
+          />)
+
+      },
+      "OptionsDialog/OptionsDialog"
+    );
+  }
+  const showPayMessage = (message_id, messagePrice, balance) => {
+    showModalDispatch(
+      {
+        options: [{
+          // warning: true,
+          text: `Pay : ${messagePrice}$`,
+          onClick: () => handlPayMessageStart(message_id),
+
+        },],
+        title: `Balance : ${balance}$`,
+        cancelButton: false,
+      },
+      "OptionsDialog/OptionsDialog"
+    )
+  }
+
+  const handleUpdateMessagePrice = () => {
+    const messagePrice = inputMessagePrice.current.value;
+    const priceNumber = parseInt(messagePrice ? messagePrice : 0);
+    socket.emit('update-message-price-start', priceNumber);
+    updateMessagePriceStartDispatch(priceNumber)
+  }
+  const handlPayMessageStart = (message_id) => {
+    socket.emit('pay-message-start', message_id);
+    payMessageStartDispatch(message_id)
+  }
 
   function useQuery() {
     const { search } = useLocation();
@@ -149,7 +219,7 @@ const Messages = ({ conversation_id,
       if (type === 'audio' || type === 'video')
         duration = 1000 * await getBlobDuration(selectedFile);    // seconds we need to converted to milliseconds
 
-      const message = { _id: new ObjectID().toHexString(), conversation: conversation_id, sender: userId, receivedBy: [], readBy: [], type, text, status: 'waiting', sentAt: new Date(), data: { duration } }
+      const message = { _id: new ObjectID().toHexString(), conversation: conversation_id, sender: userId, receivedBy: [], readBy: [], type, text, status: 'waiting', sentAt: new Date(), data: { duration }, price: isMessageFree ? 0 : currentUser.messagePrice }
       addMessageDispatch(message);
       scrollDown(200);
       fileInputRef.current.value = "";
@@ -183,7 +253,6 @@ const Messages = ({ conversation_id,
           }
         });
       }
-
     }
     if (selectedFile && uploadNewFileDispatch) call();
   }, [selectedFile, uploadNewFileDispatch])
@@ -195,13 +264,13 @@ const Messages = ({ conversation_id,
     }
   };
   const handleSendMessage = () => {
-
+    // alert(messagePrice)
     const text = inputRef.current.input.value.replace(/\s+/g, ' ').replace(/\n|\r/g, "")
 
     if (text && text.length > 0 && text !== ' ') {
       const participants = query.get('participants');
 
-      const message = { _id: new ObjectID().toHexString(), conversation: conversation_id, sender: userId, receivedBy: [], readBy: [], type: "text", text, status: 'waiting', sentAt: new Date() }
+      const message = { _id: new ObjectID().toHexString(), conversation: conversation_id, sender: userId, receivedBy: [], readBy: [], type: "text", text, status: 'waiting', sentAt: new Date(), price: isMessageFree ? 0 : currentUser.messagePrice }
 
       if (conversation_id !== 'new') {
         socket.emit('send-message-start', message);// TODO : use thunk instead , remove it to a parent component
@@ -223,7 +292,7 @@ const Messages = ({ conversation_id,
 
   /////////////////////////////////////////////////TYPING EVENT ///////////////////////////////////////////////////////////////////////
   const onMessageTextChanged = (e) => {
-    // setMessageText(inputRef.current?.input.value);
+    setMessageText(inputRef.current?.input.value);
 
     if (!conversation_id || conversation_id === "new") return;
 
@@ -248,36 +317,38 @@ const Messages = ({ conversation_id,
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   const renderMessageBox = (message) => {
     messageTextRefs.current = [];
+    const isLocked = message.sender !== userId && message.price && !message.paidBy.find(pb => pb === userId);
     if (message.type === "text") {
       return (
         <MessageBox
-          style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
+          // style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
           ref={ref => ref && messageTextRefs.current.push(ref)}
           key={message._id}
           position={message.sender === userId ? "right" : "left"}
           type={message.type}
-          text={message.text}
+          text={isLocked ? (<span onClick={() => isLocked && showPayMessage(message._id, message.price, currentUser.balance)} style={{ cursor: "pointer" }}>{message.price + "$ "}Click Here To Unlock</span>) : (message.price + "$ " + message.text)}
+
           status={message.sender === userId ? message.status : ""}// TO DO correct this one
           date={new Date(message.sentAt)}
           // onMessageFocused={() => alert()}
           onVisible={() => message.sender !== userId && !message.readBy.find(rb => rb === userId) && onReadMessage(message)}
-
+          onClick={() => isLocked && showPayMessage(message._id, message.price, currentUser.balance)}
         />
       );
     } else if (message.type === "photo") {
       return (
         <MessageBox
-          style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
+          style={{ cursor: 'pointer' }}
           ref={ref => ref && messageTextRefs.current.push(ref)}
           key={message._id}
           position={message.sender === userId ? "right" : "left"}
           type={message.type}
-          text={message.text}
+          text={<span style={{ marginLeft: "6px", fontWeight: "bold", fontSize: "13px", color: "#ff4c4c" }}>{message.price + "$ " + message.text}{isLocked && "Click Here To Unlock"}</span>}
           date={new Date(message.sentAt)}
           status={message.sender === userId ? message.status : ""}
-          onVisible={() => message.sender !== userId && !message.readBy.find(rb => rb === userId) && onReadMessage(message)}
+          onVisible={() => message.sender !== userId && !message.readBy.find(rb => rb === userId) && onReadMessage(message) && console.log(message.readBy, userId)}
           data={{
-            uri: message?.data?.uri,
+            uri: isLocked ? dollarImage : message?.data?.uri,
             status: {
               click: true,
               loading: 0,
@@ -285,39 +356,55 @@ const Messages = ({ conversation_id,
             width: 300,
             height: 300,
           }}
+          onClick={() => isLocked && showPayMessage(message._id, message.price, currentUser.balance)}
+
         />
       );
     } else if (message.type === "audio") {
       return (
         <GreenAudioPlayer
-          style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
+          // style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
           key={message._id}
-          src={message?.data?.uri}
+          // src={message?.data?.uri}
+          src={isLocked ? dollarVideo : message?.data?.uri}
           sentAt={new Date(message.sentAt)}
           position={message.sender === userId ? "right" : "left"}
           status={message.sender === userId ? message.status : ""}
           onPlay={() => message.sender !== userId && onReadMessage(message)}
           alreadyPlayed={message.sender === userId || message.readBy.find(rb => rb === userId)}
+          onPay={() => showPayMessage(message._id, message.price, currentUser.balance)}
+          isLocked={isLocked}
+          messagePrice={message.price}
         />
 
       );
     } else if (message.type === "video") {
       return (
-        <div className="rce-container-mbox" key={message._id} style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}>
+        <div className="rce-container-mbox" key={message._id}
+        // style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
+        >
           <div className={`rce-mbox rce-mbox-${message.sender === userId ? "right" : "left"}`}>
             <div className="rce-mbox-body">
-              <div style={{ 'paddingBottom': '16px' }} className="rce-mbox-video padding-time">
+              <div style={{ 'paddingBottom': '4px' }} className="rce-mbox-video padding-time">
                 <div className="rce-mbox-video--video" style={{ width: '300px' }}>
-                  <video controls src={message?.data?.uri} onPlay={() => message.sender !== userId && !message.readBy.find(rb => rb === userId) && onReadMessage(message)} />
+                  <video controls src={isLocked ? dollarVideo : message?.data?.uri}
+                    onPlay={() => message.sender !== userId && !message.readBy.find(rb => rb === userId) && onReadMessage(message)}
+                    onClick={() => isLocked && showPayMessage(message._id, message.price, currentUser.balance)}
+
+                  />
                 </div>
               </div>
-              <div className="rce-mbox-time non-copiable" data-text={timeAgo.format(new Date(message.sentAt))}>
-                {message.sender === userId && (<span className="rce-mbox-status">
-                  {message.status === 'waiting' && (<svg fill="currentColor" preserveAspectRatio="xMidYMid meet" height="1em" width="1em" viewBox="0 0 40 40" style={{ verticalAlign: 'middle' }}><g><path d="m20.9 11.6v8.8l7.5 4.4-1.3 2.2-8.7-5.4v-10h2.5z m-0.9 21.8q5.5 0 9.4-4t4-9.4-4-9.4-9.4-4-9.4 4-4 9.4 4 9.4 9.4 4z m0-30q6.9 0 11.8 4.8t4.8 11.8-4.8 11.8-11.8 4.8-11.8-4.8-4.8-11.8 4.8-11.8 11.8-4.8z"></path></g></svg>)}
-                  {message.status === 'sent' && (<svg fill="currentColor" preserveAspectRatio="xMidYMid meet" height="1em" width="1em" viewBox="0 0 40 40" style={{ verticalAlign: 'middle' }}><g><path d="m15 27l17.7-17.7 2.3 2.3-20 20-9.3-9.3 2.3-2.3z"></path></g></svg>)}
-                  {message.status === 'received' && (<svg fill="currentColor" preserveAspectRatio="xMidYMid meet" height="1em" width="1em" viewBox="0 0 40 40" style={{ verticalAlign: 'middle' }}><g><path d="m30.3 10.9l-10.9 10.9-2.4-2.4 10.9-10.9z m7.3-2.4l2.4 2.4-20.6 20.6-9.6-9.6 2.4-2.4 7.2 7.1z m-37.6 13.4l2.5-2.4 9.5 9.6-2.4 2.4z"></path></g></svg>)}
-                  {message.status === 'read' && (<svg fill="currentColor" preserveAspectRatio="xMidYMid meet" height="1em" width="1em" viewBox="0 0 40 40" style={{ verticalAlign: 'middle', color: 'rgb(79, 195, 247)' }}><g><path d="m30.3 10.9l-10.9 10.9-2.4-2.4 10.9-10.9z m7.3-2.4l2.4 2.4-20.6 20.6-9.6-9.6 2.4-2.4 7.2 7.1z m-37.6 13.4l2.5-2.4 9.5 9.6-2.4 2.4z"></path> </g></svg>)}
-                </span>)}
+              <div className="video-bottom-info">
+                <div onClick={() => isLocked && showPayMessage(message._id, message.price, currentUser.balance)} className="video-message-price">{message.price}$</div>
+                {isLocked && (<div onClick={() => isLocked && showPayMessage(message._id, message.price, currentUser.balance)} className="video-message-price">Click Here To Unlock</div>)}
+                <div style={{ position: "relative", top: "0px", bottom: "0px" }} className="rce-mbox-time non-copiable" data-text={timeAgo.format(new Date(message.sentAt))}>
+                  {message.sender === userId && (<span className="rce-mbox-status">
+                    {message.status === 'waiting' && (<svg fill="currentColor" preserveAspectRatio="xMidYMid meet" height="1em" width="1em" viewBox="0 0 40 40" style={{ verticalAlign: 'middle' }}><g><path d="m20.9 11.6v8.8l7.5 4.4-1.3 2.2-8.7-5.4v-10h2.5z m-0.9 21.8q5.5 0 9.4-4t4-9.4-4-9.4-9.4-4-9.4 4-4 9.4 4 9.4 9.4 4z m0-30q6.9 0 11.8 4.8t4.8 11.8-4.8 11.8-11.8 4.8-11.8-4.8-4.8-11.8 4.8-11.8 11.8-4.8z"></path></g></svg>)}
+                    {message.status === 'sent' && (<svg fill="currentColor" preserveAspectRatio="xMidYMid meet" height="1em" width="1em" viewBox="0 0 40 40" style={{ verticalAlign: 'middle' }}><g><path d="m15 27l17.7-17.7 2.3 2.3-20 20-9.3-9.3 2.3-2.3z"></path></g></svg>)}
+                    {message.status === 'received' && (<svg fill="currentColor" preserveAspectRatio="xMidYMid meet" height="1em" width="1em" viewBox="0 0 40 40" style={{ verticalAlign: 'middle' }}><g><path d="m30.3 10.9l-10.9 10.9-2.4-2.4 10.9-10.9z m7.3-2.4l2.4 2.4-20.6 20.6-9.6-9.6 2.4-2.4 7.2 7.1z m-37.6 13.4l2.5-2.4 9.5 9.6-2.4 2.4z"></path></g></svg>)}
+                    {message.status === 'read' && (<svg fill="currentColor" preserveAspectRatio="xMidYMid meet" height="1em" width="1em" viewBox="0 0 40 40" style={{ verticalAlign: 'middle', color: 'rgb(79, 195, 247)' }}><g><path d="m30.3 10.9l-10.9 10.9-2.4-2.4 10.9-10.9z m7.3-2.4l2.4 2.4-20.6 20.6-9.6-9.6 2.4-2.4 7.2 7.1z m-37.6 13.4l2.5-2.4 9.5 9.6-2.4 2.4z"></path> </g></svg>)}
+                  </span>)}
+                </div>
               </div>
             </div>
           </div>
@@ -353,11 +440,13 @@ const Messages = ({ conversation_id,
 
                   rightButtons={
                     <div>
+
                       <button
-                        // onClick={onMessageReady}
+
                         onClick={handleSendMessage}
                         disabled={!(inputRef.current?.input.value)}
                       >
+
                         <Icon icon={"paper-plane-outline"} />
                       </button>
                       <button
@@ -370,7 +459,15 @@ const Messages = ({ conversation_id,
                       >
                         <Icon icon={"mic-outline"} />
                       </button>
-
+                      <button
+                        className={"message-price " + (isMessageFree ? "" : "selected")}
+                        // onClick={() => showUpdateMessagePriceDialog()}
+                        onClick={() => toggleIsMessageFreeDispatch()}
+                        onDoubleClick={() => showUpdateMessagePriceDialog('long click')}
+                      >
+                        {/* <Icon icon={"logo-usd"} /> */}
+                        {currentUser.messagePrice}$
+                      </button>
                       {/* <audio src={mediaBlobUrl} controls autoPlay loop /> */}
 
                     </div>
@@ -402,10 +499,18 @@ const mapDispatchToProps = (dispatch) => ({
   fetchMessagesDispatch: (conversation_id, firstSentAt) => dispatch(fetchMessages(conversation_id, firstSentAt)),
   startNewConversationStartDispatch: (participants) => dispatch(startNewConversationStart(participants)),
   updateConversationParticipantIsTypingStartDispatch: (payload) => dispatch(updateConversationParticipantIsTypingStart(payload)),
+  showModalDispatch: (props, component) => dispatch(showModal(props, component)),
+  hideModalDispatch: (component) => dispatch(hideModal(component)),
+  updateMessagePriceStartDispatch: (price) => dispatch(updateMessagePriceStart(price)),
+  toggleIsMessageFreeDispatch: () => dispatch(toggleIsMessageFree()),
+  payMessageStartDispatch: (message_id) => dispatch(payMessageStart(message_id)),
+
 });
 
 const mapStateToProps = (state) => ({
   conversationSelector: (conversation_id) => selectConversation(state, conversation_id),
+  isMessageFree: state.chat.isMessageFree
+
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Messages);

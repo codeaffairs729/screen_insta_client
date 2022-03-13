@@ -62,9 +62,8 @@ const UserCard = ({
         )}
         {subText && (
           <p
-            className={`heading-4 ${
-              subTextDark ? 'color-black' : 'color-grey'
-            }`}
+            className={`heading-4 ${subTextDark ? 'color-black' : 'color-grey'
+              }`}
           >
             {subText}
             {date && (

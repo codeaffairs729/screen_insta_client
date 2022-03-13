@@ -3,15 +3,15 @@ import { NavLink, Switch } from "react-router-dom";
 
 import ProtectedRoute from "../../components/ProtectedRoute/ProtectedRoute";
 import Card from "../../components/Card/Card";
-import ChangePasswordForm from "../../components/ChangePasswordForm/ChangePasswordForm";
+// import ChangePasswordForm from "../../components/ChangePasswordForm/ChangePasswordForm";
 import EditProfileForm from "../../components/EditProfileForm/EditProfileForm";
 import MobileHeader from "../../components/Header/MobileHeader/MobileHeader";
 import firebase from "../../firebase";
-import { showAlert } from "../../redux/alert/alertActions";
+// import { showAlert } from "../../redux/alert/alertActions";
 import BecomeCreatorForm from "../../components/BecomeCreatorForm/BecomeCreatorForm";
 
 const SettingsPage = () => {
-  const uid = firebase.auth().currentUser.uid;
+  // const uid = firebase.auth().currentUser.uid;
 
   let providers = [];
   for (let i in firebase.auth().currentUser.providerData) {
