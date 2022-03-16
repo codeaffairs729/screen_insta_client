@@ -3,9 +3,8 @@ import { Link, useHistory } from "react-router-dom";
 
 import Icon from "../Icon/Icon";
 import NotificationButton from "../Notification/NotificationButton/NotificationButton";
-import NewPostButton from "../NewPost/NewPostButton/NewPostButton";
 
-const MobileNav = ({ currentUser }) => {
+const MobileNav = ({ currentUser, allUnreadMessagesCount }) => {
   const {
     location: { pathname },
   } = useHistory();
@@ -16,6 +15,19 @@ const MobileNav = ({ currentUser }) => {
         <li>
           <Link to="/">
             <Icon icon={pathname === "/" ? "home" : "home-outline"} />
+          </Link>
+        </li>
+        <li>
+          <Link to="/messages/all">
+            <Icon
+              badge={allUnreadMessagesCount}
+              style={{ position: "relative" }}
+              icon={
+                pathname === "/messages/"
+                  ? "paper-plane"
+                  : "paper-plane-outline"
+              }
+            />
           </Link>
         </li>
         <li>

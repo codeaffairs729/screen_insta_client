@@ -5,8 +5,13 @@ import en from 'javascript-time-ago/locale/en.json';
 TimeAgo.addDefaultLocale(en)
 const timeAgo = new TimeAgo('en-US');
 
-export default function GreenAudioPlayer({ src, sentAt, position = 'left', showVolumeBtn = false, status = 'waiting', onPlay, alreadyPlayed = false, isLocked = true, messagePrice = 0, onPay }) {
+function formatTime(time) {
+    var min = Math.floor(time / 60);
+    var sec = Math.floor(time % 60);
+    return min + ':' + ((sec < 10) ? ('0' + sec) : sec);
+}
 
+export default function GreenAudioPlayer({ src, sentAt, position = 'left', showVolumeBtn = false, status = 'waiting', onPlay, alreadyPlayed = false, isLocked = true, duration, messagePrice = 0, onPay }) {
     const audioPlayerRef = useRef();
     const playPauseRef = useRef();
     const playpauseBtnRef = useRef();
@@ -187,11 +192,7 @@ export default function GreenAudioPlayer({ src, sentAt, position = 'left', showV
             }
         }
 
-        function formatTime(time) {
-            var min = Math.floor(time / 60);
-            var sec = Math.floor(time % 60);
-            return min + ':' + ((sec < 10) ? ('0' + sec) : sec);
-        }
+
 
         function playersClickHandler(event) {
 
@@ -308,7 +309,8 @@ export default function GreenAudioPlayer({ src, sentAt, position = 'left', showV
                             < div style={{ backgroundColor: (isLocked ? "#ff1d49" : "") }} className="pin" id="progress-pin" data-method="rewind" ref={pinRef1} />
                         </div>
                     </div>
-                    <span className="total-time" ref={totalTimeRef}>0:00</span>
+                    <span className="total-time" style={isLocked ? { display: "none" } : {}} ref={totalTimeRef}>0:00</span>
+                    <span className="total-time" style={!isLocked ? { display: "none" } : {}} >{formatTime(duration / 1000)} </span>
                 </div>
                 <div className="volume" hidden={!showVolumeBtn}>
                     <div className="volume-btn" ref={volumeBtnRef}>

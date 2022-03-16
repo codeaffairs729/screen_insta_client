@@ -5,8 +5,15 @@ import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en.json';
 import GreenAudioPlayer from './GreenAudioPlayer';
 import GreenAudioRecorder from './GreenAudioRecorder';
+import Picker from 'emoji-picker-react';
+import { LinkPreview } from '@dhaiwat10/react-link-preview';
+import containsValidHttpUrl from '../getUrls';// not normilized
 
-import { Input, MessageBox } from "react-chat-elements";
+
+import {
+  Input, MessageBox,
+  // SystemMessage 
+} from "react-chat-elements";
 import Icon from "../../Icon/Icon";
 import dollarImage from "../../../../src/assets/img/symbole-dollar-clavier.png";
 import dollarVideo from "../../../../src/assets/video/dollar.mp4";
@@ -29,18 +36,19 @@ import { showModal, hideModal } from "../../../redux/modal/modalActions";
 import { uploadNewFile } from "../../../redux/media/mediaActions"
 import { useSocket } from "../../../providers/SocketProvider"
 import { ObjectID } from 'bson';
-import { } from '../../../redux/chat/chatActions'
 import { selectConversation } from '../../../redux/chat/chatSelectors'
 import { getFileType } from '../ChatUtils';
 import getBlobDuration from 'get-blob-duration';
 import ysFixWebmDuration from 'fix-webm-duration';
-import FileType from 'file-type/browser';
+import EmojiIcon from "../../Icon/EmojiIcon";
 TimeAgo.addDefaultLocale(en)
 const timeAgo = new TimeAgo('en-US');
 
 const minScrollTop = 1;
 let timer;
-const conversationsTyping = {}
+const conversationsTyping = {};
+
+
 
 const Messages = ({ conversation_id,
   messages,
@@ -72,7 +80,21 @@ const Messages = ({ conversation_id,
   const messageTextRefs = useRef([]);
   const inputMessagePrice = useRef();
   const [messagePrice, setMessagePrice] = useState(currentUser.messagePrice);
-  console.log('render')
+
+  const [isEmojiPickerOpened, setEmojiPickerOpened] = useState(false);
+
+  const validHttpUrlForPreview = useMemo(() => containsValidHttpUrl(messageText), [messageText]);
+
+  useEffect(() => {
+    if (validHttpUrlForPreview) scrollDown()
+  }, [validHttpUrlForPreview])
+
+  const onEmojiClick = (event, emojiObject) => {
+    console.log(emojiObject);
+    inputRef.current.input.value = inputRef.current.input.value + emojiObject.emoji;
+    onMessageTextChanged();
+  };
+  // console.log('render')
   const showUpdateMessagePriceDialog = () => {
     showModalDispatch(
       {
@@ -114,6 +136,7 @@ const Messages = ({ conversation_id,
       "OptionsDialog/OptionsDialog"
     )
   }
+
 
   const handleUpdateMessagePrice = () => {
     const messagePrice = inputMessagePrice.current.value;
@@ -209,11 +232,14 @@ const Messages = ({ conversation_id,
   ///////////////////////////////////////////////////////// UPLOAD MEDIA ///////////////////////////////////////////////////////
   useEffect(() => {
     const call = async () => {
+      setEmojiPickerOpened(false);
       const text = inputRef.current?.input.value;// not inputRef when recording audio/video
       const participants = query.get('participants');
       console.log('selectedFile', selectedFile);
-      const realExt = await FileType.fromBlob(selectedFile);
-      const type = getFileType(selectedFile.name);
+      // const realExt = await FileType.fromBlob(selectedFile);
+
+      const { ext, type } = await getFileType(selectedFile);
+
       let formData = new FormData();
       let duration; // only for audio and video
       if (type === 'audio' || type === 'video')
@@ -223,7 +249,7 @@ const Messages = ({ conversation_id,
       addMessageDispatch(message);
       scrollDown(200);
       fileInputRef.current.value = "";
-      if (realExt.ext === 'webm') {
+      if (ext === 'webm') {
         console.log(selectedFile.name.split('.')[1].toLowerCase())
         ysFixWebmDuration(selectedFile, duration, function (fixedBlob) {
           formData.append("medias", fixedBlob);
@@ -237,6 +263,7 @@ const Messages = ({ conversation_id,
               startNewConversationStartDispatch(participants);
               sendMessageStartDispatch(newMessage);
             }
+            setMessageText("");
           });
         })
       } else {
@@ -251,6 +278,7 @@ const Messages = ({ conversation_id,
             startNewConversationStartDispatch(participants);
             sendMessageStartDispatch(newMessage);
           }
+          setMessageText("");
         });
       }
     }
@@ -264,6 +292,7 @@ const Messages = ({ conversation_id,
     }
   };
   const handleSendMessage = () => {
+    setEmojiPickerOpened(false);
     // alert(messagePrice)
     const text = inputRef.current.input.value.replace(/\s+/g, ' ').replace(/\n|\r/g, "")
 
@@ -288,10 +317,11 @@ const Messages = ({ conversation_id,
       //   messagesBoxRef.current.scrollTop = messagesBoxRef.current.scrollHeight
       // }, 100)
     }
+    setMessageText("");
   }
 
   /////////////////////////////////////////////////TYPING EVENT ///////////////////////////////////////////////////////////////////////
-  const onMessageTextChanged = (e) => {
+  const onMessageTextChanged = () => {
     setMessageText(inputRef.current?.input.value);
 
     if (!conversation_id || conversation_id === "new") return;
@@ -319,6 +349,7 @@ const Messages = ({ conversation_id,
     messageTextRefs.current = [];
     const isLocked = message.sender !== userId && message.price && !message.paidBy.find(pb => pb === userId);
     if (message.type === "text") {
+      const validHttpUrl = containsValidHttpUrl(message.text);
       return (
         <MessageBox
           // style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
@@ -326,7 +357,11 @@ const Messages = ({ conversation_id,
           key={message._id}
           position={message.sender === userId ? "right" : "left"}
           type={message.type}
-          text={isLocked ? (<span onClick={() => isLocked && showPayMessage(message._id, message.price, currentUser.balance)} style={{ cursor: "pointer" }}>{message.price + "$ "}Click Here To Unlock</span>) : (message.price + "$ " + message.text)}
+          text={isLocked ? (
+            <span style={{ cursor: "pointer", fontWeight: "bold", fontSize: "13px", color: "#ff4c4c" }} onClick={() => isLocked && showPayMessage(message._id, message.price, currentUser.balance)} >
+              {message.price + "$ "}Click Here To Unlock</span>)
+            : validHttpUrl ? (<div style={{ maxWidth: "290px" }}><LinkPreview url={validHttpUrl} width='290px' /><span>{message.price + "$ " + message.text}</span></div>) : (<span>{message.price + "$ " + message.text}</span>)}
+          // text={}
 
           status={message.sender === userId ? message.status : ""}// TO DO correct this one
           date={new Date(message.sentAt)}
@@ -366,7 +401,8 @@ const Messages = ({ conversation_id,
           // style={!message.readBy.find(rb => rb._id === userId) ? { backgroundColor: "#f4f4f4" } : {}}
           key={message._id}
           // src={message?.data?.uri}
-          src={isLocked ? dollarVideo : message?.data?.uri}
+          src={message?.data?.uri}
+          duration={message.data.duration}
           sentAt={new Date(message.sentAt)}
           position={message.sender === userId ? "right" : "left"}
           status={message.sender === userId ? message.status : ""}
@@ -418,17 +454,23 @@ const Messages = ({ conversation_id,
     <div
       className="messages-board"
     >
+      <Picker
+        pickerStyle={{ position: "absolute", bottom: "70px", zIndex: "1000", width: "100%", borderRadius: "3px 3px 6px 6px", visibility: `${isEmojiPickerOpened ? "" : "hidden"}` }}
+        onEmojiClick={onEmojiClick} />
+
       <div className="messages" ref={messagesBoxRef}  >
+        {/* <SystemMessage text={"End of conversation"} />; */}
         {messages.map((message) => {
           return renderMessageBox(message);
         })}
+        {(validHttpUrlForPreview) && <div className="rce-mbox rce-mbox-right"><div className="rce-container-mbox"><div className="rce-mbox-body"><LinkPreview url={validHttpUrlForPreview} width='290px' /></div></div></div>}
       </div>
       {
         conversation_id !== 'all' && (
           <div className="message-input" style={{ background: ' #fff' }}>
             {inputType === 'text' &&
               (<div className="wrap">
-                {/* {renderPaidMessagePanel()} */}
+
                 <Input
                   ref={inputRef}
                   placeholder=" Type here..."
@@ -437,17 +479,21 @@ const Messages = ({ conversation_id,
                   // defaultValue={messageText}
                   // value={messageText}
                   onChange={onMessageTextChanged}
+                  style={{ padding: "0px 4px" }}
 
                   rightButtons={
                     <div>
-
                       <button
-
                         onClick={handleSendMessage}
                         disabled={!(inputRef.current?.input.value)}
                       >
-
                         <Icon icon={"paper-plane-outline"} />
+                      </button>
+                      <button
+                        className={isEmojiPickerOpened ? "selected" : ""}
+                        onClick={() => setEmojiPickerOpened(!isEmojiPickerOpened)}
+                      >
+                        <EmojiIcon />
                       </button>
                       <button
                         onClick={() => fileInputRef.current.click()}
