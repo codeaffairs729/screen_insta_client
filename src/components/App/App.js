@@ -1,6 +1,6 @@
 import React, { useEffect, Suspense, lazy, useState, useRef } from "react";
 import { Switch, Route, useLocation, useHistory, useParams, useRouteMatch } from "react-router-dom";
-
+import audioNotification from "../../../src/assets/audio/audio-notification.mp3";
 import { connect } from "react-redux";
 import { useTransition } from "react-spring";
 import { useSocket } from "../../providers/SocketProvider"
@@ -27,8 +27,10 @@ import {
   addFollower,
   removeFollower,
   payMessageSuccess,
-  payMessageError
+  payMessageError,
+
 } from "../../redux/chat/chatActions";
+import { selectAllUnreadMessagesCount } from '../../redux/chat/chatSelectors';
 
 import { fetchProfile } from '../../redux/profile/profileActions'
 import { selectCurrentUser } from "../../redux/user/userSelectors";
@@ -128,6 +130,7 @@ export function UnconnectedApp({
   userLoading,
   conversations,
   messages,
+  allUnreadMessagesCountSelector,
   startNewConversationSuccessDispatch,
   fetchConversationsDispatch,
   fetchFollowersDispatch,
@@ -164,7 +167,9 @@ export function UnconnectedApp({
   const socket = useSocket();
   const syncLock = useRef(false);
   const messageNotificationRef = useRef();
-  const matchProfilePage = useRouteMatch("/:username")
+  const matchProfilePage = useRouteMatch("/:username");
+
+  const allUnreadMessagesCount = allUnreadMessagesCountSelector()
   ////////////////////////////////////////////////// REAL TIME CHAT SOCKET ////////////////////////////////////////
 
   useEffect(() => {// listening on upcoming events // real time chat
@@ -485,7 +490,7 @@ export function UnconnectedApp({
       <>
         {pathname !== "/login" &&
           pathname !== "/signup" &&
-          pathname !== "/forgotPassword" && <Header />}
+          pathname !== "/forgotPassword" && <Header allUnreadMessagesCount={allUnreadMessagesCount} />}
         {renderModals()}
         {transitions.map(
           ({ item, props, key }) =>
@@ -520,9 +525,9 @@ export function UnconnectedApp({
         {pathname !== "/login" &&
           pathname !== "/signup" &&
           pathname !== "/new" &&
-          currentUser && <MobileNav currentUser={currentUser} />}
+          currentUser && <MobileNav currentUser={currentUser} allUnreadMessagesCount={allUnreadMessagesCount} />}
         <ToastContainer theme="colored" />
-        <audio ref={messageNotificationRef} src="https://res.cloudinary.com/dmtgbbfs5/video/upload/v1645628412/rb1tem9stfx5ehlgveix.mp3" />
+        <audio ref={messageNotificationRef} src={audioNotification} />
       </>
     );
   };
@@ -540,7 +545,8 @@ const mapStateToProps = (state) => ({
   currentUser: selectCurrentUser(state),
   userLoading: state.user.fetching,
   messages: state.chat.messages,
-  conversations: state.chat.conversations
+  conversations: state.chat.conversations,
+  allUnreadMessagesCountSelector: () => selectAllUnreadMessagesCount(state)
 });
 
 const mapDispatchToProps = (dispatch) => ({

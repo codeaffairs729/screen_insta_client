@@ -5,7 +5,6 @@ import classNames from "classnames";
 import { useHistory } from "react-router-dom";
 
 import { selectCurrentUser } from "../../redux/user/userSelectors";
-import { selectAllUnreadMessagesCount } from '../../redux/chat/chatSelectors';
 
 import useScrollPositionThrottled from "../../hooks/useScrollPositionThrottled";
 import { showModal, hideModal } from "../../redux/modal/modalActions";
@@ -17,7 +16,7 @@ import NotificationButton from "../Notification/NotificationButton/NotificationB
 import Button from "../Button/Button";
 import Icon from "../Icon/Icon";
 
-const Header = memo(({ currentUser, showModal, hideModal, allUnreadMessagesCountSelector }) => {
+const Header = memo(({ currentUser, showModal, hideModal, allUnreadMessagesCount }) => {
   const [shouldMinimizeHeader, setShouldMinimizeHeader] = useState(false);
   const {
     location: { pathname },
@@ -42,7 +41,6 @@ const Header = memo(({ currentUser, showModal, hideModal, allUnreadMessagesCount
     "header--small": shouldMinimizeHeader,
   });
 
-  const allUnreadMessagesCount = allUnreadMessagesCountSelector()
   return (
     <header className={headerClassNames}>
       <div className="header__content">
@@ -58,6 +56,9 @@ const Header = memo(({ currentUser, showModal, hideModal, allUnreadMessagesCount
         <div className="header__icons">
           {currentUser ? (
             <Fragment>
+              <Link className="balance" to="/">
+                <span >{currentUser.balance}$</span>
+              </Link>
               <Link to="/">
                 <Icon icon={pathname === "/" ? "home" : "home-outline"} />
               </Link>
@@ -117,7 +118,6 @@ Header.whyDidYouRender = true;
 
 const mapStateToProps = state => ({
   currentUser: selectCurrentUser(state),
-  allUnreadMessagesCountSelector: () => selectAllUnreadMessagesCount(state)
 });
 
 const mapDispatchToProps = (dispatch) => ({
