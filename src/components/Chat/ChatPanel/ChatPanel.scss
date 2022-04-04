@@ -618,6 +618,27 @@
   font-size: 10px;
   font-style: italic;
 }
+#frame .content .contact-profile .middle {
+  flex-grow: 1;
+}
+#frame .content .contact-profile .right-side {
+  display: flex;
+  align-items: center;
+}
+#frame .content .contact-profile .right-side button {
+  cursor: pointer;
+  background-color: rgb(177, 152, 152);
+  padding: 10px;
+  margin: 4px;
+  border: none;
+  border-radius: 20px;
+  height: 5rem;
+}
+#frame .content .contact-profile .right-side button .icon {
+  color: white;
+  width: 2.4rem;
+  height: 2.4rem;
+}
 /* #frame .content .contact-profile p {
   float: left;
 }

@@ -17,6 +17,38 @@ export const getConversations = async (offset = 0) => {
     throw new Error(err.response.data);
   }
 };
+export const getCalls = async (offset = 0) => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.get(
+      `/api/chat/calls?offset=${offset}`,
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response.data);
+  }
+};
+export const getCallById = async (_id) => {
+  try {
+    const token = await firebase.auth().currentUser.getIdToken();
+    const response = await axios.get(
+      `/api/chat/calls/${_id}`,
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response.data);
+  }
+};
 export const postConversation = async (participants) => {
   try {
     const token = await firebase.auth().currentUser.getIdToken();

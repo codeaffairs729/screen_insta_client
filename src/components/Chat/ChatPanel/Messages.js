@@ -10,6 +10,7 @@ import { LinkPreview } from '@dhaiwat10/react-link-preview';
 import containsValidHttpUrl from '../getUrls';// not normilized
 
 
+
 import {
   Input, MessageBox,
   // SystemMessage 
@@ -360,7 +361,7 @@ const Messages = ({ conversation_id,
           text={isLocked ? (
             <span style={{ cursor: "pointer", fontWeight: "bold", fontSize: "13px", color: "#ff4c4c" }} onClick={() => isLocked && showPayMessage(message._id, message.price, currentUser.balance)} >
               {message.price + "$ "}Click Here To Unlock</span>)
-            : validHttpUrl ? (<div style={{ maxWidth: "290px" }}><LinkPreview url={validHttpUrl} width='290px' /><span>{message.price + "$ " + message.text}</span></div>) : (<span>{message.price + "$ " + message.text}</span>)}
+            : validHttpUrl ? (<div style={{ maxWidth: "290px" }}><LinkPreview descriptionLength={40} url={validHttpUrl} width='290px' /><span>{message.price + "$ " + message.text}</span></div>) : (<span>{message.price + "$ " + message.text}</span>)}
           // text={}
 
           status={message.sender === userId ? message.status : ""}// TO DO correct this one

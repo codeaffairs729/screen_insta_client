@@ -1,0 +1,118 @@
+.wcm-container {
+  background: rgb(124, 167, 124);
+  height: 100%;
+
+  .flex-grow-1 {
+    flex-grow: 1;
+  }
+
+  .wcm-header {
+    grid-area: header;
+    display: flex;
+    .wcm-button {
+      cursor: pointer;
+      padding: 6px 18px;
+      margin: 0px 3px;
+      background-color: inherit;
+      border: none;
+      border-radius: 20px;
+      .icon {
+        width: 3rem;
+        height: 3rem;
+        color: white;
+      }
+    }
+    .red-button {
+      background-color: rgb(250, 9, 9);
+    }
+    .participant-name {
+      font-style: italic;
+      font-size: 2rem;
+      color: white;
+      margin: 10px;
+    }
+  }
+  .wcm-main {
+    position: relative;
+    grid-area: main;
+    display: flex;
+    flex-direction: column;
+    // align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    margin: 10px 0px;
+    background-color: rgba(88, 80, 80, 0.8);
+    .wcm-avatar {
+      width: 15rem;
+      height: 15rem;
+      border-radius: 100px;
+      border: 1px solid #dbdbdb;
+    }
+    .wcm-participant-name {
+      font-style: italic;
+      font-size: 1.6rem;
+
+      color: white;
+    }
+    .wcm-call-time {
+      font-style: italic;
+      font-size: 2rem;
+      color: white;
+    }
+
+    .big-view video {
+      height: 100%;
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    .small-view {
+      cursor: pointer;
+      width: 170px;
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      video {
+        height: 100%;
+        width: 100%;
+        border-radius: 10px;
+      }
+    }
+
+    .participant-no-media-view {
+      width: 170px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+  .wcm-footer {
+    grid-area: footer;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+    justify-content: center;
+    .wcm-button {
+      cursor: pointer;
+      padding: 10px;
+      margin: 4px;
+      background-color: whitesmoke;
+      border: none;
+      border-radius: 20px;
+      .icon {
+        width: 3rem;
+        height: 3rem;
+      }
+    }
+  }
+
+  .grid-container {
+    display: grid;
+    grid-template-rows: auto 1fr auto; /* key rule */
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-areas: "header header header" "main main main" "footer footer footer";
+    height: 100vh;
+    background-color: #101212;
+    padding: 8px 14px;
+  }
+}

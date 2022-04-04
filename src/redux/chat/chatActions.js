@@ -2,12 +2,15 @@ import chatTypes from "./chatTypes";
 
 import {
   getConversations,
+  getCalls,
+  getCallById,
   getMessages,
   getSyncMessages,
   getRecipients,
   getFollowers,
   getFollowings,
-  postConversation
+
+  // postConversation,
 } from "../../services/chatServices";
 
 export const fetchConversations = (offset = 0) =>
@@ -33,29 +36,54 @@ export const fetchConversations = (offset = 0) =>
     }
 
   };
-export const startNewConversation = (participants, onStartNewConversationSuccess) =>
+export const fetchCalls = (offset = 0) =>
   async (dispatch) => {
-    dispatch({ type: chatTypes.START_NEW_CONVERSATION_START });
+    dispatch({ type: chatTypes.FETCH_CONVERSATION_CALLS_START });
     try {
-      let conversation = await postConversation(participants);
+      let calls = await getCalls(offset);
       dispatch({
-        type: chatTypes.START_NEW_CONVERSATION_SUCCESS,
+        type: chatTypes.FETCH_CONVERSATION_CALLS_SUCCESS,
         payload: {
-          conversation,
+          calls,
         },
       });
-      onStartNewConversationSuccess(conversation)
+      return (calls);
     } catch (err) {
-      console.error("Error while retrieving conversations");
+      console.error("Error while retrieving calls");
       dispatch({
-        type: chatTypes.START_NEW_CONVERSATION_ERROR,
+        type: chatTypes.FETCH_CONVERSATION_CALLS_ERROR,
         payload: {
-          error: "Error while retrieving conversations",
+          error: "Error while retrieving calls",
         },
       });
     }
 
   };
+export const fetchCallById = _id =>
+
+  async (dispatch) => {
+    dispatch({ type: chatTypes.FETCH_CONVERSATION_CALL_BY_ID_START });
+    try {
+      let call = await getCallById(_id);
+      dispatch({
+        type: chatTypes.FETCH_CONVERSATION_CALL_BY_ID_SUCCESS,
+        payload: {
+          call,
+        },
+      });
+      return (call);
+    } catch (err) {
+      console.error("Error while retrieving a call by id");
+      dispatch({
+        type: chatTypes.FETCH_CONVERSATION_CALL_BY_ID_ERROR,
+        payload: {
+          error: "Error while retrieving a call by id",
+        },
+      });
+    }
+
+  };
+
 export const fetchFollowers = (offset = 0) =>
   async (dispatch) => {
     dispatch({ type: chatTypes.FETCH_FOLLOWERS_START });
@@ -292,4 +320,81 @@ export const payMessageSuccess = (message) => ({
 export const payMessageError = (error) => ({
   type: chatTypes.PAY_MESSAGE_ERROR,
   payload: error
+})
+
+export const updateParticipantCallIdSuccess = ({ participant_id, call_id }) => ({
+  type: chatTypes.UPDATE_PARTICIPANT_CALL_ID_SUCCESS,
+  payload: { participant_id, call_id },
+})
+
+
+
+///////////////////////// calll actions ///////////////////
+export const startConversationCallStart = (conversation_id, type = "audio") => ({
+  type: chatTypes.START_CONVERSATION_CALL_START,
+  payload: { conversation_id, type },
+})
+
+export const startConversationCallSuccess = call => ({
+  type: chatTypes.START_CONVERSATION_CALL_SUCCESS,
+  payload: call,
+})
+
+
+export const startConversationCallError = error => ({
+  type: chatTypes.START_CONVERSATION_CALL_ERROR,
+  payload: error,
+})
+
+
+
+export const joinConversationCallStart = (call_id, peer_id) => ({
+  type: chatTypes.JOIN_CONVERSATION_CALL_START,
+  payload: { call_id, peer_id },
+})
+
+export const joinConversationCallSuccess = call => ({
+  type: chatTypes.JOIN_CONVERSATION_CALL_SUCCESS,
+  payload: call,
+})
+
+
+export const joinConversationCallError = error => ({
+  type: chatTypes.JOIN_CONVERSATION_CALL_ERROR,
+  payload: error,
+})
+
+
+
+export const leaveConversationCallStart = call_id => ({
+  type: chatTypes.LEAVE_CONVERSATION_CALL_START,
+  payload: call_id,
+})
+
+export const leaveConversationCallSuccess = call => ({
+  type: chatTypes.LEAVE_CONVERSATION_CALL_SUCCESS,
+  payload: call,
+})
+
+
+export const leaveConversationCallError = error => ({
+  type: chatTypes.LEAVE_CONVERSATION_CALL_ERROR,
+  payload: error,
+})
+
+
+export const endConversationCallStart = call_id => ({
+  type: chatTypes.END_CONVERSATION_CALL_START,
+  payload: call_id,
+})
+
+export const endConversationCallSuccess = call => ({
+  type: chatTypes.END_CONVERSATION_CALL_SUCCESS,
+  payload: call,
+})
+
+
+export const endConversationCallError = error => ({
+  type: chatTypes.END_CONVERSATION_CALL_ERROR,
+  payload: error,
 })

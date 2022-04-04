@@ -203,6 +203,14 @@ const userReducer = (state = INITIAL_STATE, action) => {
         currentUser: { ...state.currentUser, balance }
       };
     }
+    case userTypes.UPDATE_PARTICIPANT_CALL_ID_START: {
+      const { payload: peer_id } = action;
+
+      return {
+        ...state,
+        currentUser: { ...state.currentUser, peer_id }
+      };
+    }
 
     default:
       return state;

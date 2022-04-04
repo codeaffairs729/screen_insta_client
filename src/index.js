@@ -1,11 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import App from "./components/App/App";
+import MainApp from "./components/App/MainApp";
 import * as serviceWorker from "./serviceWorker";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import SocketProvider from "./providers/SocketProvider"
+import PeerProvider from "./providers/PeerProvider"
 
 import store from "./redux/store";
 import "./sass/main.scss";
@@ -23,11 +24,13 @@ if (process.env.NODE_ENV === "development") {
 
 ReactDOM.render(
   <Provider store={store}>
-    <SocketProvider >
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </SocketProvider>
+    <PeerProvider >
+      <SocketProvider >
+        <BrowserRouter>
+          <MainApp />
+        </BrowserRouter>
+      </SocketProvider>
+    </PeerProvider>
   </Provider>,
   document.getElementById("root")
 );
