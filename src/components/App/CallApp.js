@@ -8,6 +8,8 @@ import { useSocket } from "../../providers/SocketProvider"
 import {
   startConversationCallSuccess,
   startConversationCallError,
+  connectToConversationCallSuccess,
+  connectToConversationCallError,
   joinConversationCallSuccess,
   joinConversationCallError,
   leaveConversationCallSuccess,
@@ -24,7 +26,7 @@ import {
   signInStart,
   signInSuccess,
   updateBalanceSuccess,
-  updateParticipantCallIdStart
+  participantPeerIdUpdated
 } from "../../redux/user/userActions";
 
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
@@ -72,9 +74,11 @@ export function UnconnectedApp({
   signInSuccess,
 
   currentUser,
-  updateParticipantCallIdStartDispatch,
+  participantPeerIdUpdatedDispatch,
   startConversationCallSuccessDispatch,
   startConversationCallErrorDispatch,
+  connectToConversationCallSuccessDispatch,
+  connectToConversationCallErrorDispatch,
   joinConversationCallSuccessDispatch,
   joinConversationCallErrorDispatch,
   leaveConversationCallSuccessDispatch,
@@ -90,6 +94,15 @@ export function UnconnectedApp({
   const socket = useSocket();
 
 
+  useEffect(() => {
+
+
+    peer && peer.on('open', peer_id => {
+      participantPeerIdUpdatedDispatch(peer_id)
+
+    });
+
+  }, [peer,])
 
   useEffect(() => {// listening on upcoming events // real time chat
     const log = false;
@@ -98,6 +111,8 @@ export function UnconnectedApp({
 
       socket.off('start-conversation-call-success')
       socket.off('start-conversation-call-error')
+      socket.off('connect-to-conversation-call-success')
+      socket.off('connect-to-conversation-call-error')
       socket.off('join-conversation-call-success')
       socket.off('join-conversation-call-error')
       socket.off('leave-conversation-call-success')
@@ -106,18 +121,27 @@ export function UnconnectedApp({
       socket.off('end-conversation-call-error')
 
       //////////////////////////////////////////////// Calls ///////////////////////////////////////////////////
-      // socket.on('start-conversation-call-success', call => {
-      //   startConversationCallSuccessDispatch(call)
-      //   // console.log({ participant_id, call_id })
-      // })
-      // socket.on('start-conversation-call-error', error => {
-      //   console.log(error);
-      //   startConversationCallErrorDispatch(error)
-      //   // console.log({ participant_id, call_id })
-      // })
+      socket.on('start-conversation-call-success', call => {
+        startConversationCallSuccessDispatch(call)
+        // console.log({ participant_id, call_id })
+      })
+      socket.on('start-conversation-call-error', error => {
+        console.log(error);
+        startConversationCallErrorDispatch(error)
+        // console.log({ participant_id, call_id })
+      })
+      socket.on('connect-to-conversation-call-success', call => {
+        connectToConversationCallSuccessDispatch(call)
+        // console.log({ participant_id, call_id })
+      })
+      socket.on('connect-to-conversation-call-error', error => {
+        console.log(error);
+        connectToConversationCallErrorDispatch(error)
+        // console.log({ participant_id, call_id })
+      })
       socket.on('join-conversation-call-success', call => {
         joinConversationCallSuccessDispatch(call)
-        console.log(call)
+        // console.log(call)
       })
       socket.on('join-conversation-call-error', error => {
         console.log(error);
@@ -162,23 +186,7 @@ export function UnconnectedApp({
   }, []);
 
 
-  useEffect(() => {
-    if (peer) {
 
-      peer.on('open', peer_id => {
-        console.log('emit update-participant-call-id-start', peer_id)
-        updateParticipantCallIdStartDispatch(peer_id)
-
-      });
-
-      peer.on('call', call => {
-        console.log('new call', call)
-      })
-
-
-    }
-
-  }, [peer])
 
 
   const renderApp = () => {
@@ -224,9 +232,11 @@ const mapDispatchToProps = (dispatch) => ({
 
   updateBalanceSuccessDispatch: (balance) => dispatch(updateBalanceSuccess(balance)),
 
-  updateParticipantCallIdStartDispatch: (call_id) => dispatch(updateParticipantCallIdStart(call_id)),
+  participantPeerIdUpdatedDispatch: (peer_id) => dispatch(participantPeerIdUpdated(peer_id)),
   startConversationCallSuccessDispatch: (call) => dispatch(startConversationCallSuccess(call)),
   startConversationCallErrorDispatch: (error) => dispatch(startConversationCallError(error)),
+  connectToConversationCallSuccessDispatch: (call) => dispatch(connectToConversationCallSuccess(call)),
+  connectToConversationCallErrorDispatch: (error) => dispatch(connectToConversationCallError(error)),
   joinConversationCallSuccessDispatch: (call) => dispatch(joinConversationCallSuccess(call)),
   joinConversationCallErrorDispatch: (error) => dispatch(joinConversationCallError(error)),
   leaveConversationCallSuccessDispatch: (call) => dispatch(leaveConversationCallSuccess(call)),

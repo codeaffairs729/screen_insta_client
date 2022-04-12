@@ -412,6 +412,29 @@ const chatReducer = (state = INITIAL_STATE, action) => {
         currentCallError: error,
       }
     }
+    case chatTypes.CONNECT_TO_CONVERSATION_CALL_START: {
+      return {
+        ...state,
+        currentCallError: "",
+      }
+    }
+    case chatTypes.CONNECT_TO_CONVERSATION_CALL_SUCCESS: {
+      const { payload: call } = action;
+
+      return {
+        ...state,
+        currentCall: call,
+        currentCallError: "",
+      }
+    }
+    case chatTypes.CONNECT_TO_CONVERSATION_CALL_ERROR: {
+      const { payload: error } = action;
+
+      return {
+        ...state,
+        currentCallError: error,
+      }
+    }
     case chatTypes.JOIN_CONVERSATION_CALL_START: {
       return {
         ...state,

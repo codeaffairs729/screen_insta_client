@@ -59,12 +59,12 @@ export const fetchCalls = (offset = 0) =>
     }
 
   };
-export const fetchCallById = _id =>
+export const fetchCallById = call_id =>
 
   async (dispatch) => {
-    dispatch({ type: chatTypes.FETCH_CONVERSATION_CALL_BY_ID_START });
+    dispatch({ type: chatTypes.FETCH_CONVERSATION_CALL_BY_ID_START, payload: call_id });
     try {
-      let call = await getCallById(_id);
+      let call = await getCallById(call_id);
       dispatch({
         type: chatTypes.FETCH_CONVERSATION_CALL_BY_ID_SUCCESS,
         payload: {
@@ -348,7 +348,24 @@ export const startConversationCallError = error => ({
 
 
 
-export const joinConversationCallStart = (call_id, peer_id) => ({
+export const connectToConversationCallStart = (call_id, peer_id) => ({
+  type: chatTypes.CONNECT_TO_CONVERSATION_CALL_START,
+  payload: { call_id, peer_id },
+})
+
+export const connectToConversationCallSuccess = call => ({
+  type: chatTypes.CONNECT_TO_CONVERSATION_CALL_SUCCESS,
+  payload: call,
+})
+
+
+export const connectToConversationCallError = error => ({
+  type: chatTypes.CONNECT_TO_CONVERSATION_CALL_ERROR,
+  payload: error,
+})
+
+
+export const joinConversationCallStart = ({ call_id, peer_id }) => ({
   type: chatTypes.JOIN_CONVERSATION_CALL_START,
   payload: { call_id, peer_id },
 })

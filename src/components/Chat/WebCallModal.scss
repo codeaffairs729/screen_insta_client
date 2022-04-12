@@ -69,14 +69,23 @@
     .small-view {
       cursor: pointer;
       width: 170px;
-      position: absolute;
-      top: 0px;
-      left: 0px;
+
       video {
         height: 100%;
         width: 100%;
         border-radius: 10px;
       }
+    }
+
+    .pos-0 {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+    }
+    .pos-1 {
+      position: absolute;
+      top: 0px;
+      left: 170px;
     }
 
     .participant-no-media-view {
