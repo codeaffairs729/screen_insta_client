@@ -4,10 +4,24 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 // import { Avatar, Navbar } from 'react-chat-elements'
 import dateFormat, { masks } from "dateformat";
+import Icon from './../../Icon/Icon';
+import { useSocket } from '../../../providers/SocketProvider'
+
+import { startConversationCallStart } from "../../../redux/chat/chatActions";
 const interval = 200;
-const RecipientInfo = ({ fullName, avatar, username, lastTimeOnline, isTyping }) => {
+const RecipientInfo = ({
+  conversation_id,
+  fullName,
+  avatar,
+  username,
+  lastTimeOnline,
+  isTyping,
+  startConversationCallStartDispatch
+}) => {
 
   const [now, setNow] = useState(new Date())
+
+  const socket = useSocket();
   useEffect(() => {
     const timer = setInterval(() => {
       setNow(new Date());
@@ -17,10 +31,13 @@ const RecipientInfo = ({ fullName, avatar, username, lastTimeOnline, isTyping })
   }, [])
 
   const isOnline = () => now.getTime() - new Date(lastTimeOnline).getTime() < 4000
-
+  const handleStartConversationCall = (conversation_id, type) => {
+    if (!socket) return;
+    startConversationCallStartDispatch(conversation_id, type)
+    socket.emit('start-conversation-call-start', { conversation_id, type })
+  }
 
   return (
-
     <div className="contact-profile">
       <div className="left-side" >
         <Link to={`/${username}`}>
@@ -34,12 +51,28 @@ const RecipientInfo = ({ fullName, avatar, username, lastTimeOnline, isTyping })
         </div>
 
       </div >
-      {/* <div>middle</div>
-      <div>right side</div> */}
+      <div className="middle"></div>
+      <div className="right-side">
+        <button onClick={() => handleStartConversationCall(conversation_id, "video")}>
+
+          <Icon icon="videocam-outline" />
+        </button>
+        <button onClick={() => handleStartConversationCall(conversation_id, "audio")}>
+          <Icon icon="call-outline" />
+        </button>
+      </div>
     </div >
 
   );
 
 };
 
-export default connect(null, null)(RecipientInfo);
+const mapDispatchToProps = (dispatch) => ({
+  startConversationCallStartDispatch: (conversation_id, type) => dispatch(startConversationCallStart(conversation_id, type)),
+});
+
+const mapStateToProps = (state) => ({
+
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(RecipientInfo);

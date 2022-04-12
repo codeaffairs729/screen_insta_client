@@ -61,6 +61,8 @@ const userTypes = {
 
   UPDATE_BALANCE_SUCCESS: "UPDATE_BALANCE_SUCCESS",
 
+  PARTICIPANT_PEER_ID_UPDATED: "PARTICIPANT_PEER_ID_UPDATED",
+
 };
 
 export default userTypes;

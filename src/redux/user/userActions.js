@@ -315,3 +315,7 @@ export const updateBalanceSuccess = (balance) => ({
   type: userTypes.UPDATE_BALANCE_SUCCESS,
   payload: balance,
 })
+export const participantPeerIdUpdated = (peer_id) => ({
+  type: userTypes.PARTICIPANT_PEER_ID_UPDATED,
+  payload: peer_id,
+})

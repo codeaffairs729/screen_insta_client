@@ -4,6 +4,7 @@ export const INITIAL_STATE = {
   conversations: [],
   conversationsFetching: false,
   fetchConversationsError: null,
+
   messages: [],
   messagesFetching: false,
   fetchMessagesError: null,
@@ -16,6 +17,13 @@ export const INITIAL_STATE = {
   followingsFetching: false,
   fetchFollowingsError: null,
   isMessageFree: true,
+  calls: [],
+  callsFetching: false,
+  fetchCallsError: null,
+
+  currentCall: null,
+  currentCallFetching: false,
+  currentCallError: null,
 };
 
 const chatReducer = (state = INITIAL_STATE, action) => {
@@ -68,7 +76,7 @@ const chatReducer = (state = INITIAL_STATE, action) => {
     case chatTypes.FETCH_CONVERSATIONS_START: {
       return {
         ...state,
-        fetchMessagesError: false,
+        fetchConversationsError: false,
         conversationsFetching: true,
       };
     }
@@ -86,6 +94,53 @@ const chatReducer = (state = INITIAL_STATE, action) => {
         ...state,
         fetchConversationsError: payload.error,
         conversationsFetching: false,
+      };
+    }
+    case chatTypes.FETCH_CONVERSATION_CALLS_START: {
+      return {
+        ...state,
+        fetchCallsError: false,
+        callsFetching: true,
+      };
+    }
+    case chatTypes.FETCH_CONVERSATION_CALLS_SUCCESS: {
+
+      return {
+        ...state,
+        fetchCallsError: null,
+        callsFetching: false,
+        calls: payload.calls,
+      };
+    }
+    case chatTypes.FETCH_CONVERSATION_CALLS_ERROR: {
+      return {
+        ...state,
+        fetchCallsError: payload.error,
+        callsFetching: false,
+      };
+    }
+    case chatTypes.FETCH_CONVERSATION_CALL_BY_ID_START: {
+      return {
+        ...state,
+        currentCallFetching: true,
+        currentCallError: false,
+      };
+    }
+    case chatTypes.FETCH_CONVERSATION_CALL_BY_ID_SUCCESS: {
+
+      return {
+        ...state,
+        currentCallFetching: false,
+        currentCallError: false,
+        currentCall: payload.call,
+      };
+    }
+    case chatTypes.FETCH_CONVERSATION_CALL_BY_ID_ERROR: {
+      return {
+        ...state,
+        currentCallFetching: false,
+        currentCallError: payload.error,
+
       };
     }
     ///////////////////////////////////////// socket.io conversations actions ////////////////////////////////
@@ -315,6 +370,137 @@ const chatReducer = (state = INITIAL_STATE, action) => {
         ...state,
         messages: state.messages.map(m => m._id !== message._id ? m : message),
 
+      }
+    }
+
+    // case chatTypes.UPDATE_PARTICIPANT_CALL_ID_SUCCESS: {
+    //   const { payload: { participant_id, call_id } } = action;
+
+    //   const newConversations = state.conversations.map(conv => {
+    //     const newParticipants = conv.participants.map(part => part._id !== participant_id ? part : { ...part, call_id })
+    //     return { ...conv, participants: newParticipants }
+    //   })
+
+    //   return {
+    //     ...state,
+    //     conversations: newConversations,
+    //   }
+    // }
+
+    case chatTypes.START_CONVERSATION_CALL_START: {
+      return {
+        ...state,
+        currentCall: null,
+        currentCallError: "",
+      }
+    }
+    case chatTypes.START_CONVERSATION_CALL_SUCCESS: {
+      const { payload: call } = action;
+
+      return {
+        ...state,
+        calls: [...state.calls, call],
+        currentCall: call,
+        currentCallError: "",
+      }
+    }
+    case chatTypes.START_CONVERSATION_CALL_ERROR: {
+      const { payload: error } = action;
+
+      return {
+        ...state,
+        currentCallError: error,
+      }
+    }
+    case chatTypes.CONNECT_TO_CONVERSATION_CALL_START: {
+      return {
+        ...state,
+        currentCallError: "",
+      }
+    }
+    case chatTypes.CONNECT_TO_CONVERSATION_CALL_SUCCESS: {
+      const { payload: call } = action;
+
+      return {
+        ...state,
+        currentCall: call,
+        currentCallError: "",
+      }
+    }
+    case chatTypes.CONNECT_TO_CONVERSATION_CALL_ERROR: {
+      const { payload: error } = action;
+
+      return {
+        ...state,
+        currentCallError: error,
+      }
+    }
+    case chatTypes.JOIN_CONVERSATION_CALL_START: {
+      return {
+        ...state,
+        currentCallError: "",
+      }
+    }
+    case chatTypes.JOIN_CONVERSATION_CALL_SUCCESS: {
+      const { payload: call } = action;
+
+      return {
+        ...state,
+        currentCall: call,
+        currentCallError: "",
+      }
+    }
+    case chatTypes.JOIN_CONVERSATION_CALL_ERROR: {
+      const { payload: error } = action;
+
+      return {
+        ...state,
+        currentCallError: error,
+      }
+    }
+    case chatTypes.LEAVE_CONVERSATION_CALL_START: {
+      return {
+        ...state,
+        currentCallError: "",
+      }
+    }
+    case chatTypes.LEAVE_CONVERSATION_CALL_SUCCESS: {
+      const { payload: call } = action;
+
+      return {
+        ...state,
+        currentCall: call,
+        currentCallError: "",
+      }
+    }
+    case chatTypes.LEAVE_CONVERSATION_CALL_ERROR: {
+      const { payload: error } = action;
+
+      return {
+        ...state,
+        currentCallError: error,
+      }
+    }
+    case chatTypes.END_CONVERSATION_CALL_START: {
+      return {
+        ...state,
+        currentCallError: "",
+      }
+    }
+    case chatTypes.END_CONVERSATION_CALL_SUCCESS: {
+      const { payload: call } = action;
+      return {
+        ...state,
+        currentCall: call,
+        currentCallError: "",
+      }
+    }
+    case chatTypes.END_CONVERSATION_CALL_ERROR: {
+      const { payload: error } = action;
+
+      return {
+        ...state,
+        currentCallError: error,
       }
     }
     default:

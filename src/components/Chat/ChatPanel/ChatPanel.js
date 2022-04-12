@@ -33,6 +33,7 @@ const ChatPanel = ({
   conversationFirstMessageSelector,
   conversationParticipantsSelector,
   readMessageStartDispatch,
+  currentCall
 
 }) => {
   const { conversation_id } = useParams();
@@ -42,7 +43,13 @@ const ChatPanel = ({
 
   const conversations = conversationsSelector();
 
+  useEffect(() => {
+    if (currentCall) {
 
+      window.open("/call/" + currentCall._id,
+        "mywindow", "menubar=1,resizable=1,width=550,height=550");
+    }
+  }, [currentCall])
 
 
   ///////////////////////////////////////// NAVIGATION //////////////////////////////////////////////////////
@@ -96,6 +103,7 @@ const ChatPanel = ({
         <div className="content">
           {conversationParticipants ?
             (<RecipientInfo
+              conversation_id={conversation_id}
               avatar={conversationParticipants[0].avatar}
               fullName={conversationParticipants[0].fullName}
               username={conversationParticipants[0].username}
@@ -120,6 +128,7 @@ const ChatPanel = ({
 
 const mapStateToProps = state => ({
   currentUser: selectCurrentUser(state),
+  currentCall: state.chat.currentCall,
   conversationsSelector: () => selectConversations(state),
   conversationsFetching: state.chat.conversationsFetching,
   conversationParticipantsSelector: (conversation_id, user_id) => selectConversationParticipants(state, conversation_id, user_id),

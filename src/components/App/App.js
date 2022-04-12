@@ -8,6 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
   fetchConversations,
+  fetchCalls,
   fetchFollowers,
   fetchFollowings,
   fetchMessages,
@@ -28,8 +29,16 @@ import {
   removeFollower,
   payMessageSuccess,
   payMessageError,
-
-} from "../../redux/chat/chatActions";
+  startConversationCallSuccess,
+  startConversationCallError,
+  joinConversationCallSuccess,
+  joinConversationCallError,
+  leaveConversationCallSuccess,
+  leaveConversationCallError,
+  endConversationCallSuccess,
+  endConversationCallError
+}
+  from "../../redux/chat/chatActions";
 import { selectAllUnreadMessagesCount } from '../../redux/chat/chatSelectors';
 
 import { fetchProfile } from '../../redux/profile/profileActions'
@@ -53,6 +62,7 @@ import Header from "../Header/Header";
 import Modal from "../../components/Modal/Modal";
 import Alert from "../../components/Alert/Alert";
 import Footer from "../../components/Footer/Footer";
+import WebCallModal from "../../components/Chat/WebCallModal";
 import MobileNav from "../../components/MobileNav/MobileNav";
 
 import firebase from "../../firebase";
@@ -85,7 +95,6 @@ const ForgotPasswordPage = lazy(() =>
   import("../../pages/ForgotPasswordPage/ForgotPasswordPage")
 );
 
-// const defaultUser = { authState: "loading", email: "", loading: true };
 
 function onAuthStateChange(callback, signInSuccess, signInFailure) {
   return firebase.auth().onAuthStateChanged(async (user) => {
@@ -119,6 +128,7 @@ function onAuthStateChange(callback, signInSuccess, signInFailure) {
 
 let heartBeatTimer;
 const interval = 3000;
+const noHeaderPathnames = ["/login", "/signup", "/forgotPassword"];
 export function UnconnectedApp({
   signInStart,
   signInFailure,
@@ -133,6 +143,7 @@ export function UnconnectedApp({
   allUnreadMessagesCountSelector,
   startNewConversationSuccessDispatch,
   fetchConversationsDispatch,
+  fetchCallsDispatch,
   fetchFollowersDispatch,
   fetchFollowingsDispatch,
   fetchMessagesDispatch,
@@ -156,7 +167,17 @@ export function UnconnectedApp({
   updateMessagePriceSuccessDispatch,
   payMessageSuccessDispatch,
   updateBalanceSuccessDispatch,
-  payMessageErrorDispatch
+  payMessageErrorDispatch,
+  updateParticipantCallIdStartDispatch,
+  startConversationCallSuccessDispatch,
+  startConversationCallErrorDispatch,
+  joinConversationCallSuccessDispatch,
+  joinConversationCallErrorDispatch,
+  leaveConversationCallSuccessDispatch,
+  leaveConversationCallErrorDispatch,
+  endConversationCallSuccessDispatch,
+  endConversationCallErrorDispatch,
+
 }) {
 
   const location = useLocation();
@@ -168,8 +189,11 @@ export function UnconnectedApp({
   const syncLock = useRef(false);
   const messageNotificationRef = useRef();
   const matchProfilePage = useRouteMatch("/:username");
+  const matchWebCallModal = useRouteMatch("/call/:_id");
 
   const allUnreadMessagesCount = allUnreadMessagesCountSelector()
+
+
   ////////////////////////////////////////////////// REAL TIME CHAT SOCKET ////////////////////////////////////////
 
   useEffect(() => {// listening on upcoming events // real time chat
@@ -198,6 +222,15 @@ export function UnconnectedApp({
       socket.off('pay-message-success');
       socket.off('pay-message-error');
       socket.off('update-balance-success');
+      // socket.off('update-participant-call-id-success')
+      socket.off('start-conversation-call-success')
+      socket.off('start-conversation-call-error')
+      // socket.off('join-conversation-call-success')
+      // socket.off('join-conversation-call-error')
+      // socket.off('leave-conversation-call-success')
+      // socket.off('leave-conversation-call-error')
+      // socket.off('end-conversation-call-success')
+      // socket.off('end-conversation-call-error')
 
       //////////////////////////////////////// conversations events /////////////////////////////////////////
       socket.on('connect', async () => {
@@ -214,6 +247,8 @@ export function UnconnectedApp({
         });
 
         //init or re sync the app data (converstaion (participants),messages,followers etc ...)
+        fetchCallsDispatch(0);
+
         fetchFollowersDispatch(0);
         fetchFollowingsDispatch(0);
         fetchNotificationsStart(currentUser?._id);
@@ -230,7 +265,7 @@ export function UnconnectedApp({
         clearInterval(heartBeatTimer)
         heartBeatTimer = setInterval(() => {
           socket.emit('update-participant-last-time-online-start')
-          if (log) console.log('update-participant-last-time-online-start')
+          if (log) console.log('emit update-participant-last-time-online-start')
         }, interval);
 
       })
@@ -361,6 +396,43 @@ export function UnconnectedApp({
         });
         updateBalanceSuccessDispatch(balance)
       });
+      //////////////////////////////////////////////// Calls ///////////////////////////////////////////////////
+      socket.on('start-conversation-call-success', call => {
+        startConversationCallSuccessDispatch(call)
+        // console.log({ participant_id, call_id })
+      })
+      socket.on('start-conversation-call-error', error => {
+        console.log(error);
+        startConversationCallErrorDispatch(error)
+        // console.log({ participant_id, call_id })
+      })
+      // socket.on('join-conversation-call-success', ({ call, participant_id, peer_id }) => {
+      //   joinConversationCallSuccessDispatch({ call, participant_id, peer_id })
+      //   // console.log({ participant_id, call_id })
+      // })
+      // socket.on('join-conversation-call-error', error => {
+      //   console.log(error);
+      //   joinConversationCallErrorDispatch(error)
+      //   // console.log({ participant_id, call_id })
+      // })
+      // socket.on('leave-conversation-call-success', call => {
+      //   leaveConversationCallSuccessDispatch(call)
+      //   // console.log({ participant_id, call_id })
+      // })
+      // socket.on('leave-conversation-call-error', error => {
+      //   console.log(error);
+      //   leaveConversationCallErrorDispatch(error)
+      //   // console.log({ participant_id, call_id })
+      // })
+      // socket.on('end-conversation-call-success', call => {
+      //   endConversationCallSuccessDispatch(call)
+      //   // console.log({ participant_id, call_id })
+      // })
+      // socket.on('end-conversation-call-error', error => {
+      //   console.log(error);
+      //   endConversationCallErrorDispatch(error)
+      //   // console.log({ participant_id, call_id })
+      // })
 
 
 
@@ -488,9 +560,7 @@ export function UnconnectedApp({
 
     return (
       <>
-        {pathname !== "/login" &&
-          pathname !== "/signup" &&
-          pathname !== "/forgotPassword" && <Header allUnreadMessagesCount={allUnreadMessagesCount} />}
+        {(noHeaderPathnames.indexOf(pathname) === -1 && !matchWebCallModal) && <Header allUnreadMessagesCount={allUnreadMessagesCount} />}
         {renderModals()}
         {transitions.map(
           ({ item, props, key }) =>
@@ -511,6 +581,10 @@ export function UnconnectedApp({
             path="/messages/:conversation_id"
             component={ChatPage}
           />
+          <ProtectedRoute
+            path="/call/:_id"
+            component={WebCallModal}
+          />
           <ProtectedRoute path="/settings" component={SettingsPage} />
           <ProtectedRoute path="/activity" component={ActivityPage} />
           <ProtectedRoute path="/new" component={NewPostPage} />
@@ -521,12 +595,12 @@ export function UnconnectedApp({
           <ProtectedRoute path="/confirm/:token" component={ConfirmationPage} />
           <Route component={NotFoundPage} />
         </Switch>
-        {pathname !== "/" && <Footer />}
+        {pathname !== "/" && !matchWebCallModal && <Footer />}
         {pathname !== "/login" &&
           pathname !== "/signup" &&
           pathname !== "/new" &&
-          currentUser && <MobileNav currentUser={currentUser} allUnreadMessagesCount={allUnreadMessagesCount} />}
-        <ToastContainer theme="colored" />
+          currentUser && !matchWebCallModal && < MobileNav currentUser={currentUser} allUnreadMessagesCount={allUnreadMessagesCount} />}
+        {!matchWebCallModal && <ToastContainer theme="colored" />}
         <audio ref={messageNotificationRef} src={audioNotification} />
       </>
     );
@@ -554,6 +628,7 @@ const mapDispatchToProps = (dispatch) => ({
   signInFailure: (error) => dispatch(signInFailure(error)),
   signInSuccess: (user, token) => dispatch(signInSuccess(user, token)),
   fetchConversationsDispatch: async (offset) => await dispatch(fetchConversations(offset)),
+  fetchCallsDispatch: async (offset) => await dispatch(fetchCalls(offset)),
   startNewConversationSuccessDispatch: (conversation) => dispatch(startNewConversationSuccess(conversation)),
   fetchFollowersDispatch: (offset) => dispatch(fetchFollowers(offset)),
   fetchFollowingsDispatch: (offset) => dispatch(fetchFollowings(offset)),
@@ -583,6 +658,22 @@ const mapDispatchToProps = (dispatch) => ({
   payMessageSuccessDispatch: (message) => dispatch(payMessageSuccess(message)),
   payMessageErrorDispatch: (message) => dispatch(payMessageError(message)),
   updateBalanceSuccessDispatch: (balance) => dispatch(updateBalanceSuccess(balance)),
+
+
+
+
+  startConversationCallSuccessDispatch: (call) => dispatch(startConversationCallSuccess(call)),
+  startConversationCallErrorDispatch: (error) => dispatch(startConversationCallError(error)),
+  joinConversationCallSuccessDispatch: (call) => dispatch(joinConversationCallSuccess(call)),
+  joinConversationCallErrorDispatch: (error) => dispatch(joinConversationCallError(error)),
+  leaveConversationCallSuccessDispatch: (call) => dispatch(leaveConversationCallSuccess(call)),
+  leaveConversationCallErrorDispatch: (error) => dispatch(leaveConversationCallError(error)),
+  endConversationCallSuccessDispatch: (call) => dispatch(endConversationCallSuccess(call)),
+  endConversationCallErrorDispatch: (error) => dispatch(endConversationCallError(error)),
+
+
+
+
 });
 
 
