@@ -473,6 +473,7 @@ export function UnconnectedApp({
   }, []);
 
 
+
   const renderModals = () => {
     if (modal.modals.length > 0) {
       // Disable scrolling on the body while a modal is active
@@ -554,7 +555,7 @@ export function UnconnectedApp({
   //useVideoAutoplay();
 
   const renderApp = () => {
-    if (user.authState === "loading" || !currentUser) {
+    if (user.authState === "loading") {
       return <LoadingPage />;
     }
 

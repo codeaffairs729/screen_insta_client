@@ -28,7 +28,7 @@ export function PeerProvider({ currentUser, children }) {
                 port: "9000",
             });
             setPeer(peer);
-            return () => peer.close();
+            return () => peer.disconnect();
         }
 
     }, [userId]);
