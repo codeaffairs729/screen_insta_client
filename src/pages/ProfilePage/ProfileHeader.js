@@ -7,7 +7,7 @@ import ChangeCoverPictureButton from "../../components/ChangeCoverPictureButton/
 import Avatar from "../../components/Avatar/Avatar";
 import UsersList from "../../components/UsersList/UsersList";
 import CoverPicture from "../../components/CoverPicture/CoverPicture";
-
+import SettingsButton from "../../components/SettingsButton/SettingsButton";
 import FollowButton from "../../components/Button/FollowButton/FollowButton";
 import Button from "../../components/Button/Button";
 
@@ -85,7 +85,7 @@ const ProfileHeader = ({
             <FollowButton
               profile={data.user}
             />}
-
+          <SettingsButton />
 
         </div>
 
