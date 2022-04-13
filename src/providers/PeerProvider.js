@@ -26,7 +26,7 @@ export function PeerProvider({ currentUser, children }) {
 
         baseURL = {
             path: "/peerjs",
-            host: constants.API_URL,
+            host: "betweenus1.herokuapp.com",
             port: "",
         }
     }
