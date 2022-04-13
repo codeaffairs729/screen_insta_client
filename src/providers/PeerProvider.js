@@ -16,17 +16,23 @@ export function PeerProvider({ currentUser, children }) {
     let baseURL;
     if (process.env.NODE_ENV === "development") {
 
-        baseURL = constants.DEV_API_URL;
+        baseURL =
+        {
+            path: "/peerjs",
+            host: "/",
+            port: "9000",
+        }
     } else {
-        baseURL = constants.API_URL;
+
+        baseURL = {
+            path: "/peerjs",
+            host: constants.API_URL,
+            port: "",
+        }
     }
     useEffect(() => {
         if (userId) {
-            const peer = new Peer(undefined, {
-                path: "/peerjs",
-                host: "/",
-                port: "9000",
-            });
+            const peer = new Peer(undefined, baseURL);
             setPeer(peer);
             return () => peer.disconnect();
         }
