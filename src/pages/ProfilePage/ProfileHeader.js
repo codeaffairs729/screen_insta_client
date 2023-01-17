@@ -88,6 +88,7 @@ const ProfileHeader = ({
             }
           {params && params.username === currentUser.username &&
             <SettingsButton />
+            
             }
          
 
