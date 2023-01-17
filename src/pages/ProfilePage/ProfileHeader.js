@@ -77,15 +77,19 @@ const ProfileHeader = ({
         <div className="profile-buttons">
           <div className="profile-info">
             <p className="profile-username heading-1">{username}</p>
-            <p className="profile-fullname heading-2 font-thin">{fullName}</p>
+            {/* <p className="profile-fullname heading-2 font-thin">{fullName}</p> */}
           </div>
 
           {params && params.username === currentUser.username ?
             <Button inverted onClick={() => history.push('/settings/edit')}>Edit Profile</Button> :
             <FollowButton
               profile={data.user}
-            />}
-          <SettingsButton />
+            />
+            }
+          {params && params.username === currentUser.username &&
+            <SettingsButton />
+            }
+         
 
         </div>
 

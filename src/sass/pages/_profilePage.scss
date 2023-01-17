@@ -113,10 +113,10 @@
 }
 
 .profile-buttons {
+  margin-top: 10px;
   display: flex;
-  align-items: center;
   width: 100%;
-  align-items: baseline;
+  align-items: center;
 
   .profile-info {
     .profile-username {
@@ -137,7 +137,7 @@
   @include respond(tab-port) {
     flex-direction: column;
     width: 100%;
-    align-items: flex-start;
+    align-items: center;
 
     & > .icon {
       display: none;
